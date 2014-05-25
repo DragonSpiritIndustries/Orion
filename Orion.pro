@@ -10,6 +10,9 @@ include(Athena/Athena.pri)
 LIBS += \
     -lSDL2
 
+INCLUDEPATH += \
+    include
+
 SOURCES += \
     main.cpp \
     Object.cpp \
