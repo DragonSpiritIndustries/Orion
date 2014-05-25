@@ -1,0 +1,6 @@
+[submodule "Athena"]
+	path = Athena
+	url = https://github.com/Antidote/Athena.git
+[submodule "nano-signal-slot"]
+	path = nano-signal-slot
+	url = https://github.com/Antidote/nano-signal-slot.git
