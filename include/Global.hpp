@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define orVERSION_STR "0.0.1"
+
+#define orRELEASE_NAME "Dionysus"
+
 // TODO: Fill in
 class Logger
 {

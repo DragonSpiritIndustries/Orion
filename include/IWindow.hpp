@@ -1,7 +1,7 @@
 #ifndef IWINDOW_HPP
 #define IWINDOW_HPP
 
-#include "IEvent.hpp"
+#include "Event.hpp"
 #include <string>
 
 template <class HandleType>

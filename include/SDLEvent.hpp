@@ -7,7 +7,7 @@ class SDLEvent : public IEvent
 public:
     SDLEvent();
 
-    void poll();
+    Type type() const;
 private:
     Type m_type;
 };

@@ -1,18 +1,104 @@
 #include "IApplication.hpp"
-IApplication* IApplication::m_instance = nullptr;
 
+std::shared_ptr<IApplication> IApplication::m_instance = nullptr;
 
-IApplication::IApplication()
+Nano::Signal<void (Event)>& IApplication::eventSignal()
 {
-    m_instance = this;
+    return m_eventSignal;
 }
 
-IApplication& IApplication::instanceByRef()
+Nano::Signal<void (Event)>& IApplication::keyboardSignal()
 {
-    return *m_instance;
+    return m_keyboardSignal;
 }
 
-IApplication* IApplication::instanceByPtr()
+Nano::Signal<void (Event)>& IApplication::mouseButtonSignal()
 {
-    return  m_instance;
+    return m_mouseButtonSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::mouseWheelSignal()
+{
+    return m_mouseWheelSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::mouseMoveSignal()
+{
+    return m_mouseMoveSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::joystickSignal()
+{
+    return m_joystickSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::resizeSignal()
+{
+    return m_resizeSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::focusChangedSignal()
+{
+    return m_focusSignal;
+}
+
+Nano::Signal<void (Event)>& IApplication::textSignal()
+{
+    return m_textSignal;
+}
+
+Nano::Signal<void (float)>& IApplication::updateSignal()
+{
+    return m_updateSignal;
+}
+
+Nano::Signal<void (int)>& IApplication::joystickAddedSignal()
+{
+    return m_joystickAddedSignal;
+}
+
+Nano::Signal<void (int)>& IApplication::joystickRemovedSignal()
+{
+    return m_joystickRemovedSignal;
+}
+
+Nano::Signal<void (IApplication*)>& IApplication::drawSignal()
+{
+    return m_drawSignal;
+}
+
+IApplication& IApplication::instanceRef()
+{
+    return *m_instance.get();
+}
+
+IApplication* IApplication::instancePtr()
+{
+    return  m_instance.get();
+}
+
+IKeyboardManager& IApplication::keyboardManagerRef()
+{
+    return *m_keyboardManager.get();
+}
+
+IKeyboardManager* IApplication::keyboardManagerPtr()
+{
+    return m_keyboardManager.get();
+}
+
+IJoystickManager& IApplication::joystickManagerRef()
+{
+    return *m_joystickManager.get();
+
+}
+
+IJoystickManager* IApplication::joystickManagerPtr()
+{
+    return m_joystickManager.get();
+}
+
+void IApplication::setApplication(IApplication* app)
+{
+    m_instance = std::shared_ptr<IApplication>(app);
 }

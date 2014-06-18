@@ -13,7 +13,7 @@ SDLWindow::~SDLWindow()
 
 bool SDLWindow::initialize()
 {
-    m_window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow("UnnamedOrionApplication", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (m_window == nullptr)
     {

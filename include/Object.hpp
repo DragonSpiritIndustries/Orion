@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 class IComponent;
 class Object
@@ -12,6 +13,7 @@ public:
     typedef std::vector<Object*>::const_iterator   ConstIterator;
     typedef std::vector<Object*>::reverse_iterator ReverseIterator;
     Object(const std::string& name);
+    virtual ~Object() { }
 
     /*!
      * \brief Returns the objects name
@@ -75,6 +77,8 @@ public:
      * \return The child
      */
     Object* takeChild(int index);
+
+    virtual void onDestroyed(){}
 private:
     std::string m_name;
     std::vector<Object*>    m_children;

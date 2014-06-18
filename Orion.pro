@@ -1,9 +1,13 @@
 TEMPLATE = app
-CONFIG += console
+CONFIG -= console
 CONFIG -= app_bundle
 CONFIG -= qt
 
 QMAKE_CXXFLAGS += -std=c++11
+
+#DEFINES += \
+#    ATHENA_NO_ZQUEST \
+#    ATHENA_NO_SAVES
 
 include(Athena/Athena.pri)
 
@@ -14,25 +18,39 @@ INCLUDEPATH += \
     include
 
 SOURCES += \
-    main.cpp \
-    Object.cpp \
-    SDLEvent.cpp \
-    SDLWindow.cpp \
-    SDLRenderer.cpp \
-    SDLApplication.cpp \
-    IApplication.cpp
+    src/main.cpp \
+    src/Object.cpp \
+    src/SDLWindow.cpp \
+    src/SDLRenderer.cpp \
+    src/SDLApplication.cpp \
+    src/IApplication.cpp \
+    src/ObjectManager.cpp \
+    include/TestObject.cpp \
+    SDLKeyboardManager.cpp \
+    src/IKeyboardManager.cpp \
+    src/SDLJoystickManager.cpp
 
 HEADERS += \
-    IApplication.hpp \
-    Global.hpp \
-    Object.hpp \
-    IEvent.hpp \
-    IDriverInfo.hpp \
-    IGraphicsDriverInfo.hpp \
-    SDLEvent.hpp \
-    IWindow.hpp \
-    SDLWindow.hpp \
-    IRenderer.hpp \
-    SDLRenderer.hpp \
-    SDLApplication.hpp
+    include/IApplication.hpp \
+    include/Global.hpp \
+    include/Object.hpp \
+    include/SDLEvent.hpp \
+    include/IWindow.hpp \
+    include/SDLWindow.hpp \
+    include/IRenderer.hpp \
+    include/SDLRenderer.hpp \
+    include/SDLApplication.hpp \
+    include/Color.hpp \
+    include/Event.hpp \
+    include/IComponent.hpp \
+    include/Matrix3x3.hpp \
+    include/Vector3.hpp \
+    include/Vector4.hpp \
+    include/Vector2.hpp \
+    include/ObjectManager.hpp \
+    include/TestObject.hpp \
+    include/IKeyboardManager.hpp \
+    SDLKeyboardManager.hpp \
+    include/IJoystickManager.hpp \
+    include/SDLJoystickManager.hpp
 
