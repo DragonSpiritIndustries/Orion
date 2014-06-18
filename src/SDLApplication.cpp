@@ -24,7 +24,6 @@ int SDLApplication::exec()
         onUpdate();
         onDraw();
         updateFPS();
-        m_window.setTitle(Athena::utility::sprintf("FPS: %f", m_fps));
     }
 
     onExit();

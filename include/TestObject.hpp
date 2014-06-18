@@ -18,8 +18,9 @@ public:
 
     void onDestroyed();
 private:
+    Vector2f m_velocity;
     Vector2f m_position;
-    bool     m_motorState;
+    bool     m_idle;
 };
 
 #endif // TESTOBJECT_HPP

@@ -12,6 +12,9 @@ public:
 
     bool keyPressed(Key key);
     bool keyReleased(Key key);
+    bool controlPressed();
+    bool altPressed();
+    bool shiftPressed();
 
     Key fromScanCode(int scan);
 

@@ -4,6 +4,13 @@
 #include <Event.hpp>
 #include <unordered_map>
 
+enum class KeyModifier : int
+{
+    CONTROL = (1 << 1),
+    SHIFT   = (1 << 2),
+    ALT     = (1 << 3)
+};
+
 enum class Key : int
 {
     A,
@@ -57,7 +64,7 @@ enum class Key : int
     SEMICOLON,
     COMMA,
     PERIOD,
-    QUOTE,
+    APOSTROPHE,
     FORARDSLASH,
     BACKSLASH,
     TILDE,
@@ -73,8 +80,8 @@ enum class Key : int
     HOME,
     INSERT,
     DELETE,
-    ADD,
-    SUBTRACT,
+    PLUS,
+    MINUS,
     MULTIPLY,
     DIVIDE,
     LEFT,
@@ -139,6 +146,9 @@ public:
     virtual void onUpdate(float);
     virtual bool keyPressed(Key)=0;
     virtual bool keyReleased(Key)=0;
+    virtual bool controlPressed()=0;
+    virtual bool altPressed()=0;
+    virtual bool shiftPressed()=0;
     virtual void shutdown()=0;
 protected:
     virtual void translateEvent(Event)=0;

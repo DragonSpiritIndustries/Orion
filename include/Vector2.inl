@@ -39,7 +39,7 @@ T Vector2<T>::crossProduct(Vector2<T> vec)
 }
 
 template <typename T>
-inline Vector2<T>& operator +=(const Vector2<T>& left, const Vector2<T>& right)
+inline Vector2<T>& operator +=(Vector2<T>& left, const Vector2<T>& right)
 {
     left.X += right.X;
     left.Y += right.Y;
@@ -48,7 +48,7 @@ inline Vector2<T>& operator +=(const Vector2<T>& left, const Vector2<T>& right)
 }
 
 template <typename T>
-inline Vector2<T>& operator -=(const Vector2<T>& left, const Vector2<T>& right)
+inline Vector2<T>& operator -=(Vector2<T>& left, const Vector2<T>& right)
 {
     left.X -= right.X;
     left.Y -= right.Y;
@@ -100,7 +100,7 @@ inline Vector2<T>& operator *(T left, const Vector2<T>& right)
 }
 
 template <typename T>
-inline Vector2<T>& operator *=(const Vector2<T>& left, T right)
+inline Vector2<T>& operator *=(Vector2<T>& left, T right)
 {
     left.X *= right;
     left.Y *= right;
@@ -115,7 +115,7 @@ inline Vector2<T>& operator /(const Vector2<T>& left, T right)
 }
 
 template <typename T>
-inline Vector2<T>& operator /=(const Vector2<T>& left, T right)
+inline Vector2<T>& operator /=(Vector2<T>& left, T right)
 {
     left.X /= right;
     left.Y /= right;

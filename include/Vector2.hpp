@@ -22,9 +22,9 @@ typedef Vector2<int>    Vector2i;
 typedef Vector2<double> Vector2d;
 
 template <typename T>
-inline Vector2<T>& operator +=(const Vector2<T>& left, const Vector2<T>& right);
+inline Vector2<T>& operator +=(Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
-inline Vector2<T>& operator -=(const Vector2<T>& left, const Vector2<T>& right);
+inline Vector2<T>& operator -=(Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
 inline bool operator ==(const Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
@@ -40,11 +40,11 @@ inline Vector2<T>& operator *(const Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T>& operator *(T left, const Vector2<T>& right);
 template <typename T>
-inline Vector2<T>& operator *=(const Vector2<T>& left, T right);
+inline Vector2<T>& operator *=(Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T>& operator /(const Vector2<T>& left, T right);
 template <typename T>
-inline Vector2<T>& operator /=(const Vector2<T>& left, T right);
+inline Vector2<T>& operator /=(Vector2<T>& left, T right);
 
 #include "Vector2.inl"
 #endif // VECTOR2_HPP

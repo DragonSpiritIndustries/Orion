@@ -25,8 +25,8 @@ SOURCES += \
     src/SDLApplication.cpp \
     src/IApplication.cpp \
     src/ObjectManager.cpp \
-    include/TestObject.cpp \
-    SDLKeyboardManager.cpp \
+    src/TestObject.cpp \
+    src/SDLKeyboardManager.cpp \
     src/IKeyboardManager.cpp \
     src/SDLJoystickManager.cpp
 
@@ -50,7 +50,7 @@ HEADERS += \
     include/ObjectManager.hpp \
     include/TestObject.hpp \
     include/IKeyboardManager.hpp \
-    SDLKeyboardManager.hpp \
+    include/SDLKeyboardManager.hpp \
     include/IJoystickManager.hpp \
     include/SDLJoystickManager.hpp
 
