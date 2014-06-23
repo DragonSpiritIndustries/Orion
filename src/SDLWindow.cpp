@@ -38,3 +38,21 @@ SDL_Window* SDLWindow::handle() const
 {
     return m_window;
 }
+
+Vector2i SDLWindow::windowSize()
+{
+    int w, h;
+    SDL_GetWindowSize(m_window, &w, &h);
+
+    return Vector2i(w, h);
+}
+
+int SDLWindow::windowWidth()
+{
+    return windowSize().x;
+}
+
+int SDLWindow::windowHeight()
+{
+    return windowSize().y;
+}

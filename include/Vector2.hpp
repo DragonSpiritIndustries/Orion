@@ -8,7 +8,7 @@
 template <typename T>
 struct Vector2
 {
-    T X, Y;
+    T x, y;
 
     Vector2<T>();
     Vector2<T>(const T& x, const T& y);
@@ -36,11 +36,11 @@ inline Vector2<T>& operator -(const Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
 inline Vector2<T>& operator -(const Vector2<T>& right);
 template <typename T>
-inline Vector2<T>& operator *(const Vector2<T>& left, T right);
+inline Vector2<T> operator *(const Vector2<T>& left, T right);
 template <typename T>
-inline Vector2<T>& operator *(T left, const Vector2<T>& right);
+inline Vector2<T> operator *(T left, const Vector2<T>& right);
 template <typename T>
-inline Vector2<T>& operator *=(Vector2<T>& left, T right);
+inline Vector2<T> operator *=(Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T>& operator /(const Vector2<T>& left, T right);
 template <typename T>

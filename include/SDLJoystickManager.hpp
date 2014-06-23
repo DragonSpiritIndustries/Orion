@@ -45,7 +45,7 @@ public:
     void update(float);
 private:
     SDLJoystickDevice* joystick(int which);
-    void onButtonReleased(Event joy);
+    void onButton(Event joy);
     std::vector<SDLJoystickDevice*> m_devices;
     std::unordered_map<int, std::unordered_map<int, bool> > m_releasedButtons;
 };

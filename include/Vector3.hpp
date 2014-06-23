@@ -10,7 +10,7 @@
 template <typename T>
 struct Vector3
 {
-    T X, Y, Z;
+    T x, y, z;
 
     Vector3<T>();
     Vector3<T>(const T& x, const T& y, const T& z);

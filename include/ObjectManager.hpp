@@ -5,6 +5,7 @@
 #include <memory>
 
 class Object;
+class IApplication;
 class ObjectManager
 {
 public:
@@ -21,6 +22,8 @@ public:
     void shutdown();
     static ObjectManager& instanceRef();
     static ObjectManager* instancePtr();
+
+    void draw(IApplication* app);
 private:
     std::vector<Object*> m_objects;
     static std::shared_ptr<ObjectManager> m_instance;

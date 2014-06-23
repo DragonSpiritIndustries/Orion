@@ -5,7 +5,7 @@
 #include "SDLWindow.hpp"
 struct SDL_Renderer;
 
-class SDLRenderer : public IRenderer<SDLWindow>
+class SDLRenderer : public IRenderer<SDL_Renderer, SDLWindow>
 {
 public:
     SDLRenderer();
@@ -16,8 +16,9 @@ public:
     void clear();
     void present();
     void drawRect(int w, int h, int x, int y, bool fill = false);
+    SDL_Renderer* handle();
 private:
-    SDL_Renderer* m_renderer;
+    SDL_Renderer*  m_renderer;
     Colorb         m_clearColor;
 };
 

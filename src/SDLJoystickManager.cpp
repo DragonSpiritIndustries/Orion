@@ -6,7 +6,7 @@ SDLJoystickManager::SDLJoystickManager()
 {
     orApplicationPtr->joystickAddedSignal().connect<SDLJoystickManager, &SDLJoystickManager::onJoystickAdded>(this);
     orApplicationPtr->joystickRemovedSignal().connect<SDLJoystickManager, &SDLJoystickManager::onJoystickRemoved>(this);
-    orApplicationPtr->joystickSignal().connect<SDLJoystickManager, &SDLJoystickManager::onButtonReleased>(this);
+    orApplicationPtr->joystickSignal().connect<SDLJoystickManager, &SDLJoystickManager::onButton>(this);
     orApplicationPtr->updateSignal().connect<SDLJoystickManager, &SDLJoystickManager::update>(this);
 }
 
@@ -160,7 +160,7 @@ void SDLJoystickManager::shutdown()
 {
     orApplicationPtr->joystickAddedSignal().disconnect<SDLJoystickManager, &SDLJoystickManager::onJoystickAdded>(this);
     orApplicationPtr->joystickRemovedSignal().disconnect<SDLJoystickManager, &SDLJoystickManager::onJoystickRemoved>(this);
-    orApplicationPtr->joystickSignal().disconnect<SDLJoystickManager, &SDLJoystickManager::onButtonReleased>(this);
+    orApplicationPtr->joystickSignal().disconnect<SDLJoystickManager, &SDLJoystickManager::onButton>(this);
     orApplicationPtr->updateSignal().disconnect<SDLJoystickManager, &SDLJoystickManager::update>(this);
     for (SDLJoystickDevice* device : m_devices)
     {
@@ -190,7 +190,7 @@ SDLJoystickDevice* SDLJoystickManager::joystick(int which)
     return *iter;
 }
 
-void SDLJoystickManager::onButtonReleased(Event joy)
+void SDLJoystickManager::onButton(Event joy)
 {
     if (joy.type == Event::EV_JOY_BTN_RELEASED)
         m_releasedButtons[joy.eventData.joystickEvent.id][joy.eventData.joystickEvent.button] = true;

@@ -62,11 +62,6 @@ Nano::Signal<void (int)>& IApplication::joystickRemovedSignal()
     return m_joystickRemovedSignal;
 }
 
-Nano::Signal<void (IApplication*)>& IApplication::drawSignal()
-{
-    return m_drawSignal;
-}
-
 IApplication& IApplication::instanceRef()
 {
     return *m_instance.get();
@@ -75,6 +70,16 @@ IApplication& IApplication::instanceRef()
 IApplication* IApplication::instancePtr()
 {
     return  m_instance.get();
+}
+
+ResourceManager&IApplication::resourceManagerRef()
+{
+    return *m_resourceManager.get();
+}
+
+ResourceManager* IApplication::resourceManagerPtr()
+{
+    return m_resourceManager.get();
 }
 
 IKeyboardManager& IApplication::keyboardManagerRef()
@@ -96,6 +101,16 @@ IJoystickManager& IApplication::joystickManagerRef()
 IJoystickManager* IApplication::joystickManagerPtr()
 {
     return m_joystickManager.get();
+}
+
+IMouseManager& IApplication::mouseManagerRef()
+{
+    return *m_mouseManager.get();
+}
+
+IMouseManager* IApplication::mouseManagerPtr()
+{
+    return m_mouseManager.get();
 }
 
 void IApplication::setApplication(IApplication* app)

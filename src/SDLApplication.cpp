@@ -1,6 +1,7 @@
 #include "SDLApplication.hpp"
 #include "SDLKeyboardManager.hpp"
 #include "SDLJoystickManager.hpp"
+#include "SDLMouseManager.hpp"
 #include "ObjectManager.hpp"
 #include "Global.hpp"
 #include <SDL2/SDL.h>
@@ -20,10 +21,10 @@ int SDLApplication::exec()
 {
     while (m_running)
     {
+        updateFPS();
         pollEvents();
         onUpdate();
         onDraw();
-        updateFPS();
     }
 
     onExit();
@@ -32,13 +33,10 @@ int SDLApplication::exec()
 
 bool SDLApplication::init(int argc, char* argv[])
 {
-    memset(m_frameValues, 0, sizeof(m_frameValues));
-    m_frameCount = 0;
-    m_fps = 0.f;
-    m_lastFrame = SDL_GetTicks();
     orDebug("Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
-
     parseCommandLine(argc, argv);
+    m_resourceManager = std::shared_ptr<ResourceManager>(new ResourceManager(argv[0]));
+
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
     {
@@ -46,14 +44,35 @@ bool SDLApplication::init(int argc, char* argv[])
         return false;
     }
 
+    memset(m_frameValues, 0, sizeof(m_frameValues));
+    m_frameCount = 0;
+    m_fps = 0.f;
+    m_lastFrame = SDL_GetTicks();
+
     if (!m_window.initialize())
         return false;
 
     if (!m_renderer.initialize(m_window))
         return false;
 
+    if (TTF_Init() == -1)
+    {
+        orDebug("%s\n", TTF_GetError());
+        return false;
+    }
+
+    // Attempt to load debug font
+    m_debugFont = TTF_OpenFont("DebugFont.ttf", 16);
+
+    if (!m_debugFont)
+    {
+        orDebug("Unable to obtain debug font: %s\n", TTF_GetError());
+        return false;
+    }
+
     m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
     m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
+    m_mouseManager    = std::shared_ptr<IMouseManager>(new SDLMouseManager);
     m_running = true;
     return true;
 }
@@ -85,7 +104,7 @@ void SDLApplication::pollEvents()
         else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)
         {
             oEvent.type = (sdlEvent.type == SDL_KEYDOWN ? Event::EV_KEY_PRESSED
-                                                             : Event::EV_KEY_RELEASED);
+                                                        : Event::EV_KEY_RELEASED);
             oEvent.eventData.keyboardEvent.pressed  = (oEvent.type == Event::EV_KEY_PRESSED);
             oEvent.eventData.keyboardEvent.keyCode  = sdlEvent.key.keysym.sym;
             oEvent.eventData.keyboardEvent.scanCode = sdlEvent.key.keysym.scancode;
@@ -120,7 +139,7 @@ void SDLApplication::pollEvents()
         else if (sdlEvent.type == SDL_JOYBUTTONDOWN || sdlEvent.type == SDL_JOYBUTTONUP)
         {
             oEvent.type = (sdlEvent.type == SDL_JOYBUTTONDOWN ? Event::EV_JOY_BTN_PRESSED
-                                                                 : Event::EV_JOY_BTN_RELEASED);
+                                                              : Event::EV_JOY_BTN_RELEASED);
             oEvent.eventData.joystickEvent.id = sdlEvent.cbutton.which;
             oEvent.eventData.joystickEvent.button = sdlEvent.cbutton.button;
             m_eventSignal(oEvent);
@@ -129,7 +148,7 @@ void SDLApplication::pollEvents()
         else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP)
         {
             oEvent.type = (sdlEvent.type == SDL_MOUSEBUTTONDOWN ? Event::EV_MOUSE_BTN_PRESSED
-                                                             : Event::EV_MOUSE_BTN_RELEASED);
+                                                                : Event::EV_MOUSE_BTN_RELEASED);
             oEvent.eventData.mouseButtonEvent.button = sdlEvent.button.button;
             oEvent.eventData.mouseButtonEvent.x      = sdlEvent.button.x;
             oEvent.eventData.mouseButtonEvent.y      = sdlEvent.button.y;
@@ -162,7 +181,7 @@ void SDLApplication::pollEvents()
             {
                 case SDL_WINDOWEVENT_RESIZED:
                 {
-                    oEvent.type = Event::EV_WINDOW_RESIZE;
+                    oEvent.type = Event::EV_WINDOW_RESIZED;
                     oEvent.eventData.resizeEvent.width = sdlEvent.window.data1;
                     oEvent.eventData.resizeEvent.height = sdlEvent.window.data2;
                     m_eventSignal(oEvent);
@@ -197,7 +216,7 @@ void SDLApplication::updateFPS()
     unsigned ticks = SDL_GetTicks();
 
     m_frameValues[frameIndex] = ticks - m_lastFrame;
-    m_frameTime = (m_frameValues[frameIndex]) / 1000.f;
+    m_frameTime = m_frameValues[frameIndex] / 1000.0f;
     m_lastFrame = ticks;
 
     m_frameCount++;
@@ -223,16 +242,47 @@ void SDLApplication::updateFPS()
 void SDLApplication::onDraw()
 {
     m_renderer.clear();
-    m_drawSignal(this);
+    orObjectManagerRef.draw(this);
+
+    drawDebugText(Athena::utility::sprintf("FPS: %f", m_fps), 16, 0);
     m_renderer.present();
 }
 
 void SDLApplication::onExit()
 {
     orObjectManagerRef.shutdown();
+    m_resourceManager.get()->shutdown();
     m_joystickManager.get()->shutdown();
     m_keyboardManager.get()->shutdown();
     SDL_Quit();
+}
+
+const void* SDLApplication::rendererHandle()
+{
+    return (void*)m_renderer.handle();
+}
+
+void SDLApplication::drawDebugText(const std::string& text, float x, float y)
+{
+    static SDL_Texture* texture;
+    static SDL_Surface* fontSurf;
+    static SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
+
+    fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{255, 255, 255, 255});
+    texture = SDL_CreateTextureFromSurface(m_renderer.handle(), fontSurf);
+
+
+    SDL_FreeSurface(fontSurf);
+    SDL_RenderCopy(m_renderer.handle(), texture, NULL, &rect);
+    SDL_DestroyTexture(texture);
+}
+
+void SDLApplication::drawDebugText(const std::string& text, const Vector2f& position)
+{
+    drawDebugText(text, position.x, position.y);
 }
 
 void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill)
@@ -243,6 +293,21 @@ void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill)
 void SDLApplication::setTitle(const std::string& title)
 {
     m_window.setTitle(title);
+}
+
+Vector2i SDLApplication::windowSize()
+{
+    return m_window.windowSize();
+}
+
+int SDLApplication::windowWidth()
+{
+    return m_window.windowWidth();
+}
+
+int SDLApplication::windowHeight()
+{
+    return m_window.windowHeight();
 }
 
 void SDLApplication::setClearColor(const Colorb& color)

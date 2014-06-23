@@ -143,6 +143,7 @@ struct hash< ::Key >
 class IKeyboardManager
 {
 public:
+    IKeyboardManager();
     virtual void onUpdate(float);
     virtual bool keyPressed(Key)=0;
     virtual bool keyReleased(Key)=0;

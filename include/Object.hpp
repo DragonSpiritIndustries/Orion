@@ -5,7 +5,9 @@
 #include <vector>
 #include <iostream>
 
+
 class IComponent;
+class IApplication;
 class Object
 {
 public:
@@ -79,6 +81,8 @@ public:
     Object* takeChild(int index);
 
     virtual void onDestroyed(){}
+
+    virtual void draw(IApplication*){}
 private:
     std::string m_name;
     std::vector<Object*>    m_children;

@@ -2,7 +2,7 @@
 #define IRENDERER_HPP
 
 #include "Color.hpp"
-template <class Window>
+template <class HandleType, class Window>
 class IRenderer
 {
 public:
@@ -11,6 +11,7 @@ public:
     virtual void clear()=0;
     virtual void present()=0;
     virtual void drawRect(int, int, int, int, bool=false)=0;
+    virtual HandleType* handle()=0;
 };
 
 #endif // IRENDERER_HPP

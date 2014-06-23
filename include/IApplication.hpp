@@ -8,6 +8,8 @@
 #include "Event.hpp"
 #include "IKeyboardManager.hpp"
 #include "IJoystickManager.hpp"
+#include "IMouseManager.hpp"
+#include "ResourceManager.hpp"
 #include "Color.hpp"
 #include "nano-signal-slot/nano_signal_slot.hpp"
 
@@ -24,6 +26,12 @@ public:
     virtual void setTitle(const std::string& title)=0;
     virtual void close()=0;
 
+    virtual const void* rendererHandle()=0;
+    virtual void drawDebugText(const std::string&, float, float)=0;
+    virtual void drawDebugText(const std::string&, const Vector2f&)=0;
+    virtual Vector2i windowSize()=0;
+    virtual int windowWidth()=0;
+    virtual int windowHeight()=0;
     virtual void setClearColor(const Colorb& color = Colorb::black)=0;
     virtual void drawRectangle(int w, int h, int x, int y, bool fill = false)=0;
     virtual Nano::Signal<void(Event)>&         eventSignal();
@@ -38,13 +46,16 @@ public:
     virtual Nano::Signal<void(float)>&         updateSignal();
     virtual Nano::Signal<void(int)>&           joystickAddedSignal();
     virtual Nano::Signal<void(int)>&           joystickRemovedSignal();
-    virtual Nano::Signal<void(IApplication*)>& drawSignal();
     static IApplication& instanceRef();
     static IApplication* instancePtr();
+    ResourceManager&  resourceManagerRef();
+    ResourceManager*  resourceManagerPtr();
     IKeyboardManager& keyboardManagerRef();
     IKeyboardManager* keyboardManagerPtr();
     IJoystickManager& joystickManagerRef();
     IJoystickManager* joystickManagerPtr();
+    IMouseManager&    mouseManagerRef();
+    IMouseManager*    mouseManagerPtr();
     static void setApplication(IApplication* app);
     virtual float fps() const =0;
 protected:
@@ -53,6 +64,8 @@ protected:
     virtual void parseCommandLine(int argc, char* argv[]){UNUSED(argc),UNUSED(argv);}
     std::shared_ptr<IKeyboardManager> m_keyboardManager;
     std::shared_ptr<IJoystickManager> m_joystickManager;
+    std::shared_ptr<IMouseManager>    m_mouseManager;
+    std::shared_ptr<ResourceManager>  m_resourceManager;
     Nano::Signal<void(Event)>         m_eventSignal;
     Nano::Signal<void(Event)>         m_keyboardSignal;
     Nano::Signal<void(Event)>         m_textSignal;
@@ -65,7 +78,6 @@ protected:
     Nano::Signal<void(float)>         m_updateSignal;
     Nano::Signal<void(int)>           m_joystickAddedSignal;
     Nano::Signal<void(int)>           m_joystickRemovedSignal;
-    Nano::Signal<void(IApplication*)> m_drawSignal;
     static std::shared_ptr<IApplication> m_instance;
 };
 
@@ -77,8 +89,13 @@ static inline void orCreateApplication(IApplication* ptr)
 #define orApplicationRef IApplication::instanceRef()
 #define orApplicationPtr IApplication::instancePtr()
 
+#define orResourceManagerRef orApplicationPtr->resourceManagerRef()
+#define orResourceManagerPtr orApplicationPtr->resourceManagerPtr()
+
 #define orKeyboardManagerRef orApplicationPtr->keyboardManagerRef()
 #define orKeyboardManagerPtr orApplicationPtr->keyboardManagerPtr()
 #define orJoystickManagerRef orApplicationPtr->joystickManagerRef()
 #define orJoystickManagerPtr orApplicationPtr->joystickManagerPtr()
+#define orMouseManagerRef orApplicationPtr->mouseManagerRef()
+#define orMouseManagerPtr orApplicationPtr->mouseManagerPtr()
 #endif // IAPPLICATION_HPP

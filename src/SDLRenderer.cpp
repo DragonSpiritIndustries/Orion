@@ -21,9 +21,8 @@ void SDLRenderer::clear()
     // clear to our color
     SDL_SetRenderDrawColor(m_renderer, m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
     SDL_RenderClear(m_renderer);
-    static Colorb test = Colorb::white/(char)20;
-    // Set back to white
-    SDL_SetRenderDrawColor(m_renderer, test.r, test.g, test.b, test.a);
+    // Set back to black
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 }
 
 void SDLRenderer::present()
@@ -45,13 +44,18 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill)
         SDL_RenderDrawRect(m_renderer, &rect);
 }
 
+SDL_Renderer* SDLRenderer::handle()
+{
+    return m_renderer;
+}
+
 bool SDLRenderer::initialize(SDLWindow& window)
 {
-    m_renderer = SDL_CreateRenderer(window.handle(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    m_renderer = SDL_CreateRenderer(window.handle(), -1, SDL_RENDERER_ACCELERATED /*| SDL_RENDERER_PRESENTVSYNC*/);
 
     if (m_renderer == nullptr)
     {
-        orDebug(SDL_GetError());
+        orDebug("%s\n", SDL_GetError());
         return false;
     }
 

@@ -66,7 +66,7 @@ public:
         EV_MOUSE_BTN_RELEASED,
         EV_MOUSE_MOVED,
         EV_MOUSE_WHEEL,
-        EV_WINDOW_RESIZE,
+        EV_WINDOW_RESIZED,
         EV_JOY_BTN_PRESSED,
         EV_JOY_BTN_RELEASED,
         EV_JOY_AXIS,

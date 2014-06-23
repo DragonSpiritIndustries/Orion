@@ -1,6 +1,7 @@
 #include "ObjectManager.hpp"
 #include "Object.hpp"
 #include <IApplication.hpp>
+#include <Athena/Utility.hpp>
 #include <algorithm>
 #include <iostream>
 
@@ -16,7 +17,9 @@ void ObjectManager::addObject(Object* obj)
     if (std::find(m_objects.begin(), m_objects.end(), obj) != m_objects.end())
         return;
 
+    orDebug("old %i", m_objects.size());
     m_objects.push_back(obj);
+    orDebug(" new %i\n", m_objects.size());
 }
 
 void ObjectManager::removeObject(Object* obj)
@@ -41,20 +44,20 @@ void ObjectManager::removeObject(const std::string& name)
 
 void ObjectManager::shutdown()
 {
-    std::cout << "Killing objects" << std::endl;
-    for (Object* o : m_objects)
+    orDebug("Killing %i objects\n", m_objects.size());
+
+    orForeach (Object* o _in_ m_objects)
     {
         o->onDestroyed();
         delete o;
     }
-    std::cout << "done" << std::endl;
 }
 
 ObjectManager& ObjectManager::instanceRef()
 {
     if (!orApplicationPtr)
     {
-        std::cout << "Engine not initialized" << std::endl;
+        orDebug("Engine not initialized\n");
         exit(1);
     }
 
@@ -68,7 +71,7 @@ ObjectManager* ObjectManager::instancePtr()
 {
     if (!orApplicationPtr)
     {
-        std::cout << "Engine not initialized" << std::endl;
+        orDebug("Engine not initialized\n");
         exit(1);
     }
 
@@ -76,4 +79,14 @@ ObjectManager* ObjectManager::instancePtr()
         m_instance = std::shared_ptr<ObjectManager>(new ObjectManager);
 
     return m_instance.get();
+}
+
+void ObjectManager::draw(IApplication* app)
+{
+    orForeach(Object* o _in_ m_objects)
+    {
+        o->draw(app);
+    }
+
+    orApplicationRef.drawDebugText(Athena::utility::sprintf("Object count %i", m_objects.size()), 16, 16);
 }

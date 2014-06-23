@@ -5,6 +5,7 @@
 #include "SDLWindow.hpp"
 #include "SDLRenderer.hpp"
 #include <SDL2/SDL_joystick.h>
+#include <SDL2/SDL_ttf.h>
 
 class SDLApplication : public IApplication
 {
@@ -18,13 +19,21 @@ public:
     void onUpdate();
     void onDraw();
     void onExit();
+    const void* rendererHandle();
+    void drawDebugText(const std::string& text, float x, float y);
+    void drawDebugText(const std::string& text, const Vector2f& position);
     void drawRectangle(int w, int h, int x, int y, bool fill = false);
     void setTitle(const std::string &title);
+
+    Vector2i windowSize();
+    int windowWidth();
+    int windowHeight();
     virtual void setClearColor(const Colorb& color = Colorb::black);
     float fps() const;
 protected:
     void pollEvents();
 private:
+    TTF_Font*    m_debugFont;
     void updateFPS();
     enum {MaxFrameValues=32};
     bool          m_running;

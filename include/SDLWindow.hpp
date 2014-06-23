@@ -18,6 +18,10 @@ public:
     std::string title() const;
 
     SDL_Window* handle() const;
+
+    Vector2i windowSize();
+    int windowWidth();
+    int windowHeight();
 private:
     SDL_Window* m_window;
 };
