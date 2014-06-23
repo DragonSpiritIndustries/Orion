@@ -5,18 +5,18 @@
 #include "SDLWindow.hpp"
 struct SDL_Renderer;
 
-class SDLRenderer : public IRenderer<SDL_Renderer, SDLWindow>
+class SDLRenderer : public IRenderer
 {
 public:
     SDLRenderer();
     ~SDLRenderer();
 
     void setClearColor(const Colorb& color = Colorb::black);
-    bool initialize(SDLWindow& window);
+    bool initialize(IWindow& window);
     void clear();
     void present();
     void drawRect(int w, int h, int x, int y, bool fill = false);
-    SDL_Renderer* handle();
+    void* handle();
 private:
     SDL_Renderer*  m_renderer;
     Colorb         m_clearColor;

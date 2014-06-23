@@ -6,7 +6,7 @@
 #include <IWindow.hpp>
 
 struct SDL_Window;
-class SDLWindow : public IWindow<SDL_Window>
+class SDLWindow : public IWindow
 {
 public:
     SDLWindow();
@@ -17,7 +17,7 @@ public:
     void setTitle(const std::string& title);
     std::string title() const;
 
-    SDL_Window* handle() const;
+    void* handle() const;
 
     Vector2i windowSize();
     int windowWidth();

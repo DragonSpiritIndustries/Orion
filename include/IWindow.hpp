@@ -11,8 +11,6 @@
 //! core window functionality.
 //! your IApplication implementation is required to expose
 //! setTitle, title, windowSize, and window* functions anyway
-
-template <class HandleType>
 class IWindow
 {
 public:
@@ -21,7 +19,7 @@ public:
     virtual std::string title() const=0;
 
 
-    virtual HandleType* handle() const=0;
+    virtual void* handle() const=0;
 
     virtual Vector2i windowSize()=0;
     virtual int windowWidth()=0;

@@ -272,11 +272,11 @@ void SDLApplication::drawDebugText(const std::string& text, float x, float y)
     TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
 
     fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{255, 255, 255, 255});
-    texture = SDL_CreateTextureFromSurface(m_renderer.handle(), fontSurf);
+    texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(m_renderer.handle()), fontSurf);
 
 
     SDL_FreeSurface(fontSurf);
-    SDL_RenderCopy(m_renderer.handle(), texture, NULL, &rect);
+    SDL_RenderCopy((SDL_Renderer*)m_renderer.handle(), texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
 

@@ -34,9 +34,9 @@ std::string SDLWindow::title() const
     return std::string(SDL_GetWindowTitle(m_window));
 }
 
-SDL_Window* SDLWindow::handle() const
+void* SDLWindow::handle() const
 {
-    return m_window;
+    return (void*)m_window;
 }
 
 Vector2i SDLWindow::windowSize()

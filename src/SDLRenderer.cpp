@@ -1,4 +1,5 @@
 #include "SDLRenderer.hpp"
+#include "SDLWindow.hpp"
 #include <SDL2/SDL_render.h>
 
 SDLRenderer::SDLRenderer()
@@ -44,14 +45,14 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill)
         SDL_RenderDrawRect(m_renderer, &rect);
 }
 
-SDL_Renderer* SDLRenderer::handle()
+void* SDLRenderer::handle()
 {
-    return m_renderer;
+    return (void*)m_renderer;
 }
 
-bool SDLRenderer::initialize(SDLWindow& window)
+bool SDLRenderer::initialize(IWindow& window)
 {
-    m_renderer = SDL_CreateRenderer(window.handle(), -1, SDL_RENDERER_ACCELERATED /*| SDL_RENDERER_PRESENTVSYNC*/);
+    m_renderer = SDL_CreateRenderer(reinterpret_cast<SDL_Window*>(window.handle()), -1, SDL_RENDERER_ACCELERATED /*| SDL_RENDERER_PRESENTVSYNC*/);
 
     if (m_renderer == nullptr)
     {
