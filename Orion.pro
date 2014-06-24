@@ -36,9 +36,9 @@ SOURCES += \
     src/SDLMouseManager.cpp \
     include/TileObj.cpp \
     src/IMouseManager.cpp \
-    src/ResourceManager.cpp \
     SDLTexture.cpp \
-    src/physfsrwops.c
+    src/physfsrwops.c \
+    src/ResourceManager.cpp
 
 HEADERS += \
     include/IApplication.hpp \

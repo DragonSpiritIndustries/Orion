@@ -26,12 +26,46 @@ void SDLTextureResource::draw(IApplication* app, int x, int y)
     rect.w = m_size.x;
     rect.h = m_size.y;
 
-    SDL_RenderCopy((SDL_Renderer*)app->rendererHandle(), m_texture, NULL, &rect);
+    SDL_RenderCopy(reinterpret_cast<SDL_Renderer*>(app->rendererHandle()), m_texture, NULL, &rect);
 }
 
-void SDLTextureResource::drawPart(IApplication* app, int x, int y, Rectanglef rectangle)
+void SDLTextureResource::draw(IApplication* app, Vector2f position)
 {
+    draw(app, position.x, position.y);
+}
 
+void SDLTextureResource::draw(IApplication* app, int x, int y, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+{
+    static SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    rect.w = subrect.w;
+    rect.h = subrect.h;
+
+    static SDL_Rect partrect;
+    partrect.x = subrect.x;
+    partrect.y = subrect.y;
+    partrect.w = subrect.w;
+    partrect.h = subrect.h;
+
+    static SDL_Point point;
+    point.x = origin.x;
+    point.y = origin.y;
+
+
+    int flip = SDL_FLIP_NONE;
+    if (flipH)
+        flip |= SDL_FLIP_HORIZONTAL;
+    if (flipV)
+        flip |= SDL_FLIP_VERTICAL;
+
+    SDL_RenderCopyEx(reinterpret_cast<SDL_Renderer*>(app->rendererHandle()), m_texture, &partrect, &rect, angle, &point, (SDL_RendererFlip)flip);
+
+}
+
+void SDLTextureResource::draw(IApplication* app, Vector2f position, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+{
+    draw(app, position.x, position.y, subrect, origin, flipH, flipV, angle);
 }
 
 Vector2i SDLTextureResource::size() const
@@ -65,4 +99,4 @@ IResource* SDLTextureResource::loadTexture(const std::string& path)
 }
 
 
-REGISTER_RESOURCE(SDLTextureResource, "TextureResource", loadTexture);
+REGISTER_RESOURCE(SDLTextureResource, loadTexture);

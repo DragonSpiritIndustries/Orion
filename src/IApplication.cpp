@@ -72,16 +72,6 @@ IApplication* IApplication::instancePtr()
     return  m_instance.get();
 }
 
-ResourceManager&IApplication::resourceManagerRef()
-{
-    return *m_resourceManager.get();
-}
-
-ResourceManager* IApplication::resourceManagerPtr()
-{
-    return m_resourceManager.get();
-}
-
 IKeyboardManager& IApplication::keyboardManagerRef()
 {
     return *m_keyboardManager.get();

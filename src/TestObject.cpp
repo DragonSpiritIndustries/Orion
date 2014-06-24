@@ -10,8 +10,7 @@ TestObject::TestObject()
 {
     orApplicationRef.eventSignal().connect<TestObject, &TestObject::onEvent>(this);
     orApplicationRef.updateSignal().connect<TestObject, &TestObject::update>(this);
-    IResource* res = orResourceManagerRef.loadResource("test/test.png", "TextureResource");
-    m_texture = dynamic_cast<ITextureResource*>(res);
+    m_texture = orResourceManagerRef.loadResource<ITextureResource>("test/test.png");
 }
 
 TestObject::~TestObject()
@@ -156,9 +155,9 @@ void TestObject::update(float delta)
 
 void TestObject::draw(IApplication* app)
 {
-    if (m_texture)
-        m_texture->draw(app, m_position.x, m_position.y);
     app->drawRectangle(32, 32, m_position.x, m_position.y, true);
+    if (m_texture)
+        m_texture->draw(app, m_position.x, m_position.y, Rectanglef(16, 16, 32, 32), Vector2f(0, 0), true, false, 0.0f);
 }
 
 void TestObject::onEvent(Event e)

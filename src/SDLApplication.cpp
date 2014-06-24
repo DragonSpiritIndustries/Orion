@@ -35,8 +35,7 @@ bool SDLApplication::init(int argc, char* argv[])
 {
     orDebug("Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
     parseCommandLine(argc, argv);
-    m_resourceManager = std::shared_ptr<ResourceManager>(new ResourceManager(argv[0]));
-
+    orResourceManagerRef.initialize(argv[0]);
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
     {
@@ -232,7 +231,7 @@ void SDLApplication::updateFPS()
         count = 1;
 
     m_fps = 0;
-    for (int i = 0; i < count; i++)
+    for (Uint32 i = 0; i < count; i++)
         m_fps += m_frameValues[i];
 
     m_fps /= count;
@@ -251,13 +250,13 @@ void SDLApplication::onDraw()
 void SDLApplication::onExit()
 {
     orObjectManagerRef.shutdown();
-    m_resourceManager.get()->shutdown();
+    orResourceManagerRef.shutdown();
     m_joystickManager.get()->shutdown();
     m_keyboardManager.get()->shutdown();
     SDL_Quit();
 }
 
-const void* SDLApplication::rendererHandle()
+void* SDLApplication::rendererHandle()
 {
     return (void*)m_renderer.handle();
 }

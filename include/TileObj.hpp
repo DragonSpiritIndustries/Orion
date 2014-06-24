@@ -3,6 +3,7 @@
 
 #include "Object.hpp"
 #include "Vector2.hpp"
+class ITextureResource;
 class TileObj : public Object
 {
 public:
@@ -13,6 +14,7 @@ public:
     void draw(IApplication * app);
 private:
     Vector2f m_position;
+    ITextureResource* m_texture;
 };
 
 #endif // TILEOBJ_HPP

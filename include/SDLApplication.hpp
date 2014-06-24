@@ -19,7 +19,7 @@ public:
     void onUpdate();
     void onDraw();
     void onExit();
-    const void* rendererHandle();
+    void* rendererHandle();
     void drawDebugText(const std::string& text, float x, float y);
     void drawDebugText(const std::string& text, const Vector2f& position);
     void drawRectangle(int w, int h, int x, int y, bool fill = false);

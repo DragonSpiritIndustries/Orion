@@ -1,10 +1,24 @@
 #include "Object.hpp"
+#include "ObjectManager.hpp"
+#include "Global.hpp"
 #include <algorithm>
 
 
 Object::Object(const std::string& name)
     : m_name(name)
 {
+}
+
+Object::~Object()
+{
+    // remove ourselves from the manager
+    orObjectManagerRef.takeObject(name());
+
+    orForeach(Object* o : m_children)
+    {
+        orObjectManagerRef.removeObject(o);
+    }
+    m_children.clear();
 }
 
 std::string Object::name() const

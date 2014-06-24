@@ -3,56 +3,60 @@
 
 #include <unordered_map>
 #include <Global.hpp>
-
-class IResource;
+#include <IResource.hpp>
+#include <memory>
 
 typedef IResource* (*ResourceLoader)(const std::string&);
 
 class ResourceManager
 {
 public:
-    ResourceManager(const std::string& executablePath,
+    ResourceManager();
+    void initialize(const std::string& executablePath,
                     const std::string& organizationName= std::string(orDEFAULT_ORGANIZATION_NAME),
                     const std::string& applicationName = std::string(orDEFAULT_APPLICATION_NAME),
                     const std::string& archiveExt      = std::string(orDEFAULT_ARCHIVE_EXTENSION));
 
     void shutdown();
     // Either stored in the data directory, or stored within a pack;
-    IResource* loadResource(const std::string& resourceName, const std::string& resourceType = std::string());
+    template <class T>
+    T* loadResource(const std::string& resourceName);
 
-    static void registerResource(const std::string& resourceType, ResourceLoader loader);
+    void registerResource(ResourceLoader loader);
+
+    static ResourceManager& instanceRef();
+    static ResourceManager* instancePtr();
 private:
     std::unordered_map<std::string, IResource*> m_resources;
-    static std::unordered_map<std::string, ResourceLoader> m_resourceLoaders;
+    std::vector<ResourceLoader> m_resourceLoaders;
     std::string m_executablePath;
     std::string m_organizationName;
     std::string m_applicationName;
     std::string m_archiveExt;
 };
 
-
 struct ResourceRegistrator
 {
-    ResourceRegistrator(const std::string& resourceType, ResourceLoader loader)
+    ResourceRegistrator(ResourceLoader loader)
     {
-        ResourceManager::registerResource(resourceType, loader);
+        ResourceManager::instanceRef().registerResource(loader);
     }
 };
 
 
 #ifndef DEFINE_RESOURCE
 #define DEFINE_RESOURCE() \
-    static const std::string m_resourceType; \
-    static const ResourceRegistrator __DO_NOT_USE_p_resourceRegistrator; \
-    public: \
-        const std::string resourceType() { return m_resourceType; } \
-    private:
+    static const ResourceRegistrator __DO_NOT_USE_p_resourceRegistrator
 #endif
 
 #ifndef REGISTER_RESOURCE
-#define REGISTER_RESOURCE(Class, ResourceType, Loader) \
-    const std::string Class::m_resourceType = ResourceType; \
-    const ResourceRegistrator Class::__DO_NOT_USE_p_resourceRegistrator = ResourceRegistrator(Class::m_resourceType, Class::Loader)
+#define REGISTER_RESOURCE(Class, Loader) \
+    const ResourceRegistrator Class::__DO_NOT_USE_p_resourceRegistrator = ResourceRegistrator(Class::Loader)
 #endif
 
+
+#define orResourceManagerRef ResourceManager::instanceRef()
+#define orResourceManagerPtr ResourceManager::instancePtr()
+
+#include "ResourceManager.inl"
 #endif // RESOURCEMANAGER_HPP

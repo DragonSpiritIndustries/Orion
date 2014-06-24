@@ -27,6 +27,7 @@ public:
 private:
     std::vector<Object*> m_objects;
     static std::shared_ptr<ObjectManager> m_instance;
+    static int objectId;
 };
 
 #define orObjectManagerRef ObjectManager::instanceRef()

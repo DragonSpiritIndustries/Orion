@@ -14,7 +14,6 @@ public:
 
     virtual ~IResource() {}
     std::string path() const { return m_path; }
-    virtual const std::string resourceType() =0;
 protected:
     std::string m_path;
 };

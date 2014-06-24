@@ -15,7 +15,7 @@ public:
     typedef std::vector<Object*>::const_iterator   ConstIterator;
     typedef std::vector<Object*>::reverse_iterator ReverseIterator;
     Object(const std::string& name);
-    virtual ~Object() { }
+    virtual ~Object();
 
     /*!
      * \brief Returns the objects name
@@ -83,10 +83,14 @@ public:
     virtual void onDestroyed(){}
 
     virtual void draw(IApplication*){}
+
+    int id() const { return m_id; }
+    void setId(int id) { m_id = id; }
 private:
     std::string m_name;
     std::vector<Object*>    m_children;
     std::vector<IComponent*> m_components;
+    int m_id;
 };
 
 #endif // OBJECT_HPP

@@ -1,24 +1,26 @@
 #include "ResourceManager.hpp"
-#include "IResource.hpp"
 #include <physfs.h>
 #include <algorithm>
 
-std::unordered_map<std::string, ResourceLoader> ResourceManager::m_resourceLoaders;
+ResourceManager::ResourceManager()
+{
+}
 
-ResourceManager::ResourceManager(const std::string& executablePath,
+void ResourceManager::initialize(const std::string& executablePath,
                                  const std::string& organizationName,
                                  const std::string& applicationName,
                                  const std::string& archiveExt)
-    : m_executablePath(executablePath),
-      m_organizationName(organizationName),
-      m_applicationName(applicationName),
-      m_archiveExt(archiveExt)
 {
+    m_executablePath = executablePath;
+    m_organizationName = organizationName;
+    m_applicationName = applicationName;
+    m_archiveExt = archiveExt;
+
     orDebug("Initializing resource manager:\n");
-    orDebug("arg0 value       = %s\n", executablePath.c_str());
-    orDebug("Organization     = %s\n", organizationName.c_str());
-    orDebug("Application      = %s\n", applicationName.c_str());
-    orDebug("ArchiveExtension = %s\n", archiveExt.c_str());
+    orDebug("arg0 value       = %s\n", m_executablePath.c_str());
+    orDebug("Organization     = %s\n", m_organizationName.c_str());
+    orDebug("Application      = %s\n", m_applicationName.c_str());
+    orDebug("ArchiveExtension = %s\n", m_archiveExt.c_str());
     if (!PHYSFS_init(m_executablePath.c_str()))
     {
         orDebug("Failed to initialize PHYSFS: %s\n", PHYSFS_getLastError());
@@ -64,36 +66,21 @@ void ResourceManager::shutdown()
     PHYSFS_deinit();
 }
 
-IResource* ResourceManager::loadResource(const std::string& resourceName, const std::string& resourceType)
+void ResourceManager::registerResource(ResourceLoader loader)
 {
-    if (m_resources.find(resourceName) != m_resources.end())
-    {
-        orDebug("Using cached resource %s of type %s\n", resourceName.c_str(), m_resources[resourceName]->resourceType().c_str());
-        return m_resources[resourceName];
-    }
-
-    orForeach (std::pair<std::string, ResourceLoader> loader _in_ m_resourceLoaders)
-    {
-        if (resourceType != std::string() && loader.first.compare(resourceType))
-            continue;
-
-        IResource* res = loader.second(resourceName);
-        if (res)
-        {
-            m_resources[resourceName] = res;
-            return res;
-        }
-    }
-
-    orDebug("Unable to find resource with name %s\n", resourceName.c_str());
-    return nullptr;
-}
-
-void ResourceManager::registerResource(const std::string& resourceType, ResourceLoader loader)
-{
-    if (m_resourceLoaders.find(resourceType) != m_resourceLoaders.end())
+    if (std::find(m_resourceLoaders.begin(), m_resourceLoaders.end(), loader)  != m_resourceLoaders.end())
         return;
 
-    m_resourceLoaders[resourceType] = loader;
-    orDebug("Registered loader for \"%s\"\n", resourceType.c_str());
+    m_resourceLoaders.push_back(loader);
+}
+
+ResourceManager& ResourceManager::instanceRef()
+{
+    return *ResourceManager::instancePtr();
+}
+
+ResourceManager* ResourceManager::instancePtr()
+{
+    static std::shared_ptr<ResourceManager> instance = std::shared_ptr<ResourceManager>(new ResourceManager);
+    return instance.get();
 }

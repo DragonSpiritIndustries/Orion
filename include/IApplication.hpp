@@ -26,7 +26,7 @@ public:
     virtual void setTitle(const std::string& title)=0;
     virtual void close()=0;
 
-    virtual const void* rendererHandle()=0;
+    virtual void* rendererHandle()=0;
     virtual void drawDebugText(const std::string&, float, float)=0;
     virtual void drawDebugText(const std::string&, const Vector2f&)=0;
     virtual Vector2i windowSize()=0;
@@ -48,8 +48,6 @@ public:
     virtual Nano::Signal<void(int)>&           joystickRemovedSignal();
     static IApplication& instanceRef();
     static IApplication* instancePtr();
-    ResourceManager&  resourceManagerRef();
-    ResourceManager*  resourceManagerPtr();
     IKeyboardManager& keyboardManagerRef();
     IKeyboardManager* keyboardManagerPtr();
     IJoystickManager& joystickManagerRef();
@@ -65,7 +63,6 @@ protected:
     std::shared_ptr<IKeyboardManager> m_keyboardManager;
     std::shared_ptr<IJoystickManager> m_joystickManager;
     std::shared_ptr<IMouseManager>    m_mouseManager;
-    std::shared_ptr<ResourceManager>  m_resourceManager;
     Nano::Signal<void(Event)>         m_eventSignal;
     Nano::Signal<void(Event)>         m_keyboardSignal;
     Nano::Signal<void(Event)>         m_textSignal;
@@ -88,9 +85,6 @@ static inline void orCreateApplication(IApplication* ptr)
 
 #define orApplicationRef IApplication::instanceRef()
 #define orApplicationPtr IApplication::instancePtr()
-
-#define orResourceManagerRef orApplicationPtr->resourceManagerRef()
-#define orResourceManagerPtr orApplicationPtr->resourceManagerPtr()
 
 #define orKeyboardManagerRef orApplicationPtr->keyboardManagerRef()
 #define orKeyboardManagerPtr orApplicationPtr->keyboardManagerPtr()

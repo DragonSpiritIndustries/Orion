@@ -1,10 +1,11 @@
 #include "TileObj.hpp"
 #include "IApplication.hpp"
+#include "ITextureResource.hpp"
 
 TileObj::TileObj()
     : Object("testTile")
 {
-    orResourceManagerRef.loadResource("test/test.png", "TextureResource");
+    m_texture = orResourceManagerRef.loadResource<ITextureResource>("test/test.png");
 }
 
 void TileObj::setPosition(float x, float y)
@@ -20,4 +21,6 @@ void TileObj::setPosition(Vector2f position)
 void TileObj::draw(IApplication* app)
 {
     app->drawRectangle(32, 32, m_position.x, m_position.y, true);
+    if (m_texture)
+        m_texture->draw(app, m_position.x, m_position.y, Rectanglef(16, 16, 32, 32), Vector2f(16, 16), true, false, 45.0f);
 }

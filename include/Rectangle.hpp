@@ -8,6 +8,7 @@
 template <typename T>
 class Rectangle
 {
+public:
     T x, y, w, h;
 
     Rectangle<T>();
