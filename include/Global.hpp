@@ -8,13 +8,6 @@
 
 #define orRELEASE_NAME "Dionysus"
 
-// TODO: Fill in
-class Logger
-{
-public:
-};
-
-
 #ifndef orDEFAULT_ORGANIZATION_NAME
 #define orDEFAULT_ORGANIZATION_NAME "org.orion.default"
 #endif

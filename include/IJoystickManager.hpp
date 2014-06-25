@@ -2,11 +2,14 @@
 #define IJOYSTICKMANAGER_HPP
 
 #include <string>
+#include <unordered_map>
 
 class IJoystickManager
 {
 public:
+    IJoystickManager();
     virtual ~IJoystickManager() {}
+    virtual void onUpdate(float);
     virtual void onJoystickAdded(int which)=0;
     virtual void onJoystickRemoved(int which)=0;
     virtual float axisPosition(int which, int axis)   =0;
@@ -18,6 +21,8 @@ public:
     virtual void shutdown()=0;
     virtual void motorOn(int which)=0;
     virtual void motorOff(int which)=0;
+protected:
+    std::unordered_map<int, std::unordered_map<int, bool> > m_releasedButtons;
 };
 
 #endif // IJOYSTICKMANAGER_HPP

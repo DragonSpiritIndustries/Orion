@@ -52,7 +52,7 @@ void* SDLRenderer::handle()
 
 bool SDLRenderer::initialize(IWindow& window)
 {
-    m_renderer = SDL_CreateRenderer(reinterpret_cast<SDL_Window*>(window.handle()), -1, SDL_RENDERER_ACCELERATED /*| SDL_RENDERER_PRESENTVSYNC*/);
+    m_renderer = SDL_CreateRenderer(reinterpret_cast<SDL_Window*>(window.handle()), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     if (m_renderer == nullptr)
     {

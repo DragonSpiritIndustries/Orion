@@ -2,11 +2,16 @@
 #include "SDLKeyboardManager.hpp"
 #include "SDLJoystickManager.hpp"
 #include "SDLMouseManager.hpp"
+#include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
+#include "Console.hpp"
 #include "Global.hpp"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <Athena/Utility.hpp>
+#include "angelscript/addons.h"
+#include "TestObject.hpp"
+
 
 SDLApplication::SDLApplication()
     : m_running(false)
@@ -22,24 +27,25 @@ int SDLApplication::exec()
     while (m_running)
     {
         updateFPS();
-        pollEvents();
         onUpdate();
+        pollEvents();
         onDraw();
     }
-
     onExit();
     return 0;
 }
 
 bool SDLApplication::init(int argc, char* argv[])
 {
+    if (!ApplicationBase::init(argc, argv))
+        return false;
+
     orDebug("Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
     parseCommandLine(argc, argv);
-    orResourceManagerRef.initialize(argv[0]);
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
     {
-        orDebug("SDL Failed to initalize: %s(%i)\n", SDL_GetError(), code);
+        orConsoleRef.print(orConsoleRef.Fatal, "SDL Failed to initalize: %s(%i)\n", SDL_GetError(), code);
         return false;
     }
 
@@ -292,6 +298,11 @@ void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill)
 void SDLApplication::setTitle(const std::string& title)
 {
     m_window.setTitle(title);
+}
+
+std::string SDLApplication::title() const
+{
+    return m_window.title();
 }
 
 Vector2i SDLApplication::windowSize()

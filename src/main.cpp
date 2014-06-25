@@ -3,6 +3,7 @@
 #include <ObjectManager.hpp>
 #include <TestObject.hpp>
 #include <memory>
+#include "ScriptEngine.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -11,7 +12,7 @@ int main(int argc, char* argv[])
     {
         orApplicationPtr->setClearColor(Colorb::cyan);
         orObjectManagerPtr->addObject(new TestObject);
-        return IApplication::instanceRef().exec();
+        return ApplicationBase::instanceRef().exec();
     }
     else
     {

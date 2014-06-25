@@ -1,5 +1,5 @@
 #include "SDLKeyboardManager.hpp"
-#include "IApplication.hpp"
+#include "ApplicationBase.hpp"
 #include "SDL2/SDL_scancode.h"
 
 SDLKeyboardManager::SDLKeyboardManager()

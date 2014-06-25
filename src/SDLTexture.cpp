@@ -1,7 +1,7 @@
 #include "SDLTexture.hpp"
 #include "physfsrwops.h"
 #include <SDL2/SDL_image.h>
-#include <IApplication.hpp>
+#include <ApplicationBase.hpp>
 
 SDLTextureResource::SDLTextureResource(const std::string& path, SDL_Texture* data)
     : ITextureResource(path),
@@ -18,7 +18,7 @@ SDLTextureResource::~SDLTextureResource()
     SDL_DestroyTexture(m_texture);
 }
 
-void SDLTextureResource::draw(IApplication* app, int x, int y)
+void SDLTextureResource::draw(ApplicationBase* app, int x, int y)
 {
     static SDL_Rect rect;
     rect.x = x;
@@ -29,12 +29,12 @@ void SDLTextureResource::draw(IApplication* app, int x, int y)
     SDL_RenderCopy(reinterpret_cast<SDL_Renderer*>(app->rendererHandle()), m_texture, NULL, &rect);
 }
 
-void SDLTextureResource::draw(IApplication* app, Vector2f position)
+void SDLTextureResource::draw(ApplicationBase* app, Vector2f position)
 {
     draw(app, position.x, position.y);
 }
 
-void SDLTextureResource::draw(IApplication* app, int x, int y, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+void SDLTextureResource::draw(ApplicationBase* app, int x, int y, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
 {
     static SDL_Rect rect;
     rect.x = x;
@@ -63,7 +63,7 @@ void SDLTextureResource::draw(IApplication* app, int x, int y, Rectanglef subrec
 
 }
 
-void SDLTextureResource::draw(IApplication* app, Vector2f position, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+void SDLTextureResource::draw(ApplicationBase* app, Vector2f position, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
 {
     draw(app, position.x, position.y, subrect, origin, flipH, flipV, angle);
 }
