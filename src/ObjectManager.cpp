@@ -36,6 +36,7 @@ void ObjectManager::removeObject(Object* obj)
     if (iter != m_objects.end())
     {
         m_objects.erase(iter);
+        obj->onDestroyed();
         delete obj;
         objectId--;
     }

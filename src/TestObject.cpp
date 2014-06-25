@@ -177,4 +177,5 @@ void TestObject::onDestroyed()
 {
     orApplicationRef.eventSignal().disconnect<TestObject,  &TestObject::onEvent>(this);
     orApplicationRef.updateSignal().disconnect<TestObject, &TestObject::onUpdate>(this);
+    Object::onDestroyed();
 }

@@ -84,7 +84,7 @@ public:
      */
     Object* takeChild(int index);
 
-    virtual void onDestroyed(){}
+    virtual void onDestroyed();
 
     virtual void draw(ApplicationBase*){}
     virtual void setPosition(float x, float y);
@@ -96,7 +96,7 @@ public:
     int id() const { return m_id; }
     void setId(int id) { m_id = id; }
 
-    virtual void onThink();
+    virtual void onThink(float delta);
     virtual void onUpdate(float delta);
 
     int  addRef();
