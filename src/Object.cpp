@@ -13,8 +13,9 @@ Object::Object(const std::string& name)
       m_weakRefFlag(nullptr),
       m_controller(nullptr)
 {
-    m_script = orResourceManagerRef.loadResource<ScriptResource>(this->name() + ".as");
-    m_scriptContext = orScriptEngineRef.handle()->CreateContext();
+    m_script = orResourceManagerRef.loadResource<ScriptResource>(std::string("scripts/")+ this->name() + ".as");
+    if (m_script)
+        m_scriptContext = orScriptEngineRef.handle()->CreateContext();
 }
 
 Object::~Object()
@@ -114,6 +115,19 @@ Object* Object::takeChild(int index)
     return ret;
 }
 
+void Object::onDestroyed()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* destroyedFunc = m_script->functionByName("onDestroyed");
+        if(destroyedFunc)
+        {
+            m_scriptContext->Prepare(destroyedFunc);
+            m_scriptContext->Execute();
+        }
+    }
+}
+
 void Object::setPosition(float x, float y)
 {
     setPosition(Vector2f(x, y));
@@ -139,7 +153,7 @@ void Object::move(const Vector2f& amount)
     m_position += amount;
 }
 
-void Object::onThink()
+void Object::onThink(float delta)
 {
     if (m_scriptContext)
     {
@@ -147,6 +161,8 @@ void Object::onThink()
         if(thinkFunc)
         {
             m_scriptContext->Prepare(thinkFunc);
+            m_scriptContext->SetArgObject(0, this);
+            m_scriptContext->SetArgFloat(1, delta);
             m_scriptContext->Execute();
         }
     }
@@ -154,9 +170,11 @@ void Object::onThink()
 
 void Object::onUpdate(float delta)
 {
+    onThink(delta);
+
     if (m_scriptContext)
     {
-        asIScriptFunction* updateFunc = m_script->functionByDecl("void onUpdate(Object@ self, float delta)");
+        asIScriptFunction* updateFunc = m_script->functionByName("onUpdate");
         if(updateFunc)
         {
             m_scriptContext->Prepare(updateFunc);
