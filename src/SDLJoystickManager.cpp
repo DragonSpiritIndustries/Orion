@@ -1,6 +1,7 @@
 #include "SDLJoystickManager.hpp"
 #include "ApplicationBase.hpp"
 #include <algorithm>
+#include <cstring>
 
 SDLJoystickManager::SDLJoystickManager()
 {
