@@ -1,5 +1,5 @@
 #include "SDLJoystickManager.hpp"
-#include "IApplication.hpp"
+#include "ApplicationBase.hpp"
 #include <algorithm>
 #include <cstring>
 
@@ -37,6 +37,9 @@ void SDLJoystickManager::onJoystickAdded(int which)
         orDebug("Button Count: %i\n", device->buttonCount);
         device->forceFeedback = SDL_HapticOpenFromJoystick(device->device);
         device->hasRumble = (device->forceFeedback != nullptr);
+        if (device->hasRumble)
+            SDL_HapticRumbleInit(device->forceFeedback);
+
         orDebug("Force feedback: %s\n", (device->hasRumble ? "yes" : "no"));
         device->guid = SDL_JoystickGetGUID(device->device);
         char guidString[33];
@@ -126,21 +129,8 @@ void SDLJoystickManager::motorOn(int which)
 
     SDLJoystickDevice* device = m_devices[which];
 
-    if (device->hasRumble && device->currentEffect == -1)
-    {
-        SDL_HapticEffect effect;
-        memset(&effect, 0, sizeof(SDL_HapticConstant));
-        effect.type = SDL_HAPTIC_SINE;
-        effect.periodic.direction.type = SDL_HAPTIC_POLAR; // Polar coordinates
-        effect.periodic.direction.dir[0] = 18000; // Force comes from south
-        effect.periodic.period = 1000*10; // 1000 ms
-        effect.periodic.magnitude = 20000; // 20000/32767 strength
-        effect.periodic.length = (unsigned)-1; // 5 seconds long
-        effect.periodic.attack_length = 1000; // Takes 1 second to get max strength
-        effect.periodic.fade_length = 1000; // Takes 1 second to fade away
-        device->currentEffect = SDL_HapticNewEffect(device->forceFeedback, &effect);
-        SDL_HapticRunEffect(device->forceFeedback, device->currentEffect, 1);
-    }
+    if (device->hasRumble)
+        SDL_HapticRumblePlay(device->forceFeedback, 0.5, 5000);
 }
 
 void SDLJoystickManager::motorOff(int which)
@@ -151,10 +141,7 @@ void SDLJoystickManager::motorOff(int which)
     SDLJoystickDevice* device = m_devices[which];
 
     if (device->hasRumble && device->currentEffect != -1)
-    {
-        SDL_HapticDestroyEffect(device->forceFeedback, device->currentEffect);
-        device->currentEffect = -1;
-    }
+        SDL_HapticRumbleStop(device->forceFeedback);
 }
 
 void SDLJoystickManager::shutdown()

@@ -1,13 +1,13 @@
 #ifndef SDLAPPLICATION_HPP
 #define SDLAPPLICATION_HPP
 
-#include <IApplication.hpp>
+#include "ApplicationBase.hpp"
 #include "SDLWindow.hpp"
 #include "SDLRenderer.hpp"
 #include <SDL2/SDL_joystick.h>
 #include <SDL2/SDL_ttf.h>
 
-class SDLApplication : public IApplication
+class SDLApplication : public ApplicationBase
 {
 public:
     SDLApplication();
@@ -24,6 +24,7 @@ public:
     void drawDebugText(const std::string& text, const Vector2f& position);
     void drawRectangle(int w, int h, int x, int y, bool fill = false);
     void setTitle(const std::string &title);
+    std::string title() const;
 
     Vector2i windowSize();
     int windowWidth();

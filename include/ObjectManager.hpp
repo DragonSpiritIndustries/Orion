@@ -5,7 +5,7 @@
 #include <memory>
 
 class Object;
-class IApplication;
+class ApplicationBase;
 class ObjectManager
 {
 public:
@@ -13,17 +13,20 @@ public:
     typedef std::vector<Object*>::const_iterator   ConstIterator;
     typedef std::vector<Object*>::reverse_iterator ReverseIterator;
 
+    ObjectManager();
     ~ObjectManager();
     void addObject(Object* obj);
     void removeObject(Object* obj);
     void removeObject(const std::string& name);
     Object* takeObject(const std::string& name);
+    Object* object(const std::string& name);
 
+    void initialize();
     void shutdown();
     static ObjectManager& instanceRef();
     static ObjectManager* instancePtr();
 
-    void draw(IApplication* app);
+    void draw(ApplicationBase* app);
 private:
     std::vector<Object*> m_objects;
     static std::shared_ptr<ObjectManager> m_instance;

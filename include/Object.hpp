@@ -4,10 +4,14 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+#include "Vector2.hpp"
 
 class IComponent;
-class IApplication;
+class ScriptResource;
+class ApplicationBase;
+class asILockableSharedBool;
+class asIScriptObject;
+class asIScriptContext;
 class Object
 {
 public:
@@ -82,15 +86,36 @@ public:
 
     virtual void onDestroyed(){}
 
-    virtual void draw(IApplication*){}
+    virtual void draw(ApplicationBase*){}
+    virtual void setPosition(float x, float y);
+    virtual void setPosition(const Vector2f& position);
+    virtual Vector2f position() const;
+    virtual void move(float x, float y);
+    virtual void move(const Vector2f& amount);
 
     int id() const { return m_id; }
     void setId(int id) { m_id = id; }
-private:
+
+    virtual void onThink();
+    virtual void onUpdate(float delta);
+
+    int  addRef();
+    int  release();
+    void destroyAndRelease();
+    asILockableSharedBool* weakRefFlag();
+protected:
+    ScriptResource*        m_script;
+    asIScriptObject*       m_controller;
+    asILockableSharedBool* m_weakRefFlag;
+    asIScriptContext*      m_scriptContext;
+
     std::string m_name;
+    Vector2f m_position;
     std::vector<Object*>    m_children;
     std::vector<IComponent*> m_components;
+    int m_refCount;
     int m_id;
+
 };
 
 #endif // OBJECT_HPP

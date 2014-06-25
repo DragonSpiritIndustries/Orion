@@ -9,7 +9,7 @@ TestObject::TestObject()
       m_idle(false)
 {
     orApplicationRef.eventSignal().connect<TestObject, &TestObject::onEvent>(this);
-    orApplicationRef.updateSignal().connect<TestObject, &TestObject::update>(this);
+    orApplicationRef.updateSignal().connect<TestObject, &TestObject::onUpdate>(this);
     m_texture = orResourceManagerRef.loadResource<ITextureResource>("test/test.png");
 }
 
@@ -17,8 +17,10 @@ TestObject::~TestObject()
 {
 }
 
-void TestObject::update(float delta)
+void TestObject::onUpdate(float delta)
 {
+    Object::onUpdate(delta);
+    return;
     m_position.x = (orMouseManagerPtr->position().x / 32) * (32);
     m_position.y = (orMouseManagerPtr->position().y / 32) * (32);
     if (orMouseManagerRef.buttonPressed(MouseButton::Left))
@@ -60,7 +62,8 @@ void TestObject::update(float delta)
         m_velocity.x = 0;
 
     if (keyUp && !keyDown)
-    {
+    {    Vector2f m_position;
+
         // stop heading down
         if (m_velocity.y > 0.f)
             m_velocity.y = 0.f;
@@ -153,7 +156,7 @@ void TestObject::update(float delta)
     m_position.y = std::abs(m_position.y);
 }
 
-void TestObject::draw(IApplication* app)
+void TestObject::draw(ApplicationBase* app)
 {
     app->drawRectangle(32, 32, m_position.x, m_position.y, true);
     if (m_texture)
@@ -173,15 +176,5 @@ void TestObject::onEvent(Event e)
 void TestObject::onDestroyed()
 {
     orApplicationRef.eventSignal().disconnect<TestObject,  &TestObject::onEvent>(this);
-    orApplicationRef.updateSignal().disconnect<TestObject, &TestObject::update>(this);
-}
-
-void TestObject::setPosition(float x, float y)
-{
-    setPosition(Vector2f(x, y));
-}
-
-void TestObject::setPosition(Vector2f position)
-{
-    m_position = position;
+    orApplicationRef.updateSignal().disconnect<TestObject, &TestObject::onUpdate>(this);
 }

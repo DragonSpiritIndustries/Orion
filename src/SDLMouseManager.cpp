@@ -1,5 +1,5 @@
 #include "SDLMouseManager.hpp"
-#include "IApplication.hpp"
+#include "ApplicationBase.hpp"
 #include "SDL2/SDL.h"
 
 SDLMouseManager::SDLMouseManager()

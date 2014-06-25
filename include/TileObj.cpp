@@ -1,5 +1,5 @@
 #include "TileObj.hpp"
-#include "IApplication.hpp"
+#include "ApplicationBase.hpp"
 #include "ITextureResource.hpp"
 
 TileObj::TileObj()
@@ -18,7 +18,7 @@ void TileObj::setPosition(Vector2f position)
     m_position = position;
 }
 
-void TileObj::draw(IApplication* app)
+void TileObj::draw(ApplicationBase* app)
 {
     app->drawRectangle(32, 32, m_position.x, m_position.y, true);
     if (m_texture)

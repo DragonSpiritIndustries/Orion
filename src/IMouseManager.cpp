@@ -1,5 +1,5 @@
 #include "IMouseManager.hpp"
-#include "IApplication.hpp"
+#include "ApplicationBase.hpp"
 
 IMouseManager::IMouseManager()
 {
