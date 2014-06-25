@@ -5,18 +5,25 @@ CONFIG -= qt
 
 QMAKE_CXXFLAGS += -std=c++11
 
+win32:QMAKE_LFLAGS += -mwindows
+
 DEFINES += \
     ATHENA_NO_ZQUEST \
-    ATHENA_NO_SAVES
+    ATHENA_NO_SAVES \
+    SDL_MAIN_NEEDED
 
 include(Athena/Athena.pri)
 
+win32:LIBS += \
+    -lmingw32
+
 LIBS += \
-    -lphysfs \
+    -lSDL2main \
     -lSDL2 \
     -lSDL2_ttf \
     -lSDL2_image \
-    -lz
+    -lz \
+    -lphysfs
 
 INCLUDEPATH += \
     include
