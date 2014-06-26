@@ -82,7 +82,7 @@ void ObjectManager::initialize()
         registerObject(orScriptEngineRef.handle());
         orScriptEngineRef.handle()->RegisterInterface("IController");
         orScriptEngineRef.handle()->RegisterObjectType("ObjectManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
-        orScriptEngineRef.handle()->RegisterGlobalProperty("ObjectManager objectManager", this);
+        orScriptEngineRef.handle()->RegisterGlobalProperty("ObjectManager orObjectManager", this);
         orScriptEngineRef.handle()->RegisterObjectMethod("ObjectManager",
                                                          "Object @+ objectByName(const string &in name)",
                                                          asMETHOD(ObjectManager, object),
@@ -129,11 +129,11 @@ ObjectManager* ObjectManager::instancePtr()
     return m_instance.get();
 }
 
-void ObjectManager::draw(ApplicationBase* app)
+void ObjectManager::draw()
 {
     orForeach(Object* o _in_ m_objects)
     {
-        o->draw(app);
+        o->onDraw();
     }
 
     orApplicationRef.drawDebugText(Athena::utility::sprintf("Object count %i", m_objects.size()), 16, 16);

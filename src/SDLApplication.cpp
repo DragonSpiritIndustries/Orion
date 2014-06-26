@@ -24,6 +24,7 @@ SDLApplication::~SDLApplication()
 
 int SDLApplication::exec()
 {
+    ApplicationBase::onStart();
     while (m_running)
     {
         updateFPS();
@@ -37,6 +38,11 @@ int SDLApplication::exec()
 
 bool SDLApplication::init(int argc, char* argv[])
 {
+    // First initialize the input managers
+    m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
+    m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
+    m_mouseManager    = std::shared_ptr<IMouseManager>(new SDLMouseManager);
+
     if (!ApplicationBase::init(argc, argv))
         return false;
 
@@ -75,9 +81,6 @@ bool SDLApplication::init(int argc, char* argv[])
         return false;
     }
 
-    m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
-    m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
-    m_mouseManager    = std::shared_ptr<IMouseManager>(new SDLMouseManager);
     m_running = true;
     return true;
 }
@@ -85,11 +88,6 @@ bool SDLApplication::init(int argc, char* argv[])
 void SDLApplication::close()
 {
     m_running = false;
-}
-
-void SDLApplication::onUpdate()
-{
-    m_updateSignal(m_frameTime);
 }
 
 void SDLApplication::pollEvents()
@@ -247,7 +245,7 @@ void SDLApplication::updateFPS()
 void SDLApplication::onDraw()
 {
     m_renderer.clear();
-    orObjectManagerRef.draw(this);
+    orObjectManagerRef.draw();
 
     drawDebugText(Athena::utility::sprintf("FPS: %f", m_fps), 16, 0);
     m_renderer.present();
@@ -255,10 +253,7 @@ void SDLApplication::onDraw()
 
 void SDLApplication::onExit()
 {
-    orObjectManagerRef.shutdown();
-    orResourceManagerRef.shutdown();
-    m_joystickManager.get()->shutdown();
-    m_keyboardManager.get()->shutdown();
+    ApplicationBase::onExit();
     SDL_Quit();
 }
 

@@ -4,6 +4,9 @@
 #include "ScriptEngine.hpp"
 #include "ResourceManager.hpp"
 #include "ScriptResource.hpp"
+#include "IComponent.hpp"
+#include "ComponentManager.hpp"
+
 #include <algorithm>
 
 
@@ -11,11 +14,14 @@ Object::Object(const std::string& name)
     : m_name(name),
       m_refCount(1),
       m_weakRefFlag(nullptr),
-      m_controller(nullptr)
+      m_scriptContext(nullptr),
+      m_state(0)
 {
     m_script = orResourceManagerRef.loadResource<ScriptResource>(std::string("scripts/")+ this->name() + ".as");
     if (m_script)
         m_scriptContext = orScriptEngineRef.handle()->CreateContext();
+
+    onCreate();
 }
 
 Object::~Object()
@@ -33,6 +39,12 @@ Object::~Object()
     {
         orObjectManagerRef.removeObject(o);
     }
+
+    orForeach(IComponent* c : m_components)
+    {
+        delete c;
+    }
+
     if (m_scriptContext)
         m_scriptContext->Release();
     m_children.clear();
@@ -115,6 +127,20 @@ Object* Object::takeChild(int index)
     return ret;
 }
 
+void Object::onCreate()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* destroyedFunc = m_script->functionByName("onCreate");
+        if(destroyedFunc)
+        {
+            m_scriptContext->Prepare(destroyedFunc);
+            m_scriptContext->SetArgObject(0, this);
+            m_scriptContext->Execute();
+        }
+    }
+}
+
 void Object::onDestroyed()
 {
     if (m_scriptContext)
@@ -123,6 +149,21 @@ void Object::onDestroyed()
         if(destroyedFunc)
         {
             m_scriptContext->Prepare(destroyedFunc);
+            m_scriptContext->SetArgObject(0, this);
+            m_scriptContext->Execute();
+        }
+    }
+}
+
+void Object::onDraw()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* destroyedFunc = m_script->functionByName("onDraw");
+        if(destroyedFunc)
+        {
+            m_scriptContext->Prepare(destroyedFunc);
+            m_scriptContext->SetArgObject(0, this);
             m_scriptContext->Execute();
         }
     }
@@ -151,6 +192,16 @@ void Object::move(float x, float y)
 void Object::move(const Vector2f& amount)
 {
     m_position += amount;
+}
+
+int Object::state()
+{
+    return m_state;
+}
+
+void Object::setState(int state)
+{
+    m_state = state;
 }
 
 void Object::onThink(float delta)
@@ -203,11 +254,6 @@ int Object::release()
 
 void Object::destroyAndRelease()
 {
-    if (m_controller)
-    {
-        m_controller->Release();
-        m_controller = nullptr;
-    }
     release();
 }
 
@@ -217,6 +263,32 @@ asILockableSharedBool* Object::weakRefFlag()
         m_weakRefFlag = asCreateLockableSharedBool();
 
     return m_weakRefFlag;
+}
+
+IComponent* Object::addComponent(const std::string& type, const std::string& componentName)
+{
+    std::vector<IComponent*>::iterator  iter = std::find_if(m_components.begin(), m_components.end(), [&componentName](IComponent* c)->bool{return c->name()  == componentName;});
+    if (iter != m_components.end())
+        return nullptr;
+
+    IComponent* ret = orComponentFactoryRef.newComponent(type, componentName);
+    if (ret)
+    {
+        m_components.push_back(ret);
+        return ret;
+    }
+
+    return nullptr;
+}
+
+void Object::removeComponent(IComponent* component)
+{
+    std::vector<IComponent*>::iterator  iter = std::find(m_components.begin(), m_components.end(), component);
+
+    if (iter == m_components.end())
+        return;
+
+    m_components.erase(iter);
 }
 
 void registerObject(asIScriptEngine* engine)
@@ -230,4 +302,8 @@ void registerObject(asIScriptEngine* engine)
     engine->RegisterObjectMethod(name.c_str(), "void move(const Vector2f& in)", asMETHODPR(Object, move, (const Vector2f&), void), asCALL_THISCALL);
     engine->RegisterObjectMethod(name.c_str(), "string name()", asMETHOD(Object, name), asCALL_THISCALL);
     engine->RegisterObjectMethod(name.c_str(), "string name() const", asMETHOD(Object, name), asCALL_THISCALL);
+    engine->RegisterObjectMethod(name.c_str(), "int state()", asMETHOD(Object, state), asCALL_THISCALL);
+    engine->RegisterObjectMethod(name.c_str(), "int state() const", asMETHOD(Object, state), asCALL_THISCALL);
+    engine->RegisterObjectMethod(name.c_str(), "void setState(int state)", asMETHOD(Object, setState), asCALL_THISCALL);
+    engine->RegisterObjectMethod(name.c_str(), "Component@ addComponent(string type, string name)", asMETHOD(Object, addComponent), asCALL_THISCALL);
 }

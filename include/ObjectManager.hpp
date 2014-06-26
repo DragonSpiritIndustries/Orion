@@ -26,7 +26,7 @@ public:
     static ObjectManager& instanceRef();
     static ObjectManager* instancePtr();
 
-    void draw(ApplicationBase* app);
+    void draw();
 private:
     std::vector<Object*> m_objects;
     static std::shared_ptr<ObjectManager> m_instance;

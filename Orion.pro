@@ -7,11 +7,11 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++11
 win32:QMAKE_LFLAGS += -mwindows
 
-win32:QMAKE_LFLAGS += -mwindows
-
 DEFINES += \
     ATHENA_NO_ZQUEST \
-    ATHENA_NO_SAVES \
+    ATHENA_NO_SAVES
+
+win32:DEFINES += \
     SDL_MAIN_NEEDED
 
 include(Athena/Athena.pri)
@@ -20,7 +20,6 @@ win32:LIBS += \
     -lmingw32
 
 LIBS += \
-    -lSDL2main \
     -lSDL2 \
     -lSDL2_ttf \
     -lSDL2_image \
@@ -100,7 +99,15 @@ SOURCES += \
     src/angelscript/addons/scripthandle.cpp \
     src/angelscript/addons/weakref.cpp \
     src/IJoystickManager.cpp \
-    src/ScriptResource.cpp
+    src/ScriptResource.cpp \
+    src/IResource.cpp \
+    src/ITextureResource.cpp \
+    src/Vector2.cpp \
+    src/Vector3.cpp \
+    src/Rectangle.cpp \
+    ComponentManager.cpp \
+    include/TransformableComponent.cpp \
+    src/IComponent.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -181,7 +188,11 @@ HEADERS += \
     include/ScriptEngine.hpp \
     include/angelscript/addons.h \
     include/angelscript/addons/weakref.h \
-    include/ScriptResource.hpp
+    include/ScriptResource.hpp \
+    include/angelscript/addons/scripthandle.h \
+    include/EnumToString.hpp \
+    ComponentManager.hpp \
+    include/TransformableComponent.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

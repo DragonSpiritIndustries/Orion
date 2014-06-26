@@ -18,7 +18,7 @@ SDLTextureResource::~SDLTextureResource()
     SDL_DestroyTexture(m_texture);
 }
 
-void SDLTextureResource::draw(ApplicationBase* app, int x, int y)
+void SDLTextureResource::draw(float x, float y)
 {
     static SDL_Rect rect;
     rect.x = x;
@@ -26,15 +26,15 @@ void SDLTextureResource::draw(ApplicationBase* app, int x, int y)
     rect.w = m_size.x;
     rect.h = m_size.y;
 
-    SDL_RenderCopy(reinterpret_cast<SDL_Renderer*>(app->rendererHandle()), m_texture, NULL, &rect);
+    SDL_RenderCopy(reinterpret_cast<SDL_Renderer*>(orApplicationRef.rendererHandle()), m_texture, NULL, &rect);
 }
 
-void SDLTextureResource::draw(ApplicationBase* app, Vector2f position)
+void SDLTextureResource::draw(Vector2f position)
 {
-    draw(app, position.x, position.y);
+    draw(position.x, position.y);
 }
 
-void SDLTextureResource::draw(ApplicationBase* app, int x, int y, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+void SDLTextureResource::draw(float x, float y, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
 {
     static SDL_Rect rect;
     rect.x = x;
@@ -59,13 +59,13 @@ void SDLTextureResource::draw(ApplicationBase* app, int x, int y, Rectanglef sub
     if (flipV)
         flip |= SDL_FLIP_VERTICAL;
 
-    SDL_RenderCopyEx(reinterpret_cast<SDL_Renderer*>(app->rendererHandle()), m_texture, &partrect, &rect, angle, &point, (SDL_RendererFlip)flip);
+    SDL_RenderCopyEx(reinterpret_cast<SDL_Renderer*>(orApplicationRef.rendererHandle()), m_texture, &partrect, &rect, angle, &point, (SDL_RendererFlip)flip);
 
 }
 
-void SDLTextureResource::draw(ApplicationBase* app, Vector2f position, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
+void SDLTextureResource::draw(Vector2f position, Rectanglef subrect, Vector2f origin, bool flipH, bool flipV, float angle)
 {
-    draw(app, position.x, position.y, subrect, origin, flipH, flipV, angle);
+    draw(position.x, position.y, subrect, origin, flipH, flipV, angle);
 }
 
 Vector2i SDLTextureResource::size() const

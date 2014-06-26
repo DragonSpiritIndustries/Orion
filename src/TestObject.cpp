@@ -3,6 +3,7 @@
 #include "ObjectManager.hpp"
 #include "ITextureResource.hpp"
 #include "time.h"
+#include <Athena/Utility.hpp>
 
 TestObject::TestObject()
     : Object("test"),
@@ -23,7 +24,7 @@ void TestObject::onUpdate(float delta)
     return;
     m_position.x = (orMouseManagerPtr->position().x / 32) * (32);
     m_position.y = (orMouseManagerPtr->position().y / 32) * (32);
-    if (orMouseManagerRef.buttonPressed(MouseButton::Left))
+    if (orMouseManagerRef.buttonPressed(MouseButton::LEFT))
     {
         TileObj* newObj = new TileObj;
         newObj->setPosition(m_position);
@@ -156,11 +157,14 @@ void TestObject::onUpdate(float delta)
     m_position.y = std::abs(m_position.y);
 }
 
-void TestObject::draw(ApplicationBase* app)
+void TestObject::onDraw()
 {
-    app->drawRectangle(32, 32, m_position.x, m_position.y, true);
-    if (m_texture)
-        m_texture->draw(app, m_position.x, m_position.y, Rectanglef(16, 16, 32, 32), Vector2f(0, 0), true, false, 0.0f);
+    Object::onDraw();
+    orApplicationRef.drawRectangle(32, 32, m_position.x, m_position.y, true);
+    //if (m_texture)
+    //    m_texture->draw(m_position.x, m_position.y, Rectanglef(16, 16, 32, 32), Vector2f(0, 0), false, false, 0.0f);
+
+    orApplicationRef.drawDebugText(Athena::utility::sprintf("State: %.4X", m_state).c_str(), 16, 48);
 }
 
 void TestObject::onEvent(Event e)

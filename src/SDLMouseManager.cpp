@@ -58,13 +58,13 @@ void SDLMouseManager::onMouseButton(Event e)
     switch (e.eventData.mouseButtonEvent.button)
     {
         case SDL_BUTTON_LEFT:
-            button = MouseButton::Left;
+            button = MouseButton::LEFT;
             break;
         case SDL_BUTTON_MIDDLE:
-            button = MouseButton::Middle;
+            button = MouseButton::MIDDLE;
             break;
         case SDL_BUTTON_RIGHT:
-            button = MouseButton::Right;
+            button = MouseButton::RIGHT;
             break;
         case SDL_BUTTON_X1:
             button = MouseButton::X1;

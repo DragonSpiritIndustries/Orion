@@ -9,7 +9,7 @@ IJoystickManager::IJoystickManager()
     if (orScriptEngineRef.handle())
     {
         orScriptEngineRef.handle()->RegisterObjectType("JoystickManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
-        orScriptEngineRef.handle()->RegisterGlobalProperty("JoystickManager joystickManager", this);
+        orScriptEngineRef.handle()->RegisterGlobalProperty("JoystickManager orJoystickManager", this);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
                                                          "bool buttonPressed(int joy, int button)",
                                                          asMETHOD(IJoystickManager, buttonPressed),

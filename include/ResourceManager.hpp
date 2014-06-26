@@ -6,7 +6,11 @@
 #include <IResource.hpp>
 #include <memory>
 
-typedef IResource* (*ResourceLoader)(const std::string&);
+#ifndef SCRIPTENGINE_HPP
+#include "ScriptEngine.hpp"
+#endif
+
+typedef IResource* (*ResourceLoaderFunc)(const std::string&);
 
 class ResourceManager
 {
@@ -22,41 +26,48 @@ public:
     template <class T>
     T* loadResource(const std::string& resourceName);
 
-    void registerResource(ResourceLoader loader);
+    void registerResource(ResourceLoaderFunc loader);
+
+    void removeResource(const std::string& name);
+    void removeResource(IResource* res);
 
     static ResourceManager& instanceRef();
     static ResourceManager* instancePtr();
 private:
     std::unordered_map<std::string, IResource*> m_resources;
-    std::vector<ResourceLoader> m_resourceLoaders;
+    std::vector<ResourceLoaderFunc> m_resourceLoaders;
     std::string m_executablePath;
     std::string m_organizationName;
     std::string m_applicationName;
     std::string m_archiveExt;
 };
 
-struct ResourceRegistrator
-{
-    ResourceRegistrator(ResourceLoader loader)
-    {
-        ResourceManager::instanceRef().registerResource(loader);
-    }
-};
-
-
-#ifndef DEFINE_RESOURCE
-#define DEFINE_RESOURCE() \
-    static const ResourceRegistrator __DO_NOT_USE_p_resourceRegistrator
-#endif
+#define orResourceManagerRef ResourceManager::instanceRef()
+#define orResourceManagerPtr ResourceManager::instancePtr()
 
 #ifndef REGISTER_RESOURCE
 #define REGISTER_RESOURCE(Class, Loader) \
-    const ResourceRegistrator Class::__DO_NOT_USE_p_resourceRegistrator = ResourceRegistrator(Class::Loader)
+struct hidden_resourceRegistration##Class \
+{ \
+    hidden_resourceRegistration##Class() \
+    { \
+        orResourceManagerRef.registerResource(Class::Loader); \
+    }\
+};\
+static hidden_resourceRegistration##Class __hidden_resourceRegistration##Class
 #endif
 
-
-#define orResourceManagerRef ResourceManager::instanceRef()
-#define orResourceManagerPtr ResourceManager::instancePtr()
+#ifndef REGISTER_SCRIPT_FUNCTION
+#define REGISTER_SCRIPT_FUNCTION(Class, Function) \
+struct hidden_scriptRegistration##Class \
+{ \
+    hidden_scriptRegistration##Class() \
+    { \
+        Function(); \
+    } \
+}; \
+static hidden_scriptRegistration##Class __hidden_scriptRegistration##Class
+#endif
 
 #include "ResourceManager.inl"
 #endif // RESOURCEMANAGER_HPP

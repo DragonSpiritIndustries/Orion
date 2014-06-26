@@ -52,7 +52,7 @@ void Console::handleMouseWheel(int delta, int x, int y)
 {
     orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");}
 
-void Console::draw(ApplicationBase* app)
+void Console::draw()
 {
     orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");
 }
@@ -195,15 +195,15 @@ void Console::doAutoComplete()
 {
 }
 
-void Console::drawHistory(ApplicationBase* app)
+void Console::drawHistory()
 {
 }
 
-void Console::drawSeparator(ApplicationBase* app)
+void Console::drawSeparator()
 {
 }
 
-void Console::drawVersion(ApplicationBase* app)
+void Console::drawVersion()
 {
 }
 

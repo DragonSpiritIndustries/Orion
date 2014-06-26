@@ -10,6 +10,7 @@ class ApplicationBase;
 class Console
 {
 public:
+    static const char ColorChar = '^';
     /*!
      * \enum State
      * \brief The State enumerator is used to determine the Console's current state.
@@ -71,7 +72,7 @@ public:
     virtual void handleText(int utf8);
     virtual void handleInput(Key key, bool alt, bool control, bool shift, bool system);
     virtual void handleMouseWheel(int delta, int x, int y);
-    virtual void draw(ApplicationBase *app);
+    virtual void draw();
     virtual void print(Level level, const std::string &fmt, ...);
     virtual void clear();
     virtual void toggleConsole();
@@ -82,9 +83,9 @@ public:
     static Console* instancePtr();
 protected:
     virtual void doAutoComplete();
-    virtual void drawHistory(ApplicationBase* app);
-    virtual void drawSeparator(ApplicationBase* app);
-    virtual void drawVersion(ApplicationBase* app);
+    virtual void drawHistory();
+    virtual void drawSeparator();
+    virtual void drawVersion();
     virtual void parseCommand();
     virtual void parseCVars();
     virtual void addEntry(const Level level, const std::string& message, const std::string& timestamp, const std::string label = std::string());
