@@ -5,13 +5,21 @@
 std::shared_ptr<ApplicationBase> ApplicationBase::m_instance = nullptr;
 
 ApplicationBase::ApplicationBase()
-{
+{}
 
+ApplicationBase::~ApplicationBase()
+{
+    if (m_scriptContext)
+        m_scriptContext->Release();
+}
+
+int ApplicationBase::exec()
+{
+    onStart();
 }
 
 bool ApplicationBase::init(int /*argc*/, char* argv[])
 {
-    orScriptEngineRef.initialize();
     if (!orScriptEngineRef.handle())
         return false;
 
@@ -31,9 +39,72 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
                                                      "string title()",
                                                      asMETHOD(ApplicationBase, title), asCALL_THISCALL);
 
-    orScriptEngineRef.handle()->RegisterGlobalProperty("Application application", this);
+    orScriptEngineRef.handle()->RegisterGlobalProperty("Application orApplication", this);
     orResourceManagerRef.initialize(argv[0]);
+
+    m_mainScript = orResourceManagerRef.loadResource<ScriptResource>("scripts/main.as");
+    if (!m_mainScript)
+        return false;
+
+    m_scriptContext = orScriptEngineRef.handle()->CreateContext();
+
+    if (m_scriptContext)
+    {
+        asIScriptFunction* initFunc = m_mainScript->functionByName("onInitialized");
+        if (initFunc)
+        {
+            m_scriptContext->Prepare(initFunc);
+            m_scriptContext->Execute();
+        }
+    }
+
     return true;
+}
+
+void ApplicationBase::onStart()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* startFunc = m_mainScript->functionByName("onStart");
+        if (startFunc)
+        {
+            m_scriptContext->Prepare(startFunc);
+            m_scriptContext->Execute();
+        }
+    }
+}
+
+void ApplicationBase::onUpdate()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* updateFunc = m_mainScript->functionByName("onUpdate");
+        if (updateFunc)
+        {
+            m_scriptContext->Prepare(updateFunc);
+            m_scriptContext->SetArgFloat(0, m_frameTime);
+            m_scriptContext->Execute();
+        }
+    }
+    m_updateSignal(m_frameTime);
+}
+
+void ApplicationBase::onExit()
+{
+    if (m_scriptContext)
+    {
+        asIScriptFunction* shutdownFunc = m_mainScript->functionByName("onShutdown");
+        if (shutdownFunc)
+        {
+            m_scriptContext->Prepare(shutdownFunc);
+            m_scriptContext->Execute();
+        }
+    }
+
+    orObjectManagerRef.shutdown();
+    orResourceManagerRef.shutdown();
+    m_joystickManager.get()->shutdown();
+    m_keyboardManager.get()->shutdown();
 }
 
 Nano::Signal<void (Event)>& ApplicationBase::eventSignal()

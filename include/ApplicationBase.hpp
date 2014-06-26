@@ -10,6 +10,7 @@
 #include "IJoystickManager.hpp"
 #include "IMouseManager.hpp"
 #include "ResourceManager.hpp"
+#include "ScriptResource.hpp"
 #include "Color.hpp"
 #include "nano-signal-slot/nano_signal_slot.hpp"
 
@@ -17,11 +18,13 @@ class ApplicationBase
 {
 public:
     ApplicationBase();
-    virtual int  exec()=0;
+    virtual ~ApplicationBase();
+    virtual int  exec();
     virtual bool init(int argc, char* argv[]);
-    virtual void onUpdate()=0;
+    virtual void onStart();
+    virtual void onUpdate();
     virtual void onDraw()=0;
-    virtual void onExit()=0;
+    virtual void onExit();
     virtual void setTitle(const std::string& title)=0;
     virtual std::string title() const=0;
     virtual void close()=0;
@@ -75,7 +78,11 @@ protected:
     Nano::Signal<void(float)>            m_updateSignal;
     Nano::Signal<void(int)>              m_joystickAddedSignal;
     Nano::Signal<void(int)>              m_joystickRemovedSignal;
+    ScriptResource*                      m_mainScript;
+    asIScriptContext*                    m_scriptContext;
     static std::shared_ptr<ApplicationBase> m_instance;
+    float         m_fps;
+    float         m_frameTime;
 };
 
 static inline void orCreateApplication(ApplicationBase* ptr)

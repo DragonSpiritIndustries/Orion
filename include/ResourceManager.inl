@@ -1,4 +1,5 @@
 #include "Global.hpp"
+#include "ScriptEngine.hpp"
 #include "Console.hpp"
 
 template <class T>
@@ -13,7 +14,7 @@ T* ResourceManager::loadResource(const std::string& resourceName)
         orConsoleRef.print(orConsoleRef.Warning, "Cast failed\n");
     }
 
-    orForeach (ResourceLoader loader _in_ m_resourceLoaders)
+    orForeach (ResourceLoaderFunc loader _in_ m_resourceLoaders)
     {
         IResource* res = loader(resourceName);
         if (res)

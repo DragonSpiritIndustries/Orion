@@ -1,9 +1,12 @@
 #include "ResourceManager.hpp"
+#include "ScriptEngine.hpp"
 #include <physfs.h>
 #include <algorithm>
 
 ResourceManager::ResourceManager()
 {
+    orScriptEngineRef.handle()->RegisterObjectType("ResourceManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    orScriptEngineRef.handle()->RegisterGlobalProperty("ResourceManager orResourceManager", this);
 }
 
 void ResourceManager::initialize(const std::string& executablePath,
@@ -66,12 +69,30 @@ void ResourceManager::shutdown()
     PHYSFS_deinit();
 }
 
-void ResourceManager::registerResource(ResourceLoader loader)
+void ResourceManager::registerResource(ResourceLoaderFunc loader)
 {
     if (std::find(m_resourceLoaders.begin(), m_resourceLoaders.end(), loader)  != m_resourceLoaders.end())
         return;
 
     m_resourceLoaders.push_back(loader);
+}
+
+void ResourceManager::removeResource(const std::string& name)
+{
+    if (m_resources.find(name) == m_resources.end())
+        return;
+
+    delete m_resources[name];
+    m_resources.erase(name);
+}
+
+void ResourceManager::removeResource(IResource* res)
+{
+    if (m_resources.find(res->path()) == m_resources.end())
+        return;
+
+    m_resources.erase(res->path());
+    delete res;
 }
 
 ResourceManager& ResourceManager::instanceRef()

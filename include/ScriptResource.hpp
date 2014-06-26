@@ -6,7 +6,6 @@
 
 class ScriptResource : public IResource
 {
-    DEFINE_RESOURCE();
 public:
     ScriptResource(const std::string& path);
     virtual ~ScriptResource();

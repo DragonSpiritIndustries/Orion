@@ -16,7 +16,6 @@ public:
     int exec();
     bool init(int argc, char* argv[]);
     void close();
-    void onUpdate();
     void onDraw();
     void onExit();
     void* rendererHandle();
@@ -43,8 +42,6 @@ private:
     unsigned      m_lastFrame;
     unsigned      m_frameCount;
     unsigned      m_frameValues[MaxFrameValues];
-    float         m_fps;
-    float         m_frameTime;
 };
 
 #endif // SDLAPPLICATION_HPP

@@ -13,7 +13,7 @@ public:
     ~TestObject();
 
     void onUpdate(float delta);
-    void draw(ApplicationBase* app);
+    void onDraw();
 
     void onEvent(Event e);
 

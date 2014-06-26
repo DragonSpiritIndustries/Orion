@@ -11,7 +11,7 @@ public:
 
     void setPosition(float x, float y);
     void setPosition(Vector2f position);
-    void draw(ApplicationBase * app);
+    void onDraw();
 private:
     Vector2f m_position;
     ITextureResource* m_texture;

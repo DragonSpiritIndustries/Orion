@@ -9,7 +9,6 @@ public:
     ScriptEngine();
     ~ScriptEngine();
 
-    void initialize();
     asIScriptEngine* handle();
     static ScriptEngine& instanceRef();
     static ScriptEngine* instancePtr();
