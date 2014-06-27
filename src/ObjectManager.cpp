@@ -92,7 +92,7 @@ void ObjectManager::initialize()
 
 void ObjectManager::shutdown()
 {
-    orDebug("Killing %i objects\n", (int)m_objects.size());
+    orConsoleRef.print(orConsoleRef.Info, "Killing %i objects\n", (int)m_objects.size());
 
     while (m_objects.size() > 0)
     {
@@ -105,7 +105,7 @@ ObjectManager& ObjectManager::instanceRef()
 {
     if (!orApplicationPtr)
     {
-        orDebug("Engine not initialized\n");
+        orConsoleRef.print(orConsoleRef.Fatal, "Engine not initialized\n");
         exit(1);
     }
 
@@ -119,7 +119,7 @@ ObjectManager* ObjectManager::instancePtr()
 {
     if (!orApplicationPtr)
     {
-        orDebug("Engine not initialized\n");
+        orConsoleRef.print(orConsoleRef.Fatal, "Engine not initialized\n");
         exit(1);
     }
 

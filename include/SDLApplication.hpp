@@ -21,14 +21,14 @@ public:
     void* rendererHandle();
     void drawDebugText(const std::string& text, float x, float y);
     void drawDebugText(const std::string& text, const Vector2f& position);
-    void drawRectangle(int w, int h, int x, int y, bool fill = false);
+    void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorf col=Colorf::white);
     void setTitle(const std::string &title);
     std::string title() const;
 
     Vector2i windowSize();
     int windowWidth();
     int windowHeight();
-    virtual void setClearColor(const Colorb& color = Colorb::black);
+    virtual void setClearColor(const Colorf& color = Colorf::black);
     float fps() const;
 protected:
     void pollEvents();

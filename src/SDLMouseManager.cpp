@@ -4,14 +4,14 @@
 
 SDLMouseManager::SDLMouseManager()
 {
-    orDebug("MouseManager INITIALIZED\n");
+    orConsoleRef.print(orConsoleRef.Info, "MouseManager INITIALIZED\n");
     orApplicationRef.mouseButtonSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseButton>(this);
     orApplicationRef.mouseWheelSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseWheel>(this);
 }
 
 void SDLMouseManager::shutdown()
 {
-    orDebug("MouseManager SHUTDOWN\n");
+    orConsoleRef.print(orConsoleRef.Info, "MouseManager SHUTDOWN\n");
     orApplicationRef.mouseButtonSignal().disconnect<SDLMouseManager, &SDLMouseManager::onMouseButton>(this);
     orApplicationRef.mouseWheelSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseWheel>(this);
 }

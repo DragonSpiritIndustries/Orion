@@ -5,7 +5,7 @@
 #include "ResourceManager.hpp"
 #include "ScriptResource.hpp"
 #include "IComponent.hpp"
-#include "ComponentManager.hpp"
+#include "ComponentFactory.hpp"
 
 #include <algorithm>
 
@@ -274,6 +274,7 @@ IComponent* Object::addComponent(const std::string& type, const std::string& com
     IComponent* ret = orComponentFactoryRef.newComponent(type, componentName);
     if (ret)
     {
+        ret->setOwner(this);
         m_components.push_back(ret);
         return ret;
     }

@@ -1,4 +1,5 @@
 #include "SDLWindow.hpp"
+#include "Console.hpp"
 #include <SDL2/SDL.h>
 
 SDLWindow::SDLWindow()
@@ -13,11 +14,11 @@ SDLWindow::~SDLWindow()
 
 bool SDLWindow::initialize()
 {
-    m_window = SDL_CreateWindow("UnnamedOrionApplication", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    m_window = SDL_CreateWindow("UnnamedOrionApplication", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (m_window == nullptr)
     {
-        orDebug(SDL_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, SDL_GetError());
         return false;
     }
 

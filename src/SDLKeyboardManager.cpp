@@ -4,11 +4,11 @@
 
 SDLKeyboardManager::SDLKeyboardManager()
 {
-    orDebug("KEYBOARDMANAGER: Intializing\n");
-    orDebug("KEYBOARDMANAGER: Connecting vital signals\n");
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Intializing\n");
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Connecting vital signals\n");
     orApplicationPtr->keyboardSignal().connect<SDLKeyboardManager, &SDLKeyboardManager::translateEvent>(this);
     orApplicationPtr->updateSignal().connect<IKeyboardManager, &IKeyboardManager::onUpdate>(this);
-    orDebug("KEYBOARDMANAGER: Initialized\n");
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Initialized\n");
 }
 
 SDLKeyboardManager::~SDLKeyboardManager()
@@ -156,7 +156,7 @@ void SDLKeyboardManager::shutdown()
 {
     orApplicationPtr->keyboardSignal().disconnect<SDLKeyboardManager, &SDLKeyboardManager::translateEvent>(this);
     orApplicationPtr->updateSignal().disconnect<IKeyboardManager, &IKeyboardManager::onUpdate>(this);
-    orDebug("KEYBOARDMANAGER: Shutdown\n");
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Shutdown\n");
 }
 
 void SDLKeyboardManager::translateEvent(Event keyEvent)

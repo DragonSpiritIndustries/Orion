@@ -1,4 +1,4 @@
-#include "ComponentManager.hpp"
+#include "ComponentFactory.hpp"
 #include "IComponent.hpp"
 #include "Console.hpp"
 #include "ScriptEngine.hpp"
@@ -7,10 +7,6 @@
 ComponentFactory::ComponentFactory()
 {
     orConsoleRef.print(orConsoleRef.Info, "ComponentFactory initialized");
-    orScriptEngineRef.handle()->RegisterObjectType("Component", 0, asOBJ_REF);
-    orScriptEngineRef.handle()->RegisterObjectBehaviour("Component", asBEHAVE_ADDREF, "void f()", asMETHOD(IComponent, addRef), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectBehaviour("Component", asBEHAVE_RELEASE, "void f()", asMETHOD(IComponent, release), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectBehaviour("Component", asBEHAVE_GET_WEAKREF_FLAG, "int &f()", asMETHOD(IComponent, weakRefFlag), asCALL_THISCALL);
 }
 
 IComponent*ComponentFactory::newComponent(const std::string& componentType, const std::string& componentName)

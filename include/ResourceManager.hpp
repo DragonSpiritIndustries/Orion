@@ -16,7 +16,7 @@ class ResourceManager
 {
 public:
     ResourceManager();
-    void initialize(const std::string& executablePath,
+    bool initialize(const std::string& executablePath,
                     const std::string& organizationName= std::string(orDEFAULT_ORGANIZATION_NAME),
                     const std::string& applicationName = std::string(orDEFAULT_APPLICATION_NAME),
                     const std::string& archiveExt      = std::string(orDEFAULT_ARCHIVE_EXTENSION));
@@ -33,6 +33,7 @@ public:
 
     static ResourceManager& instanceRef();
     static ResourceManager* instancePtr();
+
 private:
     std::unordered_map<std::string, IResource*> m_resources;
     std::vector<ResourceLoaderFunc> m_resourceLoaders;
@@ -55,18 +56,6 @@ struct hidden_resourceRegistration##Class \
     }\
 };\
 static hidden_resourceRegistration##Class __hidden_resourceRegistration##Class
-#endif
-
-#ifndef REGISTER_SCRIPT_FUNCTION
-#define REGISTER_SCRIPT_FUNCTION(Class, Function) \
-struct hidden_scriptRegistration##Class \
-{ \
-    hidden_scriptRegistration##Class() \
-    { \
-        Function(); \
-    } \
-}; \
-static hidden_scriptRegistration##Class __hidden_scriptRegistration##Class
 #endif
 
 #include "ResourceManager.inl"

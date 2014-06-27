@@ -24,6 +24,7 @@ public:
 
 
     std::string path() const;
+
 protected:
     std::string m_path;
     asILockableSharedBool* m_weakRefFlag;

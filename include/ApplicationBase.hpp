@@ -35,8 +35,8 @@ public:
     virtual Vector2i windowSize()=0;
     virtual int windowWidth()=0;
     virtual int windowHeight()=0;
-    virtual void setClearColor(const Colorb& color = Colorb::black)=0;
-    virtual void drawRectangle(int w, int h, int x, int y, bool fill = false)=0;
+    virtual void setClearColor(const Colorf& color = Colorf::black)=0;
+    virtual void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorf col=Colorf::white)=0;
     virtual Nano::Signal<void(Event)>& eventSignal();
     virtual Nano::Signal<void(Event)>& keyboardSignal();
     virtual Nano::Signal<void(Event)>& mouseButtonSignal();
@@ -57,7 +57,6 @@ public:
     IJoystickManager* joystickManagerPtr();
     IMouseManager&    mouseManagerRef();
     IMouseManager*    mouseManagerPtr();
-    static void setApplication(ApplicationBase* app);
     virtual float fps() const =0;
 protected:
     // README: If you add new event handler remember to emit the event using m_eventSignal *FIRST*
@@ -80,15 +79,9 @@ protected:
     Nano::Signal<void(int)>              m_joystickRemovedSignal;
     ScriptResource*                      m_mainScript;
     asIScriptContext*                    m_scriptContext;
-    static std::shared_ptr<ApplicationBase> m_instance;
     float         m_fps;
     float         m_frameTime;
 };
-
-static inline void orCreateApplication(ApplicationBase* ptr)
-{
-    ApplicationBase::setApplication(ptr);
-}
 
 #define orApplicationRef ApplicationBase::instanceRef()
 #define orApplicationPtr ApplicationBase::instancePtr()

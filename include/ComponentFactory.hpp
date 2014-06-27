@@ -1,6 +1,7 @@
 #ifndef COMPONENTMANAGER_HPP
 #define COMPONENTMANAGER_HPP
 
+#include "Global.hpp"
 #include <unordered_map>
 #include <string>
 

@@ -1,30 +1,11 @@
 #include "ApplicationBase.hpp"
 #include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
-
-std::shared_ptr<ApplicationBase> ApplicationBase::m_instance = nullptr;
+#include "CVarManager.hpp"
+#include "Config.hpp"
 
 ApplicationBase::ApplicationBase()
-{}
-
-ApplicationBase::~ApplicationBase()
 {
-    if (m_scriptContext)
-        m_scriptContext->Release();
-}
-
-int ApplicationBase::exec()
-{
-    onStart();
-}
-
-bool ApplicationBase::init(int /*argc*/, char* argv[])
-{
-    if (!orScriptEngineRef.handle())
-        return false;
-
-    orConsoleRef.initialize();
-    orObjectManagerRef.initialize();
     orScriptEngineRef.handle()->RegisterObjectType("Application", 0, asOBJ_REF | asOBJ_NOHANDLE);
     orScriptEngineRef.handle()->RegisterObjectMethod("Application",
                                                      "float fps()",
@@ -40,7 +21,30 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
                                                      asMETHOD(ApplicationBase, title), asCALL_THISCALL);
 
     orScriptEngineRef.handle()->RegisterGlobalProperty("Application orApplication", this);
-    orResourceManagerRef.initialize(argv[0]);
+}
+
+ApplicationBase::~ApplicationBase()
+{
+    if (m_scriptContext)
+        m_scriptContext->Release();
+}
+
+int ApplicationBase::exec()
+{
+    onStart();
+
+    return 0;
+}
+
+bool ApplicationBase::init(int /*argc*/, char* argv[])
+{
+    if (!orScriptEngineRef.handle())
+        return false;
+    orCVarManagerRef.initialize();
+    orConsoleRef.initialize();
+    if (!orResourceManagerRef.initialize(argv[0]))
+        return false;
+    orObjectManagerRef.initialize();
 
     m_mainScript = orResourceManagerRef.loadResource<ScriptResource>("scripts/main.as");
     if (!m_mainScript)
@@ -169,12 +173,13 @@ Nano::Signal<void (int)>& ApplicationBase::joystickRemovedSignal()
 
 ApplicationBase& ApplicationBase::instanceRef()
 {
-    return *m_instance.get();
+    return *instancePtr();
 }
 
 ApplicationBase* ApplicationBase::instancePtr()
 {
-    return  m_instance.get();
+    static std::shared_ptr<ApplicationBase> instance = std::shared_ptr<ApplicationBase>(new APPLICATION_IMPL);
+    return  instance.get();
 }
 
 IKeyboardManager& ApplicationBase::keyboardManagerRef()
@@ -201,14 +206,4 @@ IJoystickManager* ApplicationBase::joystickManagerPtr()
 IMouseManager& ApplicationBase::mouseManagerRef()
 {
     return *m_mouseManager.get();
-}
-
-IMouseManager* ApplicationBase::mouseManagerPtr()
-{
-    return m_mouseManager.get();
-}
-
-void ApplicationBase::setApplication(ApplicationBase* app)
-{
-    m_instance = std::shared_ptr<ApplicationBase>(app);
 }

@@ -1,21 +1,15 @@
 #include "IComponent.hpp"
-#include "angelscript/angelscript.h"
+#include "ScriptEngine.hpp"
 #include "Object.hpp"
 
 IComponent::IComponent(const std::string& name)
     : m_name(name),
-      m_weakRefFlag(nullptr),
-      m_refCount(1)
+      m_owner(nullptr)
 {
 }
 
 IComponent::~IComponent()
 {
-    if (m_weakRefFlag)
-    {
-        m_weakRefFlag->Set(true);
-        m_weakRefFlag->Release();
-    }
 }
 
 std::string IComponent::name() const
@@ -38,34 +32,13 @@ void IComponent::setName(const std::string& name)
     m_name = name;
 }
 
-int IComponent::addRef()
+static void registerComponent()
 {
-    return ++m_refCount;
+    orScriptEngineRef.handle()->RegisterObjectType("Component", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Component", "string name()", asMETHOD(IComponent, name), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Component", "string name() const", asMETHOD(IComponent, name), asCALL_THISCALL);
 }
 
-int IComponent::release()
-{
-    if (--m_refCount == 0)
-    {
-        if (m_owner)
-            m_owner->removeComponent(this);
 
-        delete this;
-        return 0;
-    }
+REGISTER_SCRIPT_FUNCTION(IComponent, registerComponent);
 
-    return m_refCount;
-}
-
-void IComponent::destroyAndRelease()
-{
-    release();
-}
-
-asILockableSharedBool* IComponent::weakRefFlag()
-{
-    if (!m_weakRefFlag)
-        m_weakRefFlag = asCreateLockableSharedBool();
-
-    return m_weakRefFlag;
-}

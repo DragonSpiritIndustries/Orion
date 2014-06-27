@@ -1,10 +1,9 @@
 #include "Console.hpp"
 #include "ApplicationBase.hpp"
 #include "ScriptEngine.hpp"
+#include "CVarManager.hpp"
 #include <Athena/Utility.hpp>
 #include <ctime>
-
-void RegisterConsole(asIScriptEngine* engine);
 
 Console::Console(const std::string& logfile)
 {
@@ -13,8 +12,6 @@ Console::Console(const std::string& logfile)
 
 void Console::initialize()
 {
-    if (orScriptEngineRef.handle())
-        RegisterConsole(orScriptEngineRef.handle());
     orConsoleRef.print(orConsoleRef.Info, "Console initialized");
 }
 
@@ -234,27 +231,16 @@ void Console::addEntry(const Console::Level level, const std::string& message, c
     std::cout << timestamp << entry.message << std::endl;
 }
 
-static void consolePrint(int level, const std::string& message)
+void registerConsole()
 {
-    orConsoleRef.print((Console::Level)level, message);
-}
-
-static bool isConsoleOpen()
-{
-    return orConsoleRef.isOpen();
-}
-
-void RegisterConsole(asIScriptEngine* engine)
-{
+    asIScriptEngine* engine = orScriptEngineRef.handle();
     int r;
-    r = engine->RegisterEnum("ErrorLevel");
-    r = engine->RegisterEnumValue("ErrorLevel", "Message", Console::Message);
-    r = engine->RegisterEnumValue("ErrorLevel", "Info",    Console::Info);
-    r = engine->RegisterEnumValue("ErrorLevel", "Warning", Console::Warning);
-    r = engine->RegisterEnumValue("ErrorLevel", "Error",   Console::Error);
-    r = engine->RegisterEnumValue("ErrorLevel", "Fatal",   Console::Fatal);
-    r = engine->RegisterGlobalFunction("void print(ErrorLevel level, const string& in)", asFUNCTION(consolePrint), asCALL_CDECL);
-    r = engine->RegisterGlobalFunction("bool isConsoleOpen()", asFUNCTION(isConsoleOpen), asCALL_CDECL);
+    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    r = engine->RegisterObjectMethod("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
+    r = engine->RegisterGlobalProperty("Console orConsole", orConsolePtr);
 
     orConsoleRef.print(Console::Info, "Registered Console");
 }
+
+REGISTER_SCRIPT_FUNCTION(Console, registerConsole);

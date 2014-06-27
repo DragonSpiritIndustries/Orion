@@ -20,9 +20,9 @@
 #define orDEFAULT_ARCHIVE_EXTENSION "orp"
 #endif
 
-#ifndef orDebug
-#define orDebug(...) printf(__VA_ARGS__)
-#endif
+//#ifndef orDebug
+//#define orDebug(...) printf(__VA_ARGS__)
+//#endif
 
 #ifndef UNUSED
 #define UNUSED(x) ((void)x)
@@ -37,5 +37,12 @@
 #define orForeach for
 #define _in_ :
 #endif
+
+#ifndef REGISTER_SCRIPT_FUNCTION
+#define REGISTER_SCRIPT_FUNCTION(Class, Function) \
+struct hidden_scriptRegistration##Class \
+{ hidden_scriptRegistration##Class() { Function(); } }; static hidden_scriptRegistration##Class __hidden_scriptRegistration##Class
+#endif
+
 
 #endif // _ORION_GLOBAL_HPP

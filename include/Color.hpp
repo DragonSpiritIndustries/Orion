@@ -86,6 +86,15 @@ inline bool operator ==(const Color<T>& left, const Color<T>& right);
 template <typename T>
 inline bool operator !=(const Color<T>& left, const Color<T>& right);
 
+template <typename T>
+void constructColor(Color<T>* vector);
+
+template <typename T>
+void constructColorArgs(T r, T g, T b, T a, Color<T>* color);
+
+template <typename T>
+void destructColor(Color<T>* pointer);
+
 #include "Color.inl"
 
 #endif // COLOR_HPP

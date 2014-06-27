@@ -2,7 +2,7 @@
 #define ICOMPONENT_HPP
 
 #include <string>
-#include "ComponentManager.hpp"
+#include "ComponentFactory.hpp"
 
 class Object;
 class asILockableSharedBool;
@@ -23,10 +23,8 @@ public:
     asILockableSharedBool* weakRefFlag();
 
 protected:
-    Object* m_owner;
     std::string m_name;
-    asILockableSharedBool* m_weakRefFlag;
-    int m_refCount;
+    Object* m_owner;
 };
 
 
@@ -41,5 +39,16 @@ struct hidden_componentRegistration##Class \
 };\
 static hidden_componentRegistration##Class __hidden_componentRegistration##Class
 #endif
+
+
+template<class A=IComponent, class B=IComponent>
+B* refCast(A* a)
+{
+    if (!a)
+        return nullptr;
+
+    B* b = dynamic_cast<B*>(a);
+    return b;
+}
 
 #endif // ICOMPONENT_HPP

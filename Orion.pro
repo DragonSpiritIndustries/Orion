@@ -24,8 +24,12 @@ LIBS += \
     -lSDL2_ttf \
     -lSDL2_image \
     -lz \
-    -lphysfs
+    -lphysfs \
+    -ltinyxml \
 
+unix:LIBS += \
+    -lGL \
+    -lGLU
 win32:LIBS += \
     -lSDL2main
 
@@ -33,23 +37,27 @@ INCLUDEPATH += \
     include
 
 SOURCES += \
-    src/main.cpp \
-    src/Object.cpp \
-    src/SDLWindow.cpp \
-    src/SDLRenderer.cpp \
-    src/SDLApplication.cpp \
-    src/ObjectManager.cpp \
-    src/TestObject.cpp \
-    src/SDLKeyboardManager.cpp \
-    src/IKeyboardManager.cpp \
-    src/SDLJoystickManager.cpp \
-    src/SDLMouseManager.cpp \
-    include/TileObj.cpp \
+    src/ScriptEngine.cpp \
+    src/Console.cpp \
+    src/Vector2.cpp \
+    src/Vector3.cpp \
+    src/Rectangle.cpp \
+    src/Color.cpp \
+    src/CVarManager.cpp \
+    src/CVar.cpp \
+    src/ApplicationBase.cpp \
+    src/ComponentFactory.cpp \
+    src/IComponent.cpp \
+    src/TransformableComponent.cpp \
     src/IMouseManager.cpp \
-    src/SDLTexture.cpp \
     src/physfsrwops.c \
     src/ResourceManager.cpp \
-    src/Console.cpp \
+    src/IJoystickManager.cpp \
+    src/IResource.cpp \
+    src/ITextureResource.cpp \
+    src/ScriptResource.cpp \
+    src/ObjectManager.cpp \
+    src/Object.cpp \
     src/angelscript/as_atomic.cpp \
     src/angelscript/as_builder.cpp \
     src/angelscript/as_bytecode.cpp \
@@ -94,23 +102,31 @@ SOURCES += \
     src/angelscript/addons/scriptmathcomplex.cpp \
     src/angelscript/addons/scriptstdstring.cpp \
     src/angelscript/addons/scriptstdstring_utils.cpp \
-    src/ApplicationBase.cpp \
-    src/ScriptEngine.cpp \
     src/angelscript/addons/scripthandle.cpp \
     src/angelscript/addons/weakref.cpp \
-    src/IJoystickManager.cpp \
-    src/ScriptResource.cpp \
-    src/IResource.cpp \
-    src/ITextureResource.cpp \
-    src/Vector2.cpp \
-    src/Vector3.cpp \
-    src/Rectangle.cpp \
-    ComponentManager.cpp \
-    include/TransformableComponent.cpp \
-    src/IComponent.cpp
+    src/SDLWindow.cpp \
+    src/SDLRenderer.cpp \
+    src/SDLApplication.cpp \
+    src/TestObject.cpp \
+    src/SDLKeyboardManager.cpp \
+    src/IKeyboardManager.cpp \
+    src/SDLJoystickManager.cpp \
+    src/SDLMouseManager.cpp \
+    include/TileObj.cpp \
+    src/SDLTexture.cpp \
+    src/main.cpp
 
 HEADERS += \
     include/Global.hpp \
+    include/ApplicationBase.hpp \
+    include/ScriptEngine.hpp \
+    include/angelscript/addons.h \
+    include/angelscript/addons/weakref.h \
+    include/ScriptResource.hpp \
+    include/angelscript/addons/scripthandle.h \
+    include/EnumToString.hpp \
+    include/ComponentFactory.hpp \
+    include/TransformableComponent.hpp \
     include/Object.hpp \
     include/SDLEvent.hpp \
     include/IWindow.hpp \
@@ -184,15 +200,10 @@ HEADERS += \
     include/angelscript/addons/scriptmath.h \
     include/angelscript/addons/scriptmathcomplex.h \
     include/angelscript/addons/scriptstdstring.h \
-    include/ApplicationBase.hpp \
-    include/ScriptEngine.hpp \
-    include/angelscript/addons.h \
-    include/angelscript/addons/weakref.h \
-    include/ScriptResource.hpp \
-    include/angelscript/addons/scripthandle.h \
-    include/EnumToString.hpp \
-    ComponentManager.hpp \
-    include/TransformableComponent.hpp
+    include/Config.hpp \
+    include/CVarManager.hpp \
+    include/CVar.hpp
+
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

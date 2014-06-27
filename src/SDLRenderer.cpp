@@ -1,37 +1,43 @@
 #include "SDLRenderer.hpp"
 #include "SDLWindow.hpp"
+#include "Console.hpp"
 #include <SDL2/SDL_render.h>
+#include "SDL2/SDL_opengl.h"
+#include <limits.h>
+
+float toFloat(int val)
+{
+    return (float)(val*(1.f/255.f));
+}
 
 SDLRenderer::SDLRenderer()
-    : m_renderer(nullptr)
+    : m_context(nullptr)
 {
 }
 
 SDLRenderer::~SDLRenderer()
 {
-    SDL_DestroyRenderer(m_renderer);
+    SDL_GL_DeleteContext(m_context);
 }
 
-void SDLRenderer::setClearColor(const Colorb& color)
+void SDLRenderer::setClearColor(const Colorf& color)
 {
     m_clearColor = color;
+    glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 }
 
 void SDLRenderer::clear()
 {
-    // clear to our color
-    SDL_SetRenderDrawColor(m_renderer, m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
-    SDL_RenderClear(m_renderer);
-    // Set back to black
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+    //Clear color buffer
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SDLRenderer::present()
 {
-    SDL_RenderPresent(m_renderer);
+    SDL_GL_SwapWindow(m_windowHandle);
 }
 
-void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill)
+void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill, Colorf col)
 {
     static SDL_Rect rect;
     rect.w = w;
@@ -39,6 +45,7 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill)
     rect.x = x;
     rect.y = y;
 
+    SDL_SetRenderDrawColor(m_renderer, (int)(col.r*255), (int)(col.g*255), (int)(col.b*255), (int)(col.a*255));
     if (fill)
         SDL_RenderFillRect(m_renderer, &rect);
     else
@@ -47,19 +54,29 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill)
 
 void* SDLRenderer::handle()
 {
-    return (void*)m_renderer;
+    return reinterpret_cast<void*>(m_renderer);
 }
 
 bool SDLRenderer::initialize(IWindow& window)
 {
-    m_renderer = SDL_CreateRenderer(reinterpret_cast<SDL_Window*>(window.handle()), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-    if (m_renderer == nullptr)
+    m_windowHandle =reinterpret_cast<SDL_Window*>(window.handle());
+    m_context = SDL_GL_CreateContext(m_windowHandle);
+    if (m_context == nullptr || m_renderer)
     {
-        orDebug("%s\n", SDL_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, "%s", SDL_GetError());
         return false;
     }
-
+    m_renderer = SDL_CreateRenderer(m_windowHandle, -1, SDL_RENDERER_ACCELERATED);
+    if (!m_renderer)
+    {
+        orConsoleRef.print(orConsoleRef.Fatal, "%s", SDL_GetError());
+        return false;
+    }
+    //Use Vsync
+    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    {
+        orConsoleRef.print(orConsoleRef.Warning, "Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+    }
     return true;
 }
 

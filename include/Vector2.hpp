@@ -16,6 +16,7 @@ public:
 
     Vector2<T> normalize();
     T crossProduct(Vector2<T> vec);
+    void rotate(float angle, Vector2<T> origin);
 };
 
 typedef Vector2<float>  Vector2f;
@@ -47,23 +48,13 @@ inline Vector2<T>& operator /(const Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T>& operator /=(Vector2<T>& left, T right);
 
-void constructVector2f(Vector2f* vector);
+template <typename T>
+void constructVector2(Vector2<T>* vector);
+template <typename T>
+void constructVector2Args(T x, T y, Vector2<T>* vector);
 
-void constructVector2fArgs(float x, float y, Vector2f* vector);
-
-void destructVector2f(Vector2f* pointer);
-
-void constructVector2d(Vector2d* vector);
-
-void constructVector2dArgs(double x, double y, Vector2d* vector);
-
-void destructVector2d(Vector2d* pointer);
-
-void constructVector2i(Vector2i* vector);
-
-void constructVector2iArgs(int x, int y, Vector2i* vector);
-
-void destructVector2i(Vector2i* pointer);
+template <typename T>
+void destructVector2(Vector2<T>* pointer);
 
 #include "Vector2.inl"
 #endif // VECTOR2_HPP

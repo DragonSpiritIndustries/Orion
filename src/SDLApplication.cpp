@@ -11,6 +11,7 @@
 #include <Athena/Utility.hpp>
 #include "angelscript/addons.h"
 #include "TestObject.hpp"
+#include "CVarManager.hpp"
 
 
 SDLApplication::SDLApplication()
@@ -25,6 +26,7 @@ SDLApplication::~SDLApplication()
 int SDLApplication::exec()
 {
     ApplicationBase::onStart();
+    orObjectManagerPtr->addObject(new TestObject);
     while (m_running)
     {
         updateFPS();
@@ -45,8 +47,7 @@ bool SDLApplication::init(int argc, char* argv[])
 
     if (!ApplicationBase::init(argc, argv))
         return false;
-
-    orDebug("Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
+    orConsoleRef.print(orConsoleRef.Info, "Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
     parseCommandLine(argc, argv);
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
@@ -68,7 +69,7 @@ bool SDLApplication::init(int argc, char* argv[])
 
     if (TTF_Init() == -1)
     {
-        orDebug("%s\n", TTF_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, "%s\n", TTF_GetError());
         return false;
     }
 
@@ -77,7 +78,7 @@ bool SDLApplication::init(int argc, char* argv[])
 
     if (!m_debugFont)
     {
-        orDebug("Unable to obtain debug font: %s\n", TTF_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, "Unable to obtain debug font: %s\n", TTF_GetError());
         return false;
     }
 
@@ -285,9 +286,9 @@ void SDLApplication::drawDebugText(const std::string& text, const Vector2f& posi
     drawDebugText(text, position.x, position.y);
 }
 
-void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill)
+void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill, Colorf col)
 {
-    m_renderer.drawRect(w, h, x, y, fill);
+    m_renderer.drawRect(w, h, x, y, fill, col);
 }
 
 void SDLApplication::setTitle(const std::string& title)
@@ -315,7 +316,7 @@ int SDLApplication::windowHeight()
     return m_window.windowHeight();
 }
 
-void SDLApplication::setClearColor(const Colorb& color)
+void SDLApplication::setClearColor(const Colorf& color)
 {
     m_renderer.setClearColor(color);
 }
