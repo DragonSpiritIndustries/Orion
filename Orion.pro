@@ -204,7 +204,6 @@ HEADERS += \
     include/CVarManager.hpp \
     include/CVar.hpp
 
-
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \
     src/angelscript/as_callfunc_arm_xcode.S \

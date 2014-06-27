@@ -41,4 +41,3 @@ static void registerComponent()
 
 
 REGISTER_SCRIPT_FUNCTION(IComponent, registerComponent);
-

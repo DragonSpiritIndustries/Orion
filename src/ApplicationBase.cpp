@@ -6,21 +6,6 @@
 
 ApplicationBase::ApplicationBase()
 {
-    orScriptEngineRef.handle()->RegisterObjectType("Application", 0, asOBJ_REF | asOBJ_NOHANDLE);
-    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
-                                                     "float fps()",
-                                                     asMETHOD(ApplicationBase, fps), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
-                                                     "void quit()",
-                                                     asMETHOD(ApplicationBase, close), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
-                                                     "void setTitle(const string& in)",
-                                                     asMETHOD(ApplicationBase, setTitle), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
-                                                     "string title()",
-                                                     asMETHOD(ApplicationBase, title), asCALL_THISCALL);
-
-    orScriptEngineRef.handle()->RegisterGlobalProperty("Application orApplication", this);
 }
 
 ApplicationBase::~ApplicationBase()
@@ -207,3 +192,23 @@ IMouseManager& ApplicationBase::mouseManagerRef()
 {
     return *m_mouseManager.get();
 }
+
+static void registerApplication()
+{
+    orScriptEngineRef.handle()->RegisterObjectType("Application", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
+                                                     "float fps()",
+                                                     asMETHOD(ApplicationBase, fps), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
+                                                     "void quit()",
+                                                     asMETHOD(ApplicationBase, close), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
+                                                     "void setTitle(const string& in)",
+                                                     asMETHOD(ApplicationBase, setTitle), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("Application",
+                                                     "string title()",
+                                                     asMETHOD(ApplicationBase, title), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterGlobalProperty("Application orApplication", orApplicationPtr);
+}
+
+REGISTER_SCRIPT_FUNCTION(ApplicationBase, registerApplication);

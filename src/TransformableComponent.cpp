@@ -63,7 +63,6 @@ IComponent* TransformableComponent::newComponent(const std::string& name)
 
 REGISTER_COMPONENT(TransformableComponent, "Transformable", newComponent);
 
-
 static void registerTransformable()
 {
     orScriptEngineRef.handle()->RegisterObjectType     ("Transformable", 0, asOBJ_REF | asOBJ_NOCOUNT);

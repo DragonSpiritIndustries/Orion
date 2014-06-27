@@ -1,5 +1,4 @@
 #include "ComponentFactory.hpp"
-#include "IComponent.hpp"
 #include "Console.hpp"
 #include "ScriptEngine.hpp"
 #include <memory>

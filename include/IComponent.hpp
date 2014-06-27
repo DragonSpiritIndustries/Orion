@@ -3,7 +3,6 @@
 
 #include <string>
 #include "ComponentFactory.hpp"
-
 class Object;
 class asILockableSharedBool;
 class IComponent
@@ -39,7 +38,6 @@ struct hidden_componentRegistration##Class \
 };\
 static hidden_componentRegistration##Class __hidden_componentRegistration##Class
 #endif
-
 
 template<class A=IComponent, class B=IComponent>
 B* refCast(A* a)

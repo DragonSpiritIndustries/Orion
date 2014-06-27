@@ -6,7 +6,6 @@
 #include "ScriptResource.hpp"
 #include "IComponent.hpp"
 #include "ComponentFactory.hpp"
-
 #include <algorithm>
 
 
