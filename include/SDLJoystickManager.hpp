@@ -41,6 +41,7 @@ public:
     void motorOn(int which);
     void motorOff(int which);
     void shutdown();
+    bool isPluggedIn(int which);
 
     void update(float);
 private:

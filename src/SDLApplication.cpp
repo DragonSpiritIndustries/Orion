@@ -13,6 +13,7 @@
 #include "TestObject.hpp"
 #include "CVarManager.hpp"
 
+extern CVar* sys_title;
 
 SDLApplication::SDLApplication()
     : m_running(false)
@@ -286,7 +287,7 @@ void SDLApplication::drawDebugText(const std::string& text, const Vector2f& posi
     drawDebugText(text, position.x, position.y);
 }
 
-void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill, Colorf col)
+void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill, Colorb col)
 {
     m_renderer.drawRect(w, h, x, y, fill, col);
 }

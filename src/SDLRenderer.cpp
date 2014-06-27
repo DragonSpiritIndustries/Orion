@@ -37,7 +37,7 @@ void SDLRenderer::present()
     SDL_GL_SwapWindow(m_windowHandle);
 }
 
-void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill, Colorf col)
+void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill, Colorb col)
 {
     static SDL_Rect rect;
     rect.w = w;
@@ -45,7 +45,7 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill, Colorf col)
     rect.x = x;
     rect.y = y;
 
-    SDL_SetRenderDrawColor(m_renderer, (int)(col.r*255), (int)(col.g*255), (int)(col.b*255), (int)(col.a*255));
+    SDL_SetRenderDrawColor(m_renderer, (int)(col.r), (int)(col.g), (int)(col.b), (int)(col.a));
     if (fill)
         SDL_RenderFillRect(m_renderer, &rect);
     else

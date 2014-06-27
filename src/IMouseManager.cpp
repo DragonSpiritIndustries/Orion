@@ -10,7 +10,7 @@ template<> const char* enumStrings<MouseButton>::data[] =
     "RIGHT",
     "X1",
     "X2"
-
+    "UNKNOWN"
 };
 
 IMouseManager::IMouseManager()

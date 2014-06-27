@@ -12,7 +12,8 @@ enum class MouseButton : int
     RIGHT,
     X1,
     X2,
-    COUNT
+    COUNT,
+    UNKNOWN
 };
 
 // For std::unordered_map

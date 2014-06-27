@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "Config.hpp"
+
 #define orVERSION_STR "0.0.1"
 
 #define orRELEASE_NAME "Dionysus"

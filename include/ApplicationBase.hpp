@@ -36,7 +36,7 @@ public:
     virtual int windowWidth()=0;
     virtual int windowHeight()=0;
     virtual void setClearColor(const Colorf& color = Colorf::black)=0;
-    virtual void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorf col=Colorf::white)=0;
+    virtual void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white)=0;
     virtual Nano::Signal<void(Event)>& eventSignal();
     virtual Nano::Signal<void(Event)>& keyboardSignal();
     virtual Nano::Signal<void(Event)>& mouseButtonSignal();

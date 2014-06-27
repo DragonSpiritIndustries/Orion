@@ -1,11 +1,12 @@
 ﻿#include "CVar.hpp"
 #include "CVarManager.hpp"
-#include "IKeyboardManager.hpp"
+#include "ApplicationBase.hpp"
 #include "Console.hpp"
 #include <sstream>
 #include <algorithm>
 #include <tinyxml.h>
 #include <Athena/Utility.hpp>
+#include "EnumToString.hpp"
 
 extern CVar* com_developer;
 
@@ -18,20 +19,21 @@ CVar::CVar(const std::string& name, const std::string &value, const std::string 
       m_flags(flags),
       m_allowedWrite(false)
 {
-    orCVarManagerRef.registerCVar(this);
+    if (!orCVarManagerRef.registerCVar(this))
+        delete this;
 }
 
-// TODO: Reimplement
-//CVar::CVar(const std::string& name, CVar::Binding value, const std::string& help, int flags)
-//    : m_name(name),
-//      m_help(help),
-//      m_binding(value),
-//      m_type(Bind),
-//      m_flags(flags),
-//      m_allowedWrite(false)
-//{
-//    orCVarManagerRef.registerCVar(this);
-//}
+CVar::CVar(const std::string& name, CVar::Binding value, const std::string& help, int flags)
+    : m_name(name),
+      m_help(help),
+      m_type(Bind),
+      m_flags(flags),
+      m_allowedWrite(false),
+      m_binding(value)
+{
+    if (!orCVarManagerRef.registerCVar(this))
+        delete this;
+}
 
 CVar::CVar(const std::string& name, const Colorf& value, const std::string& help, int flags)
     : m_name(name),
@@ -50,7 +52,8 @@ CVar::CVar(const std::string& name, const Colorf& value, const std::string& help
     // Clear the modified flag, just incase lock didn't do it.
     m_flags = flags;
 
-    orCVarManagerRef.registerCVar(this);
+    if (!orCVarManagerRef.registerCVar(this))
+        delete this;
 }
 
 CVar::CVar(const std::string& name, const Colorb& value, const std::string& help, int flags)
@@ -70,7 +73,8 @@ CVar::CVar(const std::string& name, const Colorb& value, const std::string& help
     // Clear the modified flag, just incase lock didn't do it.
     m_flags = flags;
 
-    orCVarManagerRef.registerCVar(this);
+    if (!orCVarManagerRef.registerCVar(this))
+        delete this;
 }
 
 CVar::CVar(const std::string& name, const Colori& value, const std::string& help, int flags)
@@ -90,7 +94,8 @@ CVar::CVar(const std::string& name, const Colori& value, const std::string& help
     // Clear the modified flag, just incase lock didn't do it.
     m_flags = flags;
 
-    orCVarManagerRef.registerCVar(this);
+    if (!orCVarManagerRef.registerCVar(this))
+        delete this;
 }
 
 std::string CVar::name() const
@@ -298,13 +303,12 @@ Colori CVar::toColori(bool* isValid) const
     return Colori(r, g, b, a);
 }
 
-/* TODO: Reimplement
 CVar::Binding CVar::toBinding(bool* isValid) const
 {
     if (m_type != Bind)
     {
         if (com_developer && com_developer->toBoolean())
-            sEngineRef().console().print(Console::Warning, "CVar %s is not a binding", name().c_str());
+            orConsoleRef.print(orConsoleRef.Warning, "CVar %s is not a binding", name().c_str());
 
         if (isValid != NULL)
             *isValid = false;
@@ -316,7 +320,7 @@ CVar::Binding CVar::toBinding(bool* isValid) const
         *isValid = true;
 
     return m_binding;
-}*/
+}
 
 bool CVar::fromFloat(const float val)
 {
@@ -511,7 +515,6 @@ bool CVar::fromColori(const Colori& val)
     return true;
 }
 
-/* TODO: Reimplement
 bool CVar::fromBinding(CVar::Binding binding)
 {
     if (isCheat() && (com_developer && !com_developer->toBoolean()))
@@ -533,7 +536,7 @@ bool CVar::fromBinding(CVar::Binding binding)
     m_binding = binding;
     return true;
 }
-*/
+
 
 bool CVar::isFloat() const
 {
@@ -592,25 +595,25 @@ void CVar::setModified()
     m_flags |= Modified;
 }
 
-/* TODO: Reimplement
 void CVar::clearBindings()
 {
     m_binding.clear();
-}*/
+}
 
 bool CVar::tryBinding(const std::string& binding)
 {
     // TODO: Reimplement this
-    /*
     std::string bindingName = binding;
     Athena::utility::tolower(bindingName);
     if (binding.compare("mouse") != -1)
     {
-        for (int i = 0; i < sf::Mouse::ButtonCount; i++)
+        for (int i = 0; i < (int)MouseButton::COUNT; i++)
         {
-            if(!MouseButtonInfo[i].name.compare(bindingName))
+            std::string name = enumToStdString((MouseButton)i);
+            Athena::utility::tolower(name);
+            if(!name.compare(bindingName))
             {
-                m_binding.Button = (MouseButton)MouseButtonInfo[i].button;
+                m_binding.MouseButtonVal = (MouseButton)i;
                 return true;
             }
         }
@@ -618,38 +621,38 @@ bool CVar::tryBinding(const std::string& binding)
 
     if (binding.compare("joy") > -1)
     {
-        for (int i = 0; i < sf::Joystick::Count; i++)
+        for (int i = 0; i < IJoystickManager::MaxJoysticks; i++)
         {
             // first axis
-            for (int j = 0; j < sf::Joystick::AxisCount; j++)
+            for (int j = 0; j < orJoystickManagerRef.maxAxes(i); j++)
             {
                 // First try axis
-                std::string axisName = zelda::utility::sprintf("joy%i.%s", i, AxisInfo[j].name.c_str());
-                std::string negAxisName = zelda::utility::sprintf("-joy%i.%s", i, AxisInfo[j].name.c_str());
+                std::string axisName = Athena::utility::sprintf("joy%i.%i", i, j);
+                std::string negAxisName = Athena::utility::sprintf("-joy%i.%i", i, j);
 
+                m_binding.Joysticks[i].Axis = j;
+                m_binding.Joysticks[i].valid = true;
                 if (!axisName.compare(bindingName))
                 {
-                    m_binding.Joysticks[i].Axis = (Joystick::JoyAxis)AxisInfo[j].axis;
                     m_binding.Joysticks[i].NegativeAxis = false;
                     return true;
                 }
                 else if (!negAxisName.compare(bindingName))
                 {
-                    m_binding.Joysticks[i].Axis = (Joystick::JoyAxis)AxisInfo[j].axis;
                     m_binding.Joysticks[i].NegativeAxis = true;
                     return true;
                 }
             }
 
             // Now buttons
-            for (int j = 0; j < sf::Joystick::ButtonCount; j++)
+            for (int j = 0; j < orJoystickManagerRef.maxAxes(i); j++)
             {
                 // First try axis
-                std::string axisName = zelda::utility::sprintf("joy%i.button%i", i, j);
-
-                if (!axisName.compare(bindingName))
+                std::string buttonName = Athena::utility::sprintf("joy%i.button%i", i, j);
+                if (!buttonName.compare(bindingName))
                 {
                     m_binding.Joysticks[i].Button = j;
+                    m_binding.Joysticks[i].valid = true;
                     return true;
                 }
             }
@@ -657,17 +660,18 @@ bool CVar::tryBinding(const std::string& binding)
     }
 
     // Now for keyboard
-    for (int i = 0; i < sf::Keyboard::KeyCount - 1; i++)
+    for (int i = 0; i < (int)Key::KEYCOUNT; i++)
     {
-        if (!bindingName.compare(KeyInfo[i].name))
+        std::string keyName = enumToStdString((Key)i);
+        Athena::utility::tolower(keyName);
+        if (!bindingName.compare(keyName))
         {
-            m_binding.KeyVal = KeyInfo[i].code;
+            m_binding.KeyVal = (Key)i;
             return true;
         }
     }
 
-    // Oops user specified an invalid key!;
-    */
+    // Oops user specified an invalid key!
     return false;
 }
 
@@ -718,24 +722,26 @@ void CVar::deserialize(TiXmlNode* rootNode)
     {
         case Bind:
         {
-            // TODO: Reimplement this
-            /*
             std::string tmp = cvarNode->Attribute("key");
             Athena::utility::tolower(tmp);
-            for (int k = 0; k < sf::Keyboard::KeyCount; k++)
+            for (int k = 0; k < (int)Key::KEYCOUNT; k++)
             {
-                if (!KeyInfo[k].name.compare(tmp))
-                    m_binding.KeyVal = KeyInfo[k].code;
+                std::string keyName = enumToStdString((Key)k);
+                Athena::utility::tolower(keyName);
+                if (!keyName.compare(tmp))
+                    m_binding.KeyVal = (Key)k;
             }
 
             tmp = cvarNode->Attribute("mouseButton");
-            for (int m = 0; m < sf::Mouse::ButtonCount; m++)
+            for (int m = 0; m < (int)MouseButton::COUNT; m++)
             {
-                if (!MouseButtonInfo[m].name.compare(tmp))
-                    m_binding.Button = (MouseButton)MouseButtonInfo[m].button;
+                std::string name = enumToStdString((MouseButton)m);
+                Athena::utility::tolower(name);
+                if (!name.compare(tmp))
+                    m_binding.MouseButtonVal = (MouseButton)m;
             }
 
-            for (int j = 0; j < sf::Joystick::Count; j++)
+            for (int j = 0; j < IJoystickManager::MaxJoysticks; j++)
             {
                 std::stringstream ss;
                 ss << j;
@@ -753,18 +759,14 @@ void CVar::deserialize(TiXmlNode* rootNode)
                 int button;
                 joyNode->Attribute("button", &button);
                 m_binding.Joysticks[j].Button = button;
-                tmp = joyNode->Attribute("axis");
-                zelda::utility::tolower(tmp);
+                int axis;
+                joyNode->Attribute("axis", &axis);
+                m_binding.Joysticks[j].Axis = axis;
 
-                for (int a = 0; a < sf::Joystick::AxisCount; a++)
-                {
-                    if (!AxisInfo[a].name.compare(tmp))
-                        m_binding.Joysticks[j].Axis = (Joystick::JoyAxis)(AxisInfo[a].axis);
-                }
                 tmp = joyNode->Attribute("isAxisNegative");
-                m_binding.Joysticks[j].NegativeAxis = zelda::utility::parseBool(tmp);
-
-            }*/
+                m_binding.Joysticks[j].NegativeAxis = Athena::utility::parseBool(tmp);
+                m_binding.Joysticks[j].valid = true;
+            }
         }
         break;
         case Color:
@@ -871,7 +873,6 @@ void CVar::serializeCVar(TiXmlNode* rootNode, bool oldDeveloper)
 
 void CVar::serializeBinding(TiXmlNode* rootNode)
 {
-    /* TODO: Reimplement
     TiXmlElement* bindNode = rootNode->FirstChildElement("Bind");
 
     while (bindNode != NULL)
@@ -889,11 +890,16 @@ void CVar::serializeBinding(TiXmlNode* rootNode)
         rootNode->LinkEndChild(bindNode);
     }
 
-    bindNode->SetAttribute("key", (m_binding.KeyVal == sf::Keyboard::Unknown ? "unknown" : KeyInfo[m_binding.KeyVal].name));
-    bindNode->SetAttribute("mouseButton", (m_binding.Button == UnknownButton ? "unknown" : MouseButtonInfo[m_binding.Button].name));
+    if (m_binding.KeyVal != Key::UNKNOWN)
+        bindNode->SetAttribute("key", enumToStdString(m_binding.KeyVal));
+    if (m_binding.MouseButtonVal != MouseButton::UNKNOWN)
+        bindNode->SetAttribute("mouseButton", enumToStdString(m_binding.MouseButtonVal));
 
-    for (int i = 0; i < sf::Joystick::Count; i++)
+    for (int i = 0; i < IJoystickManager::MaxJoysticks; i++)
     {
+        if (!m_binding.Joysticks[i].valid)
+            continue;
+
         std::stringstream ss;
         ss << i;
         TiXmlElement* joyNode = bindNode->FirstChildElement("Joy");
@@ -913,9 +919,9 @@ void CVar::serializeBinding(TiXmlNode* rootNode)
         }
 
         joyNode->SetAttribute("button", m_binding.Joysticks[i].Button);
-        joyNode->SetAttribute("axis", (m_binding.Joysticks[i].Axis == Joystick::None ? "unknown" : AxisInfo[m_binding.Joysticks[i].Axis].name));
+        joyNode->SetAttribute("axis", m_binding.Joysticks[i].Axis);
         joyNode->SetAttribute("isAxisNegative", (m_binding.Joysticks[i].NegativeAxis ? "true" : "false"));
-    }*/
+    }
 }
 
 void CVar::unlock()
@@ -943,7 +949,6 @@ void CVar::lock()
     }
 }
 
-/* TODO: Reimplement
 CVar::Binding::Binding()
 {
     clear();
@@ -951,14 +956,34 @@ CVar::Binding::Binding()
 
 void CVar::Binding::clear()
 {
-    KeyVal    = sf::Keyboard::Unknown;
-    Button = UnknownButton;
+    KeyVal = Key::UNKNOWN;
+    MouseButtonVal = MouseButton::UNKNOWN;
 
-    for (int i = 0; i < sf::Joystick::Count; i++)
+    for (int i = 0; i < IJoystickManager::MaxJoysticks; i++)
     {
         Joysticks[i].Button       = -1;
-        Joysticks[i].Axis         = Joystick::None;
+        Joysticks[i].Axis         = -1;
         Joysticks[i].NegativeAxis = false;
+        Joysticks[i].valid        = false;
     }
 }
-*/
+
+CVarUnlocker::CVarUnlocker(CVar* cvar)
+    : m_cvar(cvar)
+{
+    if (m_cvar)
+    {
+        m_cvar->unlock();
+        std::cout << "Unlocked " << m_cvar->name() << std::endl;
+    }
+}
+
+CVarUnlocker::~CVarUnlocker()
+{
+    if (m_cvar)
+    {
+        m_cvar->lock();
+        std::cout << "Locked " << m_cvar->name() << std::endl;
+    }
+}
+

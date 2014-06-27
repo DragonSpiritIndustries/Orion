@@ -1,8 +1,12 @@
 #include "ApplicationBase.hpp"
+#include APPLICATION_IMPL_HEADER
 #include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
 #include "CVarManager.hpp"
+#include "CVar.hpp"
 #include "Config.hpp"
+
+CVar* sys_title = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "The title in the window", CVar::Literal, CVar::Archive | CVar::System | CVar::ReadOnly);
 
 ApplicationBase::ApplicationBase()
 {
@@ -30,6 +34,8 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
     if (!orResourceManagerRef.initialize(argv[0]))
         return false;
     orObjectManagerRef.initialize();
+
+    setTitle(sys_title->toLiteral());
 
     m_mainScript = orResourceManagerRef.loadResource<ScriptResource>("scripts/main.as");
     if (!m_mainScript)

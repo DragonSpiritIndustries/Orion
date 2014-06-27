@@ -5,9 +5,18 @@
 
 #include "IKeyboardManager.hpp"
 #include "IMouseManager.hpp"
+#include "IJoystickManager.hpp"
 #include "Color.hpp"
 
 class TiXmlNode;
+
+struct Joystick
+{
+    int     Button;
+    int     Axis;
+    bool    NegativeAxis;
+    bool    valid;
+};
 
 class CVar
 {
@@ -35,24 +44,35 @@ public:
         Modified = (1 << 6)
     };
 
+    class Binding
+    {
+    public:
+        Key               KeyVal;
+        MouseButton       MouseButtonVal;
+        Joystick          Joysticks[IJoystickManager::MaxJoysticks];
+
+        Binding();
+        void clear();
+    };
+
     CVar(const std::string& name, const std::string& value, const std::string& help, Type type, int flags);
-//    CVar(const std::string& name, Binding value, const std::string& help, int flags);
+    CVar(const std::string& name, Binding value, const std::string& help, int flags);
     CVar(const std::string& name, const Colorf& value, const std::string& help, int flags);
     CVar(const std::string& name, const Colorb& value, const std::string& help, int flags);
     CVar(const std::string& name, const Colori& value, const std::string& help, int flags);
 
 
 
-    std::string name()                         const;
-    std::string help()                         const;
-    float       toFloat (bool* isValid  =NULL) const;
-    bool        toBoolean(bool* isValid =NULL) const;
-    int         toInteger(bool* isValid =NULL) const;
-    std::string toLiteral(bool* isValid =NULL) const;
-    Colorf      toColorf (bool* isValid =NULL) const;
-    Colorb      toColorb (bool* isValid =NULL) const;
-    Colori      toColori (bool* isValid =NULL) const;
-//    Binding     toBinding(bool* isValid =NULL) const;
+    std::string name()                            const;
+    std::string help()                            const;
+    float       toFloat (bool* isValid  =nullptr) const;
+    bool        toBoolean(bool* isValid =nullptr) const;
+    int         toInteger(bool* isValid =nullptr) const;
+    std::string toLiteral(bool* isValid =nullptr) const;
+    Colorf      toColorf (bool* isValid =nullptr) const;
+    Colorb      toColorb (bool* isValid =nullptr) const;
+    Colori      toColori (bool* isValid =nullptr) const;
+    Binding     toBinding(bool* isValid =nullptr) const;
 
     bool fromFloat  (const float val);
     bool fromBoolean(const bool val);
@@ -62,7 +82,7 @@ public:
     bool fromColorb (const Colorb& val);
     bool fromColori (const Colori& val);
 
- //   bool fromBinding(Binding binding);
+    bool fromBinding(Binding binding);
 
     bool isFloat()       const;
     bool isBoolean()     const;
@@ -107,8 +127,17 @@ protected:
     Type        m_type;
     int         m_flags;
     bool        m_allowedWrite;
+    Binding     m_binding;
 };
 
+class CVarUnlocker
+{
+public:
+    CVarUnlocker(CVar* cvar);
+    ~CVarUnlocker();
+private:
+    CVar* m_cvar;
+};
 
 #endif // CVAR_HPP
 

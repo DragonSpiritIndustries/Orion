@@ -17,6 +17,12 @@ SDLJoystickManager::~SDLJoystickManager()
 
 void SDLJoystickManager::onJoystickAdded(int which)
 {
+    if (m_devices.size() >= MaxJoysticks)
+    {
+        orConsoleRef.print(orConsoleRef.Info, "Joystick limit %i reached, ignoring new controller", MaxJoysticks);
+        return;
+    }
+
     SDLJoystickDevice* device = new SDLJoystickDevice;
     device->device = SDL_JoystickOpen(which);
     if (!device->device)
@@ -160,6 +166,14 @@ void SDLJoystickManager::shutdown()
         device = nullptr;
     }
     m_devices.clear();
+}
+
+bool SDLJoystickManager::isPluggedIn(int which)
+{
+    if (joystick(which))
+        return true;
+
+    return false;
 }
 
 void SDLJoystickManager::update(float)

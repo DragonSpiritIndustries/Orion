@@ -90,6 +90,7 @@ protected:
     virtual void parseCVars();
     virtual void addEntry(const Level level, const std::string& message, const std::string& timestamp, const std::string label = std::string());
     std::ofstream m_log;
+    int                   m_startString;
     std::vector<LogEntry> m_history;
 };
 

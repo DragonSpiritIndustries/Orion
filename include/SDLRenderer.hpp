@@ -15,7 +15,7 @@ public:
     bool initialize(IWindow& window);
     void clear();
     void present();
-    void drawRect(int w, int h, int x, int y, bool fill = false, Colorf col=Colorf::white);
+    void drawRect(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
     void* handle();
 private:
     SDL_Renderer*  m_renderer;

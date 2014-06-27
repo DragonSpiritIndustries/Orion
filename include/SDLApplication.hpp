@@ -21,7 +21,7 @@ public:
     void* rendererHandle();
     void drawDebugText(const std::string& text, float x, float y);
     void drawDebugText(const std::string& text, const Vector2f& position);
-    void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorf col=Colorf::white);
+    void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
     void setTitle(const std::string &title);
     std::string title() const;
 

@@ -159,7 +159,7 @@ CVarManager* CVarManager::instancePtr()
 bool CVarManager::suppressDeveloper()
 {
     bool oldDeveloper = com_developer->toBoolean();
-    com_developer->unlock();
+    CVarUnlocker unlock(com_developer);
     com_developer->fromBoolean(false);
 
     return oldDeveloper;
@@ -167,46 +167,128 @@ bool CVarManager::suppressDeveloper()
 
 void CVarManager::restoreDeveloper(bool oldDeveloper)
 {
-    com_developer->unlock();
+    CVarUnlocker unlock(com_developer);
     com_developer->fromBoolean(oldDeveloper);
-    com_developer->lock();
+}
+
+#include <new>
+static void cvarLockerConstruct(CVar* target, CVarUnlocker* unlocker)
+{
+    new(unlocker) CVarUnlocker(target);
+}
+
+void cvarLockerDestruct(CVarUnlocker* unlocker)
+{
+    unlocker->~CVarUnlocker();
+}
+
+static bool joystickValid(int which, CVar* cvar)
+{
+    if (which > IJoystickManager::MaxJoysticks)
+        return false;
+    if (cvar)
+    {
+        bool valid;
+        CVar::Binding b = cvar->toBinding(&valid);
+        if (!valid)
+            return false;
+
+        return b.Joysticks[which].valid;
+    }
+
+    return false;
+}
+
+static CVar* createCVar(const std::string& name, const std::string& value, const std::string& help, CVar::Type type, int flags)
+{
+    // if the cvar already exists just pass it
+    if (orCVarManagerRef.findCVar(name))
+        return orCVarManagerRef.findCVar(name);
+
+    new CVar(name, value, help, type, flags);
+    return orCVarManagerRef.findCVar(name);
+}
+
+static CVar* createBinding(const std::string& name, const std::string& help, int flags)
+{
+    // if the cvar already exists just pass it
+    if (orCVarManagerRef.findCVar(name))
+        return orCVarManagerRef.findCVar(name);
+
+    new CVar(name, CVar::Binding(), help, flags);
+    return orCVarManagerRef.findCVar(name);
+}
+
+template<typename T>
+static CVar* createColor(const std::string& name, const std::string& help, int flags)
+{
+    // if the cvar already exists just pass it
+    if (orCVarManagerRef.findCVar(name))
+        return orCVarManagerRef.findCVar(name);
+
+    new CVar(name, Color<T>(), help, flags);
+    return orCVarManagerRef.findCVar(name);
 }
 
 static void registerCVar();
+static void registerCVarLocker();
 
 static void registerCVarManager()
 {
     registerCVar();
+    registerCVarLocker();
     orScriptEngineRef.handle()->RegisterObjectType    ("CVarManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
     orScriptEngineRef.handle()->RegisterObjectMethod  ("CVarManager", "CVar @ cvar(const string& in)", asMETHOD(CVarManager, findCVar), asCALL_THISCALL);
     orScriptEngineRef.handle()->RegisterGlobalProperty("CVarManager orCVarManager", orCVarManagerPtr);
+
+    orScriptEngineRef.handle()->RegisterGlobalFunction("CVar @ orCreateCVar(const string& in name, const string& in value, const string& in help, int type, int flags)",
+                                                       asFUNCTION(createCVar), asCALL_CDECL);
+    orScriptEngineRef.handle()->RegisterGlobalFunction("CVar @ orCreateColorf(const string& in name, const string& in help, int flags)",
+                                                       asFUNCTION((createColor<float>)), asCALL_CDECL);
+    orScriptEngineRef.handle()->RegisterGlobalFunction("CVar @ orCreateColorb(const string& in name, const string& in help, int flags)",
+                                                       asFUNCTION((createColor<char>)), asCALL_CDECL);
+    orScriptEngineRef.handle()->RegisterGlobalFunction("CVar @ orCreateColori(const string& in name, const string& in help, int flags)",
+                                                       asFUNCTION((createColor<int>)), asCALL_CDECL);
+    orScriptEngineRef.handle()->RegisterGlobalFunction("CVar @ orCreateBinding(const string& in name, const string& in help, int flags)",
+                                                       asFUNCTION(createBinding), asCALL_CDECL);
+}
+
+static void registerCVarLocker()
+{
+    orScriptEngineRef.handle()->RegisterObjectType     ("CVarUnlocker", sizeof(CVarUnlocker), asOBJ_VALUE | asOBJ_APP_CLASS_CD | asOBJ_POD);
+    orScriptEngineRef.handle()->RegisterObjectBehaviour("CVarUnlocker", asBEHAVE_CONSTRUCT, "void f(CVar@)", asFUNCTION(cvarLockerConstruct), asCALL_CDECL_OBJLAST);
+    orScriptEngineRef.handle()->RegisterObjectBehaviour("CVarUnlocker", asBEHAVE_DESTRUCT,  "void f()",      asFUNCTION(cvarLockerDestruct), asCALL_CDECL_OBJLAST);
 }
 
 static void registerCVar()
 {
     asIScriptEngine* handle = orScriptEngineRef.handle();
-    handle->RegisterObjectType  ("CVar", 0, asOBJ_REF | asOBJ_NOCOUNT);
-    handle->RegisterObjectMethod("CVar", "float toFloat()",                   asMETHOD(CVar, toFloat),   asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "float toFloat(bool& out)",          asMETHOD(CVar, toFloat),   asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool fromFloat(float& in)",         asMETHOD(CVar, fromFloat),   asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool toBoolean()",                  asMETHOD(CVar, toBoolean), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool toBoolean(bool& out)",         asMETHOD(CVar, toBoolean), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool fromBoolean(const bool& in)",  asMETHOD(CVar, fromBoolean), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "int toInteger()",                   asMETHOD(CVar, toInteger), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "int toInteger(bool& out)",          asMETHOD(CVar, toInteger), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool fromInteger(const int& in)",   asMETHOD(CVar, fromInteger), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "string toLiteral()",                asMETHOD(CVar, toLiteral), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "string toLiteral(bool& out)",       asMETHOD(CVar, toLiteral), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "bool fromLiteral(const string& in)",asMETHOD(CVar, fromLiteral), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colorf toColorf()",                 asMETHOD(CVar, toColorf),  asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colorf toColorf(bool& out)",        asMETHOD(CVar, toColorf),  asCALL_THISCALL);
+
+    handle->RegisterObjectType  ("CVar", sizeof(CVar), asOBJ_REF | asOBJ_NOCOUNT);
+    handle->RegisterObjectMethod("CVar", "float toFloat()",                   asMETHOD(CVar, toFloat),    asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "float toFloat(bool& out)",          asMETHOD(CVar, toFloat),    asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool fromFloat(float& in)",         asMETHOD(CVar, fromFloat),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool toBoolean()",                  asMETHOD(CVar, toBoolean),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool toBoolean(bool& out)",         asMETHOD(CVar, toBoolean),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool fromBoolean(const bool& in)",  asMETHOD(CVar, fromBoolean),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "int toInteger()",                   asMETHOD(CVar, toInteger),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "int toInteger(bool& out)",          asMETHOD(CVar, toInteger),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool fromInteger(const int& in)",   asMETHOD(CVar, fromInteger),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "string toLiteral()",                asMETHOD(CVar, toLiteral),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "string toLiteral(bool& out)",       asMETHOD(CVar, toLiteral),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool fromLiteral(const string& in)",asMETHOD(CVar, fromLiteral),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colorf toColorf()",                 asMETHOD(CVar, toColorf),   asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colorf toColorf(bool& out)",        asMETHOD(CVar, toColorf),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromColorf(const Colorf& in)", asMETHOD(CVar, fromColorf), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colorb toColorb()",                 asMETHOD(CVar, toColorb),  asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colorb toColorb(bool& out)",        asMETHOD(CVar, toColorb),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colorb toColorb()",                 asMETHOD(CVar, toColorb),   asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colorb toColorb(bool& out)",        asMETHOD(CVar, toColorb),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromColorb(const Colorb& in)", asMETHOD(CVar, fromColorb), asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colori toColori()",                 asMETHOD(CVar, toColori),  asCALL_THISCALL);
-    handle->RegisterObjectMethod("CVar", "Colori toColori(bool& out)",        asMETHOD(CVar, toColori),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colori toColori()",                 asMETHOD(CVar, toColori),   asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "Colori toColori(bool& out)",        asMETHOD(CVar, toColori),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromColori(const Colori& in)", asMETHOD(CVar, fromColori), asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool joyValid(int which)",          asFUNCTION(joystickValid),  asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "void unlock()",                     asMETHOD(CVar, unlock),     asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "void lock()",                       asMETHOD(CVar, unlock),     asCALL_THISCALL);
 }
 
 REGISTER_SCRIPT_FUNCTION(CVarManager, registerCVarManager);

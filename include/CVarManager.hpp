@@ -38,7 +38,6 @@ private:
 
 };
 
-
 #define orCVarManagerRef CVarManager::instanceRef()
 #define orCVarManagerPtr CVarManager::instancePtr()
 #endif // CVARMANAGER_HPP

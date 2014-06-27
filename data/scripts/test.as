@@ -28,7 +28,15 @@ void onCreate(Object@ self)
     orConsole.print(Console::Warning, "DEBUG MODE");
 #endif
 
-    CVar@ test = orCVarManager.cvar("fs_basepath");
+    CVar@ test = orCVarManager.cvar("player1.moveLeft");
+    if (test is null)
+        @test = orCreateBinding("player1.moveLeft", "Moves player1 left", CVar::Archive | CVar::System);
+
+    {
+        CVarUnlocker unlock(test);
+    }
+    test.joyValid(0);
+
     orConsole.print(Console::Info, "fs_basepath=" + test.toLiteral());
     Transformable@ comp = cast<Transformable>(self.addComponent("Transformable", "transformable"));
     if (comp is null)
@@ -95,7 +103,7 @@ void onDraw(Object@ self)
     Rectanglef subrect(0.0f, 0.0f, tex.width(), tex.height());
 
     if (tex !is null)
-        tex.draw(100.f, 100.f, subrect, origin, false, false, -interpolate(orJoystickManager.axisPosition(0, 2),orJoystickManager.axisPosition(0, 3), 360.f));
+        tex.draw(0.f, 0.f, subrect, origin, false, false, -interpolate(orJoystickManager.axisPosition(0, 2),orJoystickManager.axisPosition(0, 3), 181.f));
 }
 
 void onDestroyed(Object@ self)

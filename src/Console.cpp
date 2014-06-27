@@ -6,6 +6,7 @@
 #include <ctime>
 
 Console::Console(const std::string& logfile)
+    : m_startString(0)
 {
     m_log.open(logfile, std::ios_base::out | std::ios_base::app);
 }
@@ -223,8 +224,8 @@ void Console::addEntry(const Console::Level level, const std::string& message, c
 
     // Increment the start string to prevent
     // the console from scrolling
-//    if (m_startString > 0)
-//        m_startString++;
+    if (m_startString > 0)
+        m_startString++;
 
     // print to console just incase there is no font
     // and the user can't read it.
@@ -239,6 +240,7 @@ void registerConsole()
     r = engine->RegisterObjectMethod("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
     r = engine->RegisterObjectMethod("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
     r = engine->RegisterGlobalProperty("Console orConsole", orConsolePtr);
+
 
     orConsoleRef.print(Console::Info, "Registered Console");
 }

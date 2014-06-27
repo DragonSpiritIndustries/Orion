@@ -2,7 +2,8 @@
 #include "ScriptEngine.hpp"
 #include "EnumToString.hpp"
 
-template<> const char* enumStrings<Key>::data[] =
+template<>
+const char* enumStrings<Key>::data[] =
 {
     "A",
     "B",

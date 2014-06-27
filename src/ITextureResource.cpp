@@ -1,4 +1,5 @@
 #include "ITextureResource.hpp"
+#include TEXTURERESOURCE_IMPL_HEADER
 #include "ResourceManager.hpp"
 #include "ScriptEngine.hpp"
 

@@ -1,7 +1,9 @@
 #include "SDLWindow.hpp"
 #include "Console.hpp"
+#include "CVar.hpp"
 #include <SDL2/SDL.h>
 
+extern CVar* sys_title;
 SDLWindow::SDLWindow()
     : m_window(nullptr)
 {
@@ -14,7 +16,7 @@ SDLWindow::~SDLWindow()
 
 bool SDLWindow::initialize()
 {
-    m_window = SDL_CreateWindow("UnnamedOrionApplication", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    m_window = SDL_CreateWindow(sys_title->toLiteral().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (m_window == nullptr)
     {
@@ -27,6 +29,8 @@ bool SDLWindow::initialize()
 
 void SDLWindow::setTitle(const std::string& title)
 {
+    CVarUnlocker unlock(sys_title);
+    sys_title->fromLiteral(title);
     SDL_SetWindowTitle(m_window, title.c_str());
 }
 
