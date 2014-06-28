@@ -204,11 +204,14 @@ HEADERS += \
     include/Config.hpp \
     include/CVarManager.hpp \
     include/CVar.hpp \
-    include/ByteCodeStream.hpp
+    include/ByteCodeStream.hpp \
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \
     src/angelscript/as_callfunc_arm_xcode.S \
     src/angelscript/as_callfunc_arm_msvc.asm \
-    src/angelscript/as_callfunc_x64_msvc_asm.asm
+    src/angelscript/as_callfunc_x64_msvc_asm.asm \
+    data/scripts/common.as \
+    data/scripts/main.as \
+    data/scripts/test.as
 

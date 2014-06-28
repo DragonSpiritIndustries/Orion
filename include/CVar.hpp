@@ -34,7 +34,7 @@ public:
 
     enum Flags
     {
-        All      = -1,
+        All      = -1, // NOTE: is this really necessary? It seems rather overkill
         System   = (1 << 0),
         Game     = (1 << 1),
         Gui      = (1 << 2),
@@ -94,6 +94,7 @@ public:
     bool isModified()    const;
     bool isReadOnly()    const;
     bool isCheat()       const;
+    bool isHidden()      const;
     bool isArchive()     const;
     void clearModified();
     void setModified();

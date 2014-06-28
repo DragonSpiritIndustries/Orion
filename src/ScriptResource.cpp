@@ -65,27 +65,24 @@ bool ScriptResource::loadData(const std::string& path)
         {
             orConsoleRef.print(orConsoleRef.Error, "Encountered exception while deserializing bytecode for %s", path.c_str());
             orConsoleRef.print(orConsoleRef.Error, e.message());
-            return false;
+            orConsoleRef.print(orConsoleRef.Warning, "Falling back to uncompiled script");
         }
     }
-    else
+
+    m_builder.AddSectionFromFile(path.c_str());
+
+    if (m_builder.BuildModule() >= 0)
     {
-        m_builder.AddSectionFromFile(path.c_str());
-
-        if (m_builder.BuildModule() >= 0)
+        orConsoleRef.print(orConsoleRef.Info, tmp);
+        // Only build script bytecode if sc_buildByteCode is true AND we're in developer mode
+        if (sc_buildBytecode->toBoolean() && com_developer->toBoolean())
         {
-            orConsoleRef.print(orConsoleRef.Info, tmp);
-            // Only build script bytecode if sc_buildByteCode is true AND we're in developer mode
-            if (sc_buildBytecode->toBoolean() && com_developer->toBoolean())
-            {
-                tmp = res_basepath->toLiteral() + "/scripts/" + tmp + ".asc";
-                ByteCodeWriter bcw(tmp);
-                m_builder.GetModule()->SaveByteCode(&bcw, true);
-            }
-            return true;
+            tmp = res_basepath->toLiteral() + "/scripts/" + tmp + ".asc";
+            ByteCodeWriter bcw(tmp);
+            m_builder.GetModule()->SaveByteCode(&bcw, true);
         }
+        return true;
     }
-
     return false;
 }
 

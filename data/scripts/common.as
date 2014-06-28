@@ -1,3 +1,6 @@
+#ifndef COMMON
+#define COMMON
+// TODO: Move these enums into Orion, it's rather silly to compile these into every script 
 namespace Console
 {
     enum Level
@@ -21,7 +24,6 @@ namespace CVar
         Color,
         Bind
     };
-
     enum Flags
     {
         All      = -1,
@@ -39,3 +41,4 @@ float interpolate(const float a, const float b, const float bias)
 {
 	return a + ((b - a) * bias);
 }
+#endif
