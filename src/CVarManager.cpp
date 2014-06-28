@@ -199,6 +199,57 @@ static bool joystickValid(int which, CVar* cvar)
     return false;
 }
 
+static int joyAxis(int which, CVar* cvar)
+{
+    if (which > IJoystickManager::MaxJoysticks)
+        return -1;
+    if (cvar)
+    {
+        bool valid;
+        CVar::Binding b = cvar->toBinding(&valid);
+        if (!valid)
+            return -1;
+
+        return b.Joysticks[which].Axis;
+    }
+
+    return -1;
+}
+
+
+static bool joyAxisNeg(int which, CVar* cvar)
+{
+    if (which > IJoystickManager::MaxJoysticks)
+        return -1;
+    if (cvar)
+    {
+        bool valid;
+        CVar::Binding b = cvar->toBinding(&valid);
+        if (!valid)
+            return -1;
+
+        return b.Joysticks[which].NegativeAxis;
+    }
+
+    return -1;
+}
+
+static int joyButton(int which, CVar* cvar)
+{
+    if (which > IJoystickManager::MaxJoysticks)
+        return -1;
+    if (cvar)
+    {
+        bool valid;
+        CVar::Binding b = cvar->toBinding(&valid);
+        if (!valid)
+            return -1;
+
+        return b.Joysticks[which].Button;
+    }
+
+    return -1;
+}
 static CVar* createCVar(const std::string& name, const std::string& value, const std::string& help, CVar::Type type, int flags)
 {
     // if the cvar already exists just pass it
@@ -257,7 +308,7 @@ static void registerCVarLocker()
 {
     orScriptEngineRef.handle()->RegisterObjectType     ("CVarUnlocker", sizeof(CVarUnlocker), asOBJ_VALUE | asOBJ_APP_CLASS_CD | asOBJ_POD);
     orScriptEngineRef.handle()->RegisterObjectBehaviour("CVarUnlocker", asBEHAVE_CONSTRUCT, "void f(CVar@)", asFUNCTION(cvarLockerConstruct), asCALL_CDECL_OBJLAST);
-    orScriptEngineRef.handle()->RegisterObjectBehaviour("CVarUnlocker", asBEHAVE_DESTRUCT,  "void f()",      asFUNCTION(cvarLockerDestruct), asCALL_CDECL_OBJLAST);
+    orScriptEngineRef.handle()->RegisterObjectBehaviour("CVarUnlocker", asBEHAVE_DESTRUCT,  "void f()",      asFUNCTION(cvarLockerDestruct),  asCALL_CDECL_OBJLAST);
 }
 
 static void registerCVar()
@@ -268,15 +319,19 @@ static void registerCVar()
     handle->RegisterObjectMethod("CVar", "float toFloat()",                   asMETHOD(CVar, toFloat),    asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "float toFloat(bool& out)",          asMETHOD(CVar, toFloat),    asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromFloat(float& in)",         asMETHOD(CVar, fromFloat),  asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isFloat()",                    asMETHOD(CVar, isFloat),    asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool toBoolean()",                  asMETHOD(CVar, toBoolean),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool toBoolean(bool& out)",         asMETHOD(CVar, toBoolean),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromBoolean(const bool& in)",  asMETHOD(CVar, fromBoolean),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isBoolean()",                  asMETHOD(CVar, isBoolean),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "int toInteger()",                   asMETHOD(CVar, toInteger),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "int toInteger(bool& out)",          asMETHOD(CVar, toInteger),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromInteger(const int& in)",   asMETHOD(CVar, fromInteger),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isInteger()",                  asMETHOD(CVar, isInteger),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "string toLiteral()",                asMETHOD(CVar, toLiteral),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "string toLiteral(bool& out)",       asMETHOD(CVar, toLiteral),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromLiteral(const string& in)",asMETHOD(CVar, fromLiteral),asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isLiteral()",                  asMETHOD(CVar, isLiteral),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "Colorf toColorf()",                 asMETHOD(CVar, toColorf),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "Colorf toColorf(bool& out)",        asMETHOD(CVar, toColorf),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromColorf(const Colorf& in)", asMETHOD(CVar, fromColorf), asCALL_THISCALL);
@@ -286,7 +341,16 @@ static void registerCVar()
     handle->RegisterObjectMethod("CVar", "Colori toColori()",                 asMETHOD(CVar, toColori),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "Colori toColori(bool& out)",        asMETHOD(CVar, toColori),   asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool fromColori(const Colori& in)", asMETHOD(CVar, fromColori), asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isColor()",                    asMETHOD(CVar, isColor),    asCALL_THISCALL);
+    handle->RegisterObjectMethod("CVar", "bool isBinding()",                  asMETHOD(CVar, isBinding),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool joyValid(int which)",          asFUNCTION(joystickValid),  asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "bool joyValid(const int which) const",asFUNCTION(joystickValid),  asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  button(int which)",            asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  button(const int which) const",asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  axis(int which)",              asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  axis(const int which) const",  asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "bool  isAxisNegative(int which)",  asFUNCTION(joyAxisNeg),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "bool  isAxisNegative(const int which) const",  asFUNCTION(joyAxisNeg),        asCALL_CDECL_OBJLAST);
     handle->RegisterObjectMethod("CVar", "void unlock()",                     asMETHOD(CVar, unlock),     asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "void lock()",                       asMETHOD(CVar, unlock),     asCALL_THISCALL);
 }

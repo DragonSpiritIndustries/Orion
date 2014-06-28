@@ -29,14 +29,20 @@ bool SDLWindow::initialize()
 
 void SDLWindow::setTitle(const std::string& title)
 {
-    CVarUnlocker unlock(sys_title);
-    sys_title->fromLiteral(title);
+    if (title == SDL_GetWindowTitle(m_window))
+        return;
+
     SDL_SetWindowTitle(m_window, title.c_str());
+    if (title != sys_title->toLiteral())
+    {
+        CVarUnlocker unlock(sys_title);
+        sys_title->fromLiteral(title);
+    }
 }
 
 std::string SDLWindow::title() const
 {
-    return std::string(SDL_GetWindowTitle(m_window));
+    return sys_title->toLiteral();
 }
 
 void* SDLWindow::handle() const

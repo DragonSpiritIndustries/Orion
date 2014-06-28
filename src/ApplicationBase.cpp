@@ -6,7 +6,7 @@
 #include "CVar.hpp"
 #include "Config.hpp"
 
-CVar* sys_title = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "The title in the window", CVar::Literal, CVar::Archive | CVar::System | CVar::ReadOnly);
+CVar* sys_title = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "The title in the window", CVar::Literal, CVar::System | CVar::ReadOnly);
 
 ApplicationBase::ApplicationBase()
 {

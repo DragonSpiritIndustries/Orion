@@ -563,6 +563,11 @@ bool CVar::isBinding() const
     return m_type == Bind;
 }
 
+bool CVar::isColor() const
+{
+    return m_type == Color;
+}
+
 bool CVar::isModified() const
 {
     return (m_flags & Modified) == Modified;
@@ -722,23 +727,30 @@ void CVar::deserialize(TiXmlNode* rootNode)
     {
         case Bind:
         {
-            std::string tmp = cvarNode->Attribute("key");
-            Athena::utility::tolower(tmp);
-            for (int k = 0; k < (int)Key::KEYCOUNT; k++)
+            std::string tmp;
+            if (cvarNode->Attribute("key"))
             {
-                std::string keyName = enumToStdString((Key)k);
-                Athena::utility::tolower(keyName);
-                if (!keyName.compare(tmp))
-                    m_binding.KeyVal = (Key)k;
+                tmp = cvarNode->Attribute("key");
+                Athena::utility::tolower(tmp);
+                for (int k = 0; k < (int)Key::KEYCOUNT; k++)
+                {
+                    std::string keyName = enumToStdString((Key)k);
+                    Athena::utility::tolower(keyName);
+                    if (!keyName.compare(tmp))
+                        m_binding.KeyVal = (Key)k;
+                }
             }
 
-            tmp = cvarNode->Attribute("mouseButton");
-            for (int m = 0; m < (int)MouseButton::COUNT; m++)
+            if (cvarNode->Attribute("mouseButton"))
             {
-                std::string name = enumToStdString((MouseButton)m);
-                Athena::utility::tolower(name);
-                if (!name.compare(tmp))
-                    m_binding.MouseButtonVal = (MouseButton)m;
+                tmp = cvarNode->Attribute("mouseButton");
+                for (int m = 0; m < (int)MouseButton::COUNT; m++)
+                {
+                    std::string name = enumToStdString((MouseButton)m);
+                    Athena::utility::tolower(name);
+                    if (!name.compare(tmp))
+                        m_binding.MouseButtonVal = (MouseButton)m;
+                }
             }
 
             for (int j = 0; j < IJoystickManager::MaxJoysticks; j++)
@@ -756,19 +768,32 @@ void CVar::deserialize(TiXmlNode* rootNode)
                 if (!joyNode)
                     continue;
 
-                int button;
-                joyNode->Attribute("button", &button);
-                m_binding.Joysticks[j].Button = button;
-                int axis;
-                joyNode->Attribute("axis", &axis);
-                m_binding.Joysticks[j].Axis = axis;
+                bool set = false;
+                if (joyNode->Attribute("button"))
+                {
+                    int button;
+                    joyNode->Attribute("button", &button);
+                    m_binding.Joysticks[j].Button = button;
+                    set = true;
+                }
+                if (joyNode->Attribute("axis"))
+                {
+                    int axis;
+                    joyNode->Attribute("axis", &axis);
+                    m_binding.Joysticks[j].Axis = axis;
+                    set = true;
+                }
 
-                tmp = joyNode->Attribute("isAxisNegative");
-                m_binding.Joysticks[j].NegativeAxis = Athena::utility::parseBool(tmp);
-                m_binding.Joysticks[j].valid = true;
+                if (joyNode->Attribute("isAxisNegative"))
+                {
+                    tmp = joyNode->Attribute("isAxisNegative");
+                    m_binding.Joysticks[j].NegativeAxis = Athena::utility::parseBool(tmp);
+                    set = true;
+                }
+                m_binding.Joysticks[j].valid = set;
             }
         }
-        break;
+            break;
         case Color:
         {
             int r, g, b, a;
@@ -778,10 +803,10 @@ void CVar::deserialize(TiXmlNode* rootNode)
             cvarNode->Attribute("a", &a);
             fromColorb(Colorb(r, g, b, a));
         }
-        break;
+            break;
         default:
             m_value = cvarNode->FirstChild()->ToText()->ValueStr();
-        break;
+            break;
     }
     lock();
     m_flags = oldFlags;
@@ -835,10 +860,10 @@ void CVar::serializeCVar(TiXmlNode* rootNode, bool oldDeveloper)
         }
         case CVar::Integer:
             cvarNode->SetAttribute("type", "integer");
-        break;
+            break;
         case CVar::Float:
             cvarNode->SetAttribute("type", "float");
-        break;
+            break;
         case CVar::Literal:
         {
             cvarNode->SetAttribute("type", "literal");
@@ -855,7 +880,7 @@ void CVar::serializeCVar(TiXmlNode* rootNode, bool oldDeveloper)
             cvarNode->SetAttribute("b", (int)col.b);
             cvarNode->SetAttribute("a", (int)col.a);
         }
-        break;
+            break;
         default: break;
     }
 
@@ -974,7 +999,7 @@ CVarUnlocker::CVarUnlocker(CVar* cvar)
     if (m_cvar)
     {
         m_cvar->unlock();
-        std::cout << "Unlocked " << m_cvar->name() << std::endl;
+        orConsoleRef.print(orConsoleRef.Info, "Unlocked %s", m_cvar->name().c_str());
     }
 }
 
@@ -983,7 +1008,7 @@ CVarUnlocker::~CVarUnlocker()
     if (m_cvar)
     {
         m_cvar->lock();
-        std::cout << "Locked " << m_cvar->name() << std::endl;
+        orConsoleRef.print(orConsoleRef.Info, "Locked %s", m_cvar->name().c_str());
     }
 }
 

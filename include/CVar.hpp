@@ -89,6 +89,7 @@ public:
     bool isInteger()     const;
     bool isLiteral()     const;
     bool isBinding()     const;
+    bool isColor()       const;
     bool isModified()    const;
     bool isReadOnly()    const;
     bool isCheat()       const;

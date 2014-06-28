@@ -28,16 +28,15 @@ void onCreate(Object@ self)
     orConsole.print(Console::Warning, "DEBUG MODE");
 #endif
 
-    CVar@ test = orCVarManager.cvar("player1.moveLeft");
-    if (test is null)
-        @test = orCreateBinding("player1.moveLeft", "Moves player1 left", CVar::Archive | CVar::System);
+    CVar@ moveLeft = orCVarManager.cvar("player1.moveLeft");
+    CVar@ moveRight = orCVarManager.cvar("player1.moveRight");
+    if (moveLeft is null)
+        @moveLeft = orCreateBinding("player1.moveLeft", "Moves player1 left", CVar::Archive | CVar::System);
+    if (moveRight is null)
+        @moveRight = orCreateBinding("player1.moveRight", "Moves player1 right", CVar::Archive | CVar::System);
 
-    {
-        CVarUnlocker unlock(test);
-    }
-    test.joyValid(0);
+    orConsole.print(Console::Message, "" + moveLeft.joyValid(0));
 
-    orConsole.print(Console::Info, "fs_basepath=" + test.toLiteral());
     Transformable@ comp = cast<Transformable>(self.addComponent("Transformable", "transformable"));
     if (comp is null)
         orConsole.print(Console::Warning, "Failed to add Transformable");
@@ -62,9 +61,26 @@ void onUpdate(Object@ self, float delta)
     if (self is null)
         return;
 
+    CVar@ moveLeftJoy    = orCVarManager.cvar("player1.moveLeft");
+    CVar@ moveRightJoy   = orCVarManager.cvar("player1.moveRight");
+    if (!moveLeftJoy.isBinding() || !moveRightJoy.isBinding())
+    {
+        orConsole.print(Console::Error, "" + (!moveLeftJoy.isBinding() ? "moveLeft" : "moveRight") + " is not a binding");
+        return;
+    }
+
+    int joy = 0;
+    int axisLeft = moveLeftJoy.axis(joy);
+    int axisRight = moveRightJoy.axis(joy);
+    float moveLeftValue  = orJoystickManager.axisPosition(joy, axisLeft);
+    float moveRightValue = orJoystickManager.axisPosition(joy, axisRight);
     Vector2f move;
-    move.x = 94.f*orJoystickManager.axisPosition(0, 0)*delta;
-    move.y = 94.f*orJoystickManager.axisPosition(0, 1)*delta;
+    if ((moveLeftJoy.isAxisNegative(joy) && moveLeftValue < 0.0f) || (!moveLeftJoy.isAxisNegative(joy) && moveRightValue < 0.0f))
+        move.x = 94.f*moveLeftValue*delta;
+    if ((moveRightJoy.isAxisNegative(joy) && moveLeftValue > 0.0f) || (!moveRightJoy.isAxisNegative(joy) && moveRightValue > 0.0f))
+        move.x = 94.f*moveRightValue*delta;
+        
+    move.y = 94.f*orJoystickManager.axisPosition(joy, 1)*delta;
     if (move.x == 0 && move.y == 0)
     {
         self.setState(State::Idle);

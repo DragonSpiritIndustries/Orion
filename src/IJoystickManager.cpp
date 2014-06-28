@@ -15,7 +15,15 @@ IJoystickManager::IJoystickManager()
                                                          asMETHOD(IJoystickManager, buttonPressed),
                                                          asCALL_THISCALL);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "bool buttonPressed(const int joy, const int button) const",
+                                                         asMETHOD(IJoystickManager, buttonPressed),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
                                                          "bool buttonReleased(int joy, int button)",
+                                                         asMETHOD(IJoystickManager, buttonReleased),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "bool buttonReleased(const int joy, const int button) const",
                                                          asMETHOD(IJoystickManager, buttonReleased),
                                                          asCALL_THISCALL);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
@@ -23,7 +31,15 @@ IJoystickManager::IJoystickManager()
                                                          asMETHOD(IJoystickManager, axisPosition),
                                                          asCALL_THISCALL);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "float axisPosition(const int joy, const int axis) const",
+                                                         asMETHOD(IJoystickManager, axisPosition),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
                                                          "string name(int joy)",
+                                                         asMETHOD(IJoystickManager, name),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "string name(const int joy) const",
                                                          asMETHOD(IJoystickManager, name),
                                                          asCALL_THISCALL);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
@@ -31,7 +47,15 @@ IJoystickManager::IJoystickManager()
                                                          asMETHOD(IJoystickManager, motorOn),
                                                          asCALL_THISCALL);
         orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "void motorOn(const int joy) const",
+                                                         asMETHOD(IJoystickManager, motorOn),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
                                                          "void motorOff(int joy)",
+                                                         asMETHOD(IJoystickManager, motorOff),
+                                                         asCALL_THISCALL);
+        orScriptEngineRef.handle()->RegisterObjectMethod("JoystickManager",
+                                                         "void motorOff(const int joy) const",
                                                          asMETHOD(IJoystickManager, motorOff),
                                                          asCALL_THISCALL);
     }
