@@ -5,7 +5,11 @@
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 #include "Rectangle.hpp"
+#include "CVar.hpp"
 #include <memory>
+
+CVar* sc_useBytecode = new CVar("sc_useBytecode", "false", "Whether or not to use precompiled bytecode", CVar::Boolean, CVar::System | CVar::ReadOnly);
+CVar* sc_buildBytecode = new CVar("sc_buildBytecode", "false", "Compile bytecode to be loaded when sc_useBytecode is set to true", CVar::Boolean, CVar::System | CVar::ReadOnly);
 
 // This is used for AngelScript error messages
 void MessageCallback(const asSMessageInfo &msg)

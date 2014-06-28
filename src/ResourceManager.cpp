@@ -5,6 +5,7 @@
 #include <algorithm>
 
 CVar* res_basepath = new CVar("fs_basepath", "data", "Base directory for resources", CVar::Literal, CVar::Archive | CVar::System | CVar::ReadOnly);
+CVar* sv_pure      = new CVar("sv_pure",     "false","In \"pure\" mode only resources in archives are loaded", CVar::Boolean, CVar::System | CVar::Cheat);
 
 ResourceManager::ResourceManager()
 {
@@ -33,8 +34,8 @@ bool ResourceManager::initialize(const std::string& executablePath,
         return false;
     }
 
+    PHYSFS_setWriteDir(res_basepath->toLiteral().c_str());
     PHYSFS_setSaneConfig(m_organizationName.c_str(), m_executablePath.c_str(), m_archiveExt.c_str(), false, true);
-    // TODO: Add fs_basepath support (cvars)
     if (!PHYSFS_mount(res_basepath->toLiteral().c_str(), "/", false))
     {
         orConsoleRef.print(orConsoleRef.Fatal, "Failed to mount basepath");
@@ -57,6 +58,10 @@ bool ResourceManager::initialize(const std::string& executablePath,
     }
 
     PHYSFS_freeList(listBegin);
+
+    // If the engine is in "pure" mode, unmount fs_basepath, we don't want players loading "unpure" resources
+    if (sv_pure->toBoolean())
+        PHYSFS_removeFromSearchPath(res_basepath->toLiteral().c_str());
 
     // Sort files in descending order
     std::sort(archives.begin(), archives.end(), std::less<std::string>());

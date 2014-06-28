@@ -4,6 +4,8 @@
 
 int main(int argc, char* argv[])
 {
+    // seed random number generator
+    srand(time(nullptr));
     if (orApplicationPtr->init(argc, argv))
     {
         orApplicationPtr->setClearColor(Colorf::cyan);

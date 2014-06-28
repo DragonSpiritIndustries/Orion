@@ -9,6 +9,7 @@
 #include "EnumToString.hpp"
 
 extern CVar* com_developer;
+extern CVar* com_enableCheats;
 
 CVar::CVar(const std::string& name, const std::string &value, const std::string &help, Type type, int flags)
     : m_name(name),
@@ -324,7 +325,7 @@ CVar::Binding CVar::toBinding(bool* isValid) const
 
 bool CVar::fromFloat(const float val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Float)
@@ -350,7 +351,7 @@ bool CVar::fromFloat(const float val)
 
 bool CVar::fromBoolean(const bool val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Boolean)
@@ -375,7 +376,7 @@ bool CVar::fromBoolean(const bool val)
 
 bool CVar::fromInteger(const int val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Integer)
@@ -401,7 +402,7 @@ bool CVar::fromInteger(const int val)
 
 bool CVar::fromLiteral(const std::string& val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Literal)
@@ -424,7 +425,7 @@ bool CVar::fromLiteral(const std::string& val)
 
 bool CVar::fromColorf(const Colorf& val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Color)
@@ -460,7 +461,7 @@ bool CVar::fromColorf(const Colorf& val)
 
 bool CVar::fromColorb(const Colorb& val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Color)
@@ -489,7 +490,7 @@ bool CVar::fromColorb(const Colorb& val)
 
 bool CVar::fromColori(const Colori& val)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Color)
@@ -517,7 +518,7 @@ bool CVar::fromColori(const Colori& val)
 
 bool CVar::fromBinding(CVar::Binding binding)
 {
-    if (isCheat() && (com_developer && !com_developer->toBoolean()))
+    if (isCheat() && (!com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
 
     if (m_type != Bind)
@@ -583,6 +584,11 @@ bool CVar::isCheat() const
     return (m_flags & Cheat) == Cheat;
 }
 
+bool CVar::isHidden() const
+{
+    return (m_flags & Hidden) == Hidden;
+}
+
 bool CVar::isArchive() const
 {
     return (m_flags & Archive) == Archive;
@@ -607,7 +613,6 @@ void CVar::clearBindings()
 
 bool CVar::tryBinding(const std::string& binding)
 {
-    // TODO: Reimplement this
     std::string bindingName = binding;
     Athena::utility::tolower(bindingName);
     if (binding.compare("mouse") != -1)
@@ -997,18 +1002,12 @@ CVarUnlocker::CVarUnlocker(CVar* cvar)
     : m_cvar(cvar)
 {
     if (m_cvar)
-    {
         m_cvar->unlock();
-        orConsoleRef.print(orConsoleRef.Info, "Unlocked %s", m_cvar->name().c_str());
-    }
 }
 
 CVarUnlocker::~CVarUnlocker()
 {
     if (m_cvar)
-    {
         m_cvar->lock();
-        orConsoleRef.print(orConsoleRef.Info, "Locked %s", m_cvar->name().c_str());
-    }
 }
 

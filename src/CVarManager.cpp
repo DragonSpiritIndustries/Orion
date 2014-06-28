@@ -7,6 +7,7 @@
 
 CVar* com_developer = new CVar("developer", "false", "Enables developer mode", CVar::Boolean, (CVar::System | CVar::Cheat | CVar::ReadOnly));
 CVar* com_configfile = new CVar("config", "config.cfg", "File to store configuration", CVar::Literal, CVar::System);
+CVar* com_enableCheats = new CVar("iamaweiner", "false", "Enable cheats", CVar::Boolean, CVar::System | CVar::ReadOnly | CVar::Hidden);
 
 CVarManager::CVarManager()
 {

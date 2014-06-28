@@ -114,7 +114,8 @@ SOURCES += \
     src/SDLMouseManager.cpp \
     include/TileObj.cpp \
     src/SDLTexture.cpp \
-    src/main.cpp
+    src/main.cpp \
+    src/ByteCodeStream.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -202,7 +203,8 @@ HEADERS += \
     include/angelscript/addons/scriptstdstring.h \
     include/Config.hpp \
     include/CVarManager.hpp \
-    include/CVar.hpp
+    include/CVar.hpp \
+    include/ByteCodeStream.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

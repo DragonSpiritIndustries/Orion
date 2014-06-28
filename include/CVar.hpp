@@ -39,9 +39,10 @@ public:
         Game     = (1 << 1),
         Gui      = (1 << 2),
         Cheat    = (1 << 3),
-        ReadOnly = (1 << 4),
-        Archive  = (1 << 5),
-        Modified = (1 << 6)
+        Hidden   = (1 << 4),
+        ReadOnly = (1 << 5),
+        Archive  = (1 << 6),
+        Modified = (1 << 7)
     };
 
     class Binding

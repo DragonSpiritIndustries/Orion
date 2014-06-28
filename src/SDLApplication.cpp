@@ -249,7 +249,7 @@ void SDLApplication::onDraw()
     m_renderer.clear();
     orObjectManagerRef.draw();
 
-    drawDebugText(Athena::utility::sprintf("FPS: %f", m_fps), 16, 0);
+    drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), 16, 0);
     m_renderer.present();
 }
 
