@@ -7,7 +7,7 @@
 class SDLTextureResource : public ITextureResource
 {
 public:
-    SDLTextureResource(const std::string& path, SDL_Texture* data);
+    SDLTextureResource(const std::string& path, Uint32 width, Uint32 height, Uint32 data);
     ~SDLTextureResource();
 
     virtual void draw(float x, float y);
@@ -22,7 +22,7 @@ public:
     void setWrapH(bool val);
     void setWrapV(bool val);
 private:
-    SDL_Texture* m_texture;
+    Uint32 m_texture;
 };
 
 #endif // SDLTEXTURE_HPP

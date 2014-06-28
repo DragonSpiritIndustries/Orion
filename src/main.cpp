@@ -1,5 +1,5 @@
 #include <iostream>
-#include <ObjectManager.hpp>
+#include <ApplicationBase.hpp>
 #include <TestObject.hpp>
 
 int main(int argc, char* argv[])
@@ -8,7 +8,6 @@ int main(int argc, char* argv[])
     srand(time(nullptr));
     if (orApplicationPtr->init(argc, argv))
     {
-        orApplicationPtr->setClearColor(Colorf::cyan);
         return orApplicationPtr->exec();
     }
     else

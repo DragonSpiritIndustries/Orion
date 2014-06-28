@@ -192,7 +192,7 @@ SDLJoystickDevice* SDLJoystickManager::joystick(int which)
     return *iter;
 }
 
-void SDLJoystickManager::onButton(Event joy)
+void SDLJoystickManager::onButton(const Event& joy)
 {
     if (joy.type == Event::EV_JOY_BTN_RELEASED)
         m_releasedButtons[joy.eventData.joystickEvent.id][joy.eventData.joystickEvent.button] = true;

@@ -1,12 +1,23 @@
 #include "ApplicationBase.hpp"
 #include APPLICATION_IMPL_HEADER
+#include WINDOW_IMPL_HEADER
 #include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
 #include "CVarManager.hpp"
 #include "CVar.hpp"
 #include "Config.hpp"
 
-CVar* sys_title = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "The title in the window", CVar::Literal, CVar::System | CVar::ReadOnly);
+CVar* sys_title        = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "Sets the window title", CVar::Literal, CVar::System | CVar::ReadOnly);
+CVar* com_windowWidth  = new CVar("vid_width", "640", "Horizontal resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
+CVar* com_windowHeight = new CVar("vid_height", "480", "Vertical resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
+CVar* com_fullscreen   = new CVar("r_fullscreen", "false", "If true, the game renders in fullscreen mode, windowed otherwise", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* com_framelimit   = new CVar("sys_framelimit", "60", "Sets the framerate limit", CVar::Integer, CVar::System | CVar::Archive);
+CVar* com_verticalSync = new CVar("sys_vsync", "true", "Prevents tearing", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* com_showstats    = new CVar("sys_showstats", "false", "Show system statistics", CVar::Boolean, CVar::System | CVar::Archive | CVar::ReadOnly);
+CVar* com_clear        = new CVar("r_clear", "true", "If true the window clears after each frame, otherwise it doesn't", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* com_clearColor   = new CVar("r_clearcolor", Colorb::black, "Sets the color of the scene", CVar::System | CVar::Archive);
+CVar* com_drawwire     = new CVar("r_drawwire", "false", "Draws the geometry of objects on screen", CVar::Boolean, (CVar::System | CVar::Archive));
+CVar* com_showfps      = new CVar("r_showfps", "false", "If true, renders the framerate in the upper right hand corner.", CVar::Boolean, (CVar::System | CVar::Archive));
 
 ApplicationBase::ApplicationBase()
 {
@@ -29,10 +40,19 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
 {
     if (!orScriptEngineRef.handle())
         return false;
+
+    m_window = std::shared_ptr<IWindow>(new WINDOW_IMPL);
+    if (!m_window.get()->initialize())
+        return false;
+
+    m_renderer = std::shared_ptr<IRenderer>(new RENDERER_IMPL);
+    if (!m_renderer.get()->initialize(m_window.get()))
+        return false;
+
     orCVarManagerRef.initialize();
-    orConsoleRef.initialize();
     if (!orResourceManagerRef.initialize(argv[0]))
         return false;
+    orConsoleRef.initialize();
     orObjectManagerRef.initialize();
 
     setTitle(sys_title->toLiteral());
@@ -102,47 +122,47 @@ void ApplicationBase::onExit()
     m_keyboardManager.get()->shutdown();
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::eventSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::eventSignal()
 {
     return m_eventSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::keyboardSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::keyboardSignal()
 {
     return m_keyboardSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::mouseButtonSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::mouseButtonSignal()
 {
     return m_mouseButtonSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::mouseWheelSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::mouseWheelSignal()
 {
     return m_mouseWheelSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::mouseMoveSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::mouseMoveSignal()
 {
     return m_mouseMoveSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::joystickSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::joystickSignal()
 {
     return m_joystickSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::resizeSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::resizeSignal()
 {
     return m_resizeSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::focusChangedSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::focusChangedSignal()
 {
     return m_focusSignal;
 }
 
-Nano::Signal<void (Event)>& ApplicationBase::textSignal()
+Nano::Signal<void (const Event&)>& ApplicationBase::textSignal()
 {
     return m_textSignal;
 }

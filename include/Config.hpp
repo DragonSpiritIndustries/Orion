@@ -21,6 +21,11 @@
 #define KEYBOARDMANAGER_IMPL SDLKeyboardManager
 #endif
 
+#ifndef RENDERER_IMPL
+#define RENDERER_IMPL_HEADER "SDLRenderer.hpp"
+#define RENDERER_IMPL SDLRenderer
+#endif
+
 #ifndef MAX_JOYSTICKS
 #define MAX_JOYSTICKS 8
 #endif

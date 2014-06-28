@@ -53,6 +53,10 @@ public:
         Joystick          Joysticks[IJoystickManager::MaxJoysticks];
 
         Binding();
+        Binding(Key key);
+        Binding(MouseButton btn);
+        Binding(int joy, int btn);
+        Binding(int joy, int axis, bool neg = false);
         void clear();
     };
 

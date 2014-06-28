@@ -41,15 +41,6 @@ int SDLApplication::exec()
 
 bool SDLApplication::init(int argc, char* argv[])
 {
-    // First initialize the input managers
-    m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
-    m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
-    m_mouseManager    = std::shared_ptr<IMouseManager>(new SDLMouseManager);
-
-    if (!ApplicationBase::init(argc, argv))
-        return false;
-    orConsoleRef.print(orConsoleRef.Info, "Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
-    parseCommandLine(argc, argv);
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
     {
@@ -57,16 +48,20 @@ bool SDLApplication::init(int argc, char* argv[])
         return false;
     }
 
+    // First initialize the input managers
+    m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
+    m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
+    m_mouseManager    = std::shared_ptr<IMouseManager>   (new SDLMouseManager);
+
+    if (!ApplicationBase::init(argc, argv))
+        return false;
+    orConsoleRef.print(orConsoleRef.Info, "Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
+    parseCommandLine(argc, argv);
+
     memset(m_frameValues, 0, sizeof(m_frameValues));
     m_frameCount = 0;
     m_fps = 0.f;
     m_lastFrame = SDL_GetTicks();
-
-    if (!m_window.initialize())
-        return false;
-
-    if (!m_renderer.initialize(m_window))
-        return false;
 
     if (TTF_Init() == -1)
     {
@@ -112,8 +107,32 @@ void SDLApplication::pollEvents()
                                                         : Event::EV_KEY_RELEASED);
             oEvent.eventData.keyboardEvent.pressed  = (oEvent.type == Event::EV_KEY_PRESSED);
             oEvent.eventData.keyboardEvent.keyCode  = sdlEvent.key.keysym.sym;
-            oEvent.eventData.keyboardEvent.scanCode = sdlEvent.key.keysym.scancode;
-            oEvent.eventData.keyboardEvent.modifier = sdlEvent.key.keysym.mod;
+            oEvent.eventData.keyboardEvent.scanCode = orFromScanCode(sdlEvent.key.keysym.scancode);
+            oEvent.eventData.keyboardEvent.modifier = 0;
+            short mod = sdlEvent.key.keysym.mod;
+            if (mod & KMOD_LSHIFT)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::LSHIFT;
+            if (mod & KMOD_RSHIFT)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::RSHIFT;
+            if (mod & KMOD_LCTRL)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::LCONTROL;
+            if (mod & KMOD_RCTRL)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::RCONTROL;
+            if (mod & KMOD_LALT)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::LALT;
+            if (mod & KMOD_RALT)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::RALT;
+            if (mod & KMOD_LGUI)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::LGUI;
+            if (mod & KMOD_RGUI)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::RGUI;
+            if (mod & KMOD_NUM)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::NUM;
+            if (mod & KMOD_CAPS)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::CAPS;
+            if (mod & KMOD_MODE)
+                oEvent.eventData.keyboardEvent.modifier |= (short)KeyModifier::MODE;
+
             m_eventSignal(oEvent);
             m_keyboardSignal(oEvent);
         }
@@ -246,11 +265,12 @@ void SDLApplication::updateFPS()
 
 void SDLApplication::onDraw()
 {
-    m_renderer.clear();
+    m_renderer.get()->clear();
     orObjectManagerRef.draw();
+    orConsoleRef.draw();
 
     drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), 16, 0);
-    m_renderer.present();
+    m_renderer.get()->present();
 }
 
 void SDLApplication::onExit()
@@ -261,7 +281,7 @@ void SDLApplication::onExit()
 
 void* SDLApplication::rendererHandle()
 {
-    return (void*)m_renderer.handle();
+    return (void*)m_renderer.get()->handle();
 }
 
 void SDLApplication::drawDebugText(const std::string& text, float x, float y)
@@ -274,11 +294,11 @@ void SDLApplication::drawDebugText(const std::string& text, float x, float y)
     TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
 
     fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{255, 255, 255, 255});
-    texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(m_renderer.handle()), fontSurf);
+    texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(m_renderer.get()->handle()), fontSurf);
 
 
     SDL_FreeSurface(fontSurf);
-    SDL_RenderCopy((SDL_Renderer*)m_renderer.handle(), texture, NULL, &rect);
+    SDL_RenderCopy((SDL_Renderer*)m_renderer.get()->handle(), texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
 
@@ -289,37 +309,37 @@ void SDLApplication::drawDebugText(const std::string& text, const Vector2f& posi
 
 void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill, Colorb col)
 {
-    m_renderer.drawRect(w, h, x, y, fill, col);
+    m_renderer.get()->drawRect(w, h, x, y, fill, col);
 }
 
 void SDLApplication::setTitle(const std::string& title)
 {
-    m_window.setTitle(title);
+    m_window.get()->setTitle(title);
 }
 
 std::string SDLApplication::title() const
 {
-    return m_window.title();
+    return m_window.get()->title();
 }
 
 Vector2i SDLApplication::windowSize()
 {
-    return m_window.windowSize();
+    return m_window.get()->windowSize();
 }
 
 int SDLApplication::windowWidth()
 {
-    return m_window.windowWidth();
+    return m_window.get()->windowWidth();
 }
 
 int SDLApplication::windowHeight()
 {
-    return m_window.windowHeight();
+    return m_window.get()->windowHeight();
 }
 
 void SDLApplication::setClearColor(const Colorf& color)
 {
-    m_renderer.setClearColor(color);
+    m_renderer.get()->setClearColor(color);
 }
 
 float SDLApplication::fps() const

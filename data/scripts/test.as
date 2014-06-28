@@ -119,7 +119,7 @@ void onDraw(Object@ self)
     Rectanglef subrect(0.0f, 0.0f, tex.width(), tex.height());
 
     if (tex !is null)
-        tex.draw(0.f, 0.f, subrect, origin, false, false, -interpolate(orJoystickManager.axisPosition(0, 2),orJoystickManager.axisPosition(0, 3), 181.f));
+        tex.draw(100.f, 100.f, subrect, origin, false, false, -interpolate(orJoystickManager.axisPosition(0, 2),orJoystickManager.axisPosition(0, 3), 181.f));
 }
 
 void onDestroyed(Object@ self)

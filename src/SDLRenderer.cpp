@@ -3,7 +3,12 @@
 #include "Console.hpp"
 #include <SDL2/SDL_render.h>
 #include "SDL2/SDL_opengl.h"
+#include "CVar.hpp"
 #include <limits.h>
+
+extern CVar* com_clearColor;
+extern CVar* com_clear;
+extern CVar* com_verticalSync;
 
 float toFloat(int val)
 {
@@ -22,12 +27,15 @@ SDLRenderer::~SDLRenderer()
 
 void SDLRenderer::setClearColor(const Colorf& color)
 {
-    m_clearColor = color;
-    glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+    com_clearColor->fromColorf(color);
+    glClearColor(color.r, color.g, color.b, color.a);
 }
 
 void SDLRenderer::clear()
 {
+    if (!com_clear->toBoolean())
+        return;
+
     //Clear color buffer
     glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -57,11 +65,11 @@ void* SDLRenderer::handle()
     return reinterpret_cast<void*>(m_renderer);
 }
 
-bool SDLRenderer::initialize(IWindow& window)
+bool SDLRenderer::initialize(IWindow* window)
 {
-    m_windowHandle =reinterpret_cast<SDL_Window*>(window.handle());
+    m_windowHandle =reinterpret_cast<SDL_Window*>(window->handle());
     m_context = SDL_GL_CreateContext(m_windowHandle);
-    if (m_context == nullptr || m_renderer)
+    if (m_context == nullptr)
     {
         orConsoleRef.print(orConsoleRef.Fatal, "%s", SDL_GetError());
         return false;
@@ -73,7 +81,7 @@ bool SDLRenderer::initialize(IWindow& window)
         return false;
     }
     //Use Vsync
-    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    if( SDL_GL_SetSwapInterval( com_verticalSync->toBoolean() ) < 0 )
     {
         orConsoleRef.print(orConsoleRef.Warning, "Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
     }

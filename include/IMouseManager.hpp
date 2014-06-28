@@ -48,8 +48,8 @@ public:
 
 protected:
     void onUpdate(float);
-    virtual void onMouseButton(Event e)=0;
-    virtual void onMouseWheel(Event e)=0;
+    virtual void onMouseButton(const Event& e)=0;
+    virtual void onMouseWheel(const Event& e)=0;
     Vector2i m_mouseWheelDelta;
     std::unordered_map<MouseButton, bool> m_pressed;
     std::unordered_map<MouseButton, bool> m_released;

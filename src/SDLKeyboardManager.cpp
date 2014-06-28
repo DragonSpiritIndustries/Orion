@@ -42,7 +42,7 @@ bool SDLKeyboardManager::shiftPressed()
 
 }
 
-Key SDLKeyboardManager::fromScanCode(int scan)
+Key orFromScanCode(int scan)
 {
     switch(scan)
     {
@@ -159,9 +159,9 @@ void SDLKeyboardManager::shutdown()
     orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Shutdown\n");
 }
 
-void SDLKeyboardManager::translateEvent(Event keyEvent)
+void SDLKeyboardManager::translateEvent(const Event& keyEvent)
 {
-    Key key = fromScanCode(keyEvent.eventData.keyboardEvent.scanCode);
+    Key key = keyEvent.eventData.keyboardEvent.scanCode;
 
     if (keyEvent.type == Event::EV_KEY_PRESSED)
         m_pressedKeys[key] = true;

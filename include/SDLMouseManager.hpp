@@ -2,10 +2,9 @@
 #define SDLMOUSEMANAGER_HPP
 
 #include "IMouseManager.hpp"
-#include "Event.hpp"
-
 #include <unordered_map>
 
+class Event;
 class SDLMouseManager : public IMouseManager
 {
 public:
@@ -20,8 +19,8 @@ public:
     void setMousePosition(int x, int y);
     void setMousePosition(Vector2i position);
 protected:
-    void onMouseButton(Event e);
-    void onMouseWheel(Event e);
+    void onMouseButton(const Event& e);
+    void onMouseWheel(const Event& e);
 };
 
 #endif // SDLMOUSEMANAGER_HPP

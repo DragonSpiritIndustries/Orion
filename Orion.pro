@@ -51,11 +51,11 @@ SOURCES += \
     src/TransformableComponent.cpp \
     src/IMouseManager.cpp \
     src/physfsrwops.c \
-    src/ResourceManager.cpp \
     src/IJoystickManager.cpp \
     src/IResource.cpp \
     src/ITextureResource.cpp \
     src/ScriptResource.cpp \
+    src/ResourceManager.cpp \
     src/ObjectManager.cpp \
     src/Object.cpp \
     src/angelscript/as_atomic.cpp \
@@ -150,7 +150,6 @@ HEADERS += \
     include/SDLMouseManager.hpp \
     include/TileObj.hpp \
     include/IMouseManager.hpp \
-    include/Texture.hpp \
     include/ResourceManager.hpp \
     include/IResource.hpp \
     include/ITextureResource.hpp \

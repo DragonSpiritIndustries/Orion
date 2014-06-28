@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 
+class ITextureResource;
 class ApplicationBase;
 class Console
 {
@@ -69,9 +70,6 @@ public:
     virtual bool isInitialized() const;
     virtual bool isOpen() const;
     virtual bool isClosed() const;
-    virtual void handleText(int utf8);
-    virtual void handleInput(Key key, bool alt, bool control, bool shift, bool system);
-    virtual void handleMouseWheel(int delta, int x, int y);
     virtual void draw();
     virtual void print(Level level, const std::string &fmt, ...);
     virtual void clear();
@@ -82,16 +80,38 @@ public:
     static Console& instanceRef();
     static Console* instancePtr();
 protected:
+    virtual void onUpdate(float);
+    virtual void handleText(const Event&);
+    virtual void handleInput(const Event&);
+    virtual void handleMouseWheel(int delta, int x, int y);
     virtual void doAutoComplete();
     virtual void drawHistory();
     virtual void drawSeparator();
     virtual void drawVersion();
     virtual void parseCommand();
     virtual void parseCVars();
-    virtual void addEntry(const Level level, const std::string& message, const std::string& timestamp, const std::string label = std::string());
-    std::ofstream m_log;
-    int                   m_startString;
+    virtual void addEntry(const Level level, const std::string& message, const std::string& timestamp, const std::string& label = std::string());
+    ITextureResource*     m_conBg1;
+    ITextureResource*     m_conBg2;
+    std::ofstream         m_log;
     std::vector<LogEntry> m_history;
+    State                 m_state;
+    bool                  m_showCursor;
+    int                   m_cursorPosition;
+    int                   m_startString;
+    int                   m_currentCommand;
+    bool                  m_isInitialized;
+    bool                  m_overwrite;
+    bool                  m_hadFatalError;
+    int                   m_maxLines;
+    int                   m_conHeight;
+    int                   m_conWidth;
+    int                   m_currentMaxLen;
+    int                   m_commandStart;
+    std::string           m_commandString;
+
+    float                 m_cursorX;
+    float                 m_conY;
 };
 
 

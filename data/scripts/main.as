@@ -12,7 +12,7 @@ void onStart()
 
 void onUpdate(float delta)
 {
-    if (orJoystickManager.buttonReleased(0, 16) || orKeyboardManager.keyReleased(Key::ESCAPE))
+    if (orKeyboardManager.keyReleased(Key::ESCAPE))
         orApplication.quit();
 }
 

@@ -15,7 +15,7 @@ public:
     void onUpdate(float delta);
     void onDraw();
 
-    void onEvent(Event e);
+    void onEvent(const Event& e);
 
     void onDestroyed();
 private:

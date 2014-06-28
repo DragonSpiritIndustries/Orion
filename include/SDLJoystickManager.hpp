@@ -46,7 +46,7 @@ public:
     void update(float);
 private:
     SDLJoystickDevice* joystick(int which);
-    void onButton(Event joy);
+    void onButton(const Event& joy);
     std::vector<SDLJoystickDevice*> m_devices;
 };
 

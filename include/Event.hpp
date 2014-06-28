@@ -2,13 +2,14 @@
 #define IEVENT_HPP
 
 #include "Global.hpp"
+#include "IKeyboardManager.hpp"
 
 struct KeyboardEvent
 {
     bool pressed;
-    int  keyCode;
-    int  scanCode;
-    char modifier;
+    char  keyCode;
+    Key  scanCode;
+    short modifier;
 };
 
 struct TextEvent

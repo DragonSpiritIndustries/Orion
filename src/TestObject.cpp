@@ -167,7 +167,7 @@ void TestObject::onDraw()
     orApplicationRef.drawDebugText(Athena::utility::sprintf("State: %.4X", m_state).c_str(), 16, 48);
 }
 
-void TestObject::onEvent(Event e)
+void TestObject::onEvent(const Event& e)
 {
 //    if (e.type == Event::EV_JOY_BTN_PRESSED || e.type == Event::EV_JOY_BTN_RELEASED)
 //        orDebug("%s %i %i\n", orJoystickManagerRef.name(e.eventData.joystickEvent.id).c_str(), e.eventData.joystickEvent.id, e.eventData.joystickEvent.button);

@@ -443,15 +443,15 @@ bool CVar::fromColorf(const Colorf& val)
 
     std::stringstream ss;
     unsigned char r, g, b, a;
-    r = val.r * 255;
-    g = val.g * 255;
-    b = val.b * 255;
-    a = val.a * 255;
+    r = static_cast<unsigned char>(val.r);
+    g = static_cast<unsigned char>(val.g);
+    b = static_cast<unsigned char>(val.b);
+    a = static_cast<unsigned char>(val.a);
 
-    ss << (int)r << " " <<
-          (int)g << " " <<
-          (int)b << " " <<
-          (int)a;
+    ss << (unsigned)r << " " <<
+          (unsigned)g << " " <<
+          (unsigned)b << " " <<
+          (unsigned)a;
 
     m_value = ss.str();
     m_flags |= Modified;
@@ -878,12 +878,12 @@ void CVar::serializeCVar(TiXmlNode* rootNode, bool oldDeveloper)
         }
         case CVar::Color:
         {
-            Colorb col = toColorb();
+            Colori col = toColori();
             cvarNode->SetAttribute("type", "color");
-            cvarNode->SetAttribute("r", (int)col.r);
-            cvarNode->SetAttribute("g", (int)col.g);
-            cvarNode->SetAttribute("b", (int)col.b);
-            cvarNode->SetAttribute("a", (int)col.a);
+            cvarNode->SetAttribute("r", col.r);
+            cvarNode->SetAttribute("g", col.g);
+            cvarNode->SetAttribute("b", col.b);
+            cvarNode->SetAttribute("a", col.a);
         }
             break;
         default: break;
@@ -948,9 +948,14 @@ void CVar::serializeBinding(TiXmlNode* rootNode)
             bindNode->LinkEndChild(joyNode);
         }
 
-        joyNode->SetAttribute("button", m_binding.Joysticks[i].Button);
-        joyNode->SetAttribute("axis", m_binding.Joysticks[i].Axis);
-        joyNode->SetAttribute("isAxisNegative", (m_binding.Joysticks[i].NegativeAxis ? "true" : "false"));
+        if (m_binding.Joysticks[i].Button != -1)
+            joyNode->SetAttribute("button", m_binding.Joysticks[i].Button);
+
+        if (m_binding.Joysticks[i].Axis != -1)
+        {
+            joyNode->SetAttribute("axis", m_binding.Joysticks[i].Axis);
+            joyNode->SetAttribute("isAxisNegative", (m_binding.Joysticks[i].NegativeAxis ? "true" : "false"));
+        }
     }
 }
 
@@ -984,6 +989,36 @@ CVar::Binding::Binding()
     clear();
 }
 
+CVar::Binding::Binding(Key key)
+{
+    clear();
+    KeyVal = key;
+}
+
+CVar::Binding::Binding(MouseButton btn)
+{
+    MouseButtonVal = btn;
+}
+
+CVar::Binding::Binding(int joy, int btn)
+{
+    if (joy < -1 || joy > IJoystickManager::MaxJoysticks)
+        return;
+
+    Joysticks[joy].Button = btn;
+    Joysticks[joy].valid = true;
+}
+
+CVar::Binding::Binding(int joy, int axis, bool neg)
+{
+    if (joy < -1 || joy > IJoystickManager::MaxJoysticks)
+        return;
+
+    Joysticks[joy].Axis = axis;
+    Joysticks[joy].NegativeAxis = neg;
+    Joysticks[joy].valid = true;
+}
+
 void CVar::Binding::clear()
 {
     KeyVal = Key::UNKNOWN;
@@ -1010,4 +1045,3 @@ CVarUnlocker::~CVarUnlocker()
     if (m_cvar)
         m_cvar->lock();
 }
-

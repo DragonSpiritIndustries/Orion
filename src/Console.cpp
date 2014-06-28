@@ -1,19 +1,58 @@
 #include "Console.hpp"
 #include "ApplicationBase.hpp"
 #include "ScriptEngine.hpp"
+#include "ITextureResource.hpp"
 #include "CVarManager.hpp"
+#include "CVar.hpp"
 #include <Athena/Utility.hpp>
 #include <ctime>
 
+extern CVar* com_windowWidth;
+extern CVar* com_windowHeight;
+CVar* con_key = new CVar("con_key", CVar::Binding(Key::TILDE), "Toggles the console", CVar::Archive | CVar::System);
+CVar* com_player1Controller = new CVar("com_player1Controller", "0", "Specifies the first player controller, The first player has sole access to the debug console", CVar::Integer,
+                                       CVar::Archive | CVar::System);
+CVar* con_height     = new CVar("con_height", "234", "Console Height", CVar::Integer, CVar::System);
+CVar* con_speed      = new CVar("con_speed", "500.f", "Specifies how fast the console opens or closes", CVar::Float, CVar::System);
+CVar* con_color      = new CVar("con_color", Colorb::white, "Console color", CVar::System);
+CVar* con_textcolor  = new CVar("con_textcolor", Colorb::white, "Console text color", CVar::System);
+CVar* con_sndopen    = new CVar("con_sndopen", "sounds/con_open.wav", "Console opening sound effect", CVar::Literal, CVar::System);
+CVar* con_sndclose   = new CVar("con_sndopen", "sounds/con_close.wav", "Console opening sound effect", CVar::Literal, CVar::System);
+
 Console::Console(const std::string& logfile)
-    : m_startString(0)
+    : m_state(Closed),
+      m_showCursor(false),
+      m_cursorPosition(0),
+      m_startString(0),
+      m_currentCommand(0),
+      m_isInitialized(false),
+      m_overwrite(false),
+      m_maxLines(15),
+      m_conHeight(234),
+      m_currentMaxLen(MAX_LEN),
+      m_conY(0.0f)
 {
     m_log.open(logfile, std::ios_base::out | std::ios_base::app);
+    orApplicationRef.updateSignal().connect  <Console, &Console::onUpdate>(this);
+    orApplicationRef.textSignal().connect    <Console, &Console::handleText>(this);
+    orApplicationRef.keyboardSignal().connect<Console, &Console::handleInput>(this);
 }
 
 void Console::initialize()
 {
     orConsoleRef.print(orConsoleRef.Info, "Console initialized");
+    m_conBg1 = orResourceManagerRef.loadResource<ITextureResource>("console/bg1.png");
+    if (m_conBg1)
+    {
+        m_conBg1->setWrapH(true);
+        m_conBg1->setWrapV(true);
+    }
+    m_conBg2 = orResourceManagerRef.loadResource<ITextureResource>("console/bg2.png");
+    if (m_conBg2)
+    {
+        m_conBg2->setWrapH(true);
+        m_conBg2->setWrapV(true);
+    }
 }
 
 void Console::shutdown()
@@ -36,23 +75,17 @@ bool Console::isClosed() const
     orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::isClosed");
 }
 
-void Console::handleText(int utf8)
-{
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::handleText");
-}
-
-void Console::handleInput(Key key, bool alt, bool control, bool shift, bool system)
-{
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::handleMouseWheel");
-}
-
 void Console::handleMouseWheel(int delta, int x, int y)
 {
     orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");}
 
 void Console::draw()
 {
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");
+    if (m_conBg1)
+        m_conBg1->draw(Rectanglef(0, 0, com_windowWidth->toInteger(), con_height->toInteger()), Rectanglef(1, 0, 64, 64), Vector2f(), false, false, 0.0f);
+//    if (m_conBg2)
+//        m_conBg2->draw(0, 0);
+    orApplicationRef.drawRectangle(com_windowWidth->toInteger(), con_height->toInteger(), 0, 0, false);
 }
 
 void Console::print(Console::Level level, const std::string& fmt, ...)
@@ -81,7 +114,7 @@ void Console::print(Console::Level level, const std::string& fmt, ...)
     std::string label;
     std::string timestamp;
     std::time_t t = std::time(NULL);
-    char mbstr[9];
+    char mbstr[100];
     if (std::strftime(mbstr, sizeof(mbstr), "%H:%M:%S ", std::localtime(&t)))
         timestamp = std::string(mbstr);
 
@@ -152,14 +185,14 @@ void Console::print(Console::Level level, const std::string& fmt, ...)
         }
     }
 
-    //    if (level == Console::Fatal)
-    //    {
-    //        m_hadFatalError = true;
-    //        m_state = Opened;
-    //        m_conHeight = com_windowHeight->toInteger();
-    //        m_conY = m_conHeight;
-    //        recalcMaxLines();
-    //    }
+    if (level == Console::Fatal)
+    {
+        m_hadFatalError = true;
+        m_state = Opened;
+        m_conHeight = com_windowHeight->toInteger();
+        m_conY = m_conHeight;
+        //recalcMaxLines();
+    }
 }
 
 void Console::clear()
@@ -168,6 +201,22 @@ void Console::clear()
 
 void Console::toggleConsole()
 {
+    if (m_state == Closed || m_state == Closing)
+    {
+        m_state = Opening;
+    }
+    else
+    {
+        m_state = Closing;
+    }
+
+    m_commandString = "";
+    m_cursorPosition = 0;
+    m_cursorX = 0;
+    m_currentCommand = 0;
+
+    if (m_hadFatalError)
+        orApplicationRef.close();
 }
 
 Colorb Console::consoleColor()
@@ -187,6 +236,35 @@ Console* Console::instancePtr()
 {
     static std::shared_ptr<Console> instance = std::shared_ptr<Console>(new Console);
     return instance.get();
+}
+
+void Console::onUpdate(float)
+{
+    const int player1 = com_player1Controller->toInteger();
+    if (orJoystickManagerRef.buttonReleased(player1, con_key->toBinding().Joysticks[player1].Button))
+        toggleConsole();
+}
+
+void Console::handleText(const Event& e)
+{
+    if (e.eventData.textEvent.string[0] == '`' || e.eventData.textEvent.string[0] == '~' || m_state != Opened)
+        return;
+
+    m_commandString += e.eventData.textEvent.string;
+    print(Info, "CommandString: %s", m_commandString.c_str());
+}
+
+void Console::handleInput(const Event& event)
+{
+    KeyboardEvent kbEvent = event.eventData.keyboardEvent;
+    if (kbEvent.scanCode == con_key->toBinding().KeyVal && event.type == Event::EV_KEY_PRESSED)
+        toggleConsole();
+    if (kbEvent.scanCode == Key::BACKSPACE && event.type == Event::EV_KEY_PRESSED)
+    {
+        if (m_commandString.size() > 0)
+            m_commandString.erase(m_commandString.end() - 1);
+        print(Info, "CommandString: %s", m_commandString.c_str());
+    }
 }
 
 void Console::doAutoComplete()
@@ -213,7 +291,7 @@ void Console::parseCVars()
 {
 }
 
-void Console::addEntry(const Console::Level level, const std::string& message, const std::string& timestamp, const std::string label)
+void Console::addEntry(const Console::Level level, const std::string& message, const std::string& timestamp, const std::string& label)
 {
     LogEntry entry;
     entry.level = level;
@@ -236,11 +314,10 @@ void registerConsole()
 {
     asIScriptEngine* engine = orScriptEngineRef.handle();
     int r;
-    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
-    r = engine->RegisterObjectMethod("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
-    r = engine->RegisterObjectMethod("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
+    r = engine->RegisterObjectType    ("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    r = engine->RegisterObjectMethod  ("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod  ("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
     r = engine->RegisterGlobalProperty("Console orConsole", orConsolePtr);
-
 
     orConsoleRef.print(Console::Info, "Registered Console");
 }

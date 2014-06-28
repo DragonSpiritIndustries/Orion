@@ -37,8 +37,7 @@ private:
     void updateFPS();
     enum {MaxFrameValues=32};
     bool          m_running;
-    SDLWindow     m_window;
-    SDLRenderer   m_renderer;
+
     unsigned      m_lastFrame;
     unsigned      m_frameCount;
     unsigned      m_frameValues[MaxFrameValues];

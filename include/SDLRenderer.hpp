@@ -12,7 +12,7 @@ public:
     ~SDLRenderer();
 
     void setClearColor(const Colorf& color = Colorf::black);
-    bool initialize(IWindow& window);
+    bool initialize(IWindow* window);
     void clear();
     void present();
     void drawRect(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);

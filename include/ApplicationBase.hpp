@@ -9,6 +9,8 @@
 #include "IKeyboardManager.hpp"
 #include "IJoystickManager.hpp"
 #include "IMouseManager.hpp"
+#include "IWindow.hpp"
+#include "IRenderer.hpp"
 #include "ResourceManager.hpp"
 #include "ScriptResource.hpp"
 #include "Color.hpp"
@@ -37,15 +39,15 @@ public:
     virtual int windowHeight()=0;
     virtual void setClearColor(const Colorf& color = Colorf::black)=0;
     virtual void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white)=0;
-    virtual Nano::Signal<void(Event)>& eventSignal();
-    virtual Nano::Signal<void(Event)>& keyboardSignal();
-    virtual Nano::Signal<void(Event)>& mouseButtonSignal();
-    virtual Nano::Signal<void(Event)>& mouseWheelSignal();
-    virtual Nano::Signal<void(Event)>& mouseMoveSignal();
-    virtual Nano::Signal<void(Event)>& joystickSignal();
-    virtual Nano::Signal<void(Event)>& resizeSignal();
-    virtual Nano::Signal<void(Event)>& focusChangedSignal();
-    virtual Nano::Signal<void(Event)>& textSignal();
+    virtual Nano::Signal<void(const Event&)>& eventSignal();
+    virtual Nano::Signal<void(const Event&)>& keyboardSignal();
+    virtual Nano::Signal<void(const Event&)>& mouseButtonSignal();
+    virtual Nano::Signal<void(const Event&)>& mouseWheelSignal();
+    virtual Nano::Signal<void(const Event&)>& mouseMoveSignal();
+    virtual Nano::Signal<void(const Event&)>& joystickSignal();
+    virtual Nano::Signal<void(const Event&)>& resizeSignal();
+    virtual Nano::Signal<void(const Event&)>& focusChangedSignal();
+    virtual Nano::Signal<void(const Event&)>& textSignal();
     virtual Nano::Signal<void(float)>& updateSignal();
     virtual Nano::Signal<void(int)>&   joystickAddedSignal();
     virtual Nano::Signal<void(int)>&   joystickRemovedSignal();
@@ -65,15 +67,17 @@ protected:
     std::shared_ptr<IKeyboardManager>    m_keyboardManager;
     std::shared_ptr<IJoystickManager>    m_joystickManager;
     std::shared_ptr<IMouseManager>       m_mouseManager;
-    Nano::Signal<void(Event)>            m_eventSignal;
-    Nano::Signal<void(Event)>            m_keyboardSignal;
-    Nano::Signal<void(Event)>            m_textSignal;
-    Nano::Signal<void(Event)>            m_mouseButtonSignal;
-    Nano::Signal<void(Event)>            m_mouseWheelSignal;
-    Nano::Signal<void(Event)>            m_mouseMoveSignal;
-    Nano::Signal<void(Event)>            m_joystickSignal;
-    Nano::Signal<void(Event)>            m_resizeSignal;
-    Nano::Signal<void(Event)>            m_focusSignal;
+    std::shared_ptr<IWindow>             m_window;
+    std::shared_ptr<IRenderer>           m_renderer;
+    Nano::Signal<void(const Event&)>     m_eventSignal;
+    Nano::Signal<void(const Event&)>     m_keyboardSignal;
+    Nano::Signal<void(const Event&)>     m_textSignal;
+    Nano::Signal<void(const Event&)>     m_mouseButtonSignal;
+    Nano::Signal<void(const Event&)>     m_mouseWheelSignal;
+    Nano::Signal<void(const Event&)>     m_mouseMoveSignal;
+    Nano::Signal<void(const Event&)>     m_joystickSignal;
+    Nano::Signal<void(const Event&)>     m_resizeSignal;
+    Nano::Signal<void(const Event&)>     m_focusSignal;
     Nano::Signal<void(float)>            m_updateSignal;
     Nano::Signal<void(int)>              m_joystickAddedSignal;
     Nano::Signal<void(int)>              m_joystickRemovedSignal;
