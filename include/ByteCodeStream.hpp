@@ -8,6 +8,7 @@
 #include <Athena/FileReader.hpp>
 #include <Athena/BinaryWriter.hpp>
 #include <Athena/BinaryReader.hpp>
+#include <Athena/PHYSFSFileReader.hpp>
 class ByteCodeWriter : public Athena::io::FileWriter, public asIBinaryStream
 {
     FILEWRITER_BASE;
@@ -21,9 +22,9 @@ private:
     Athena::io::BinaryWriter m_memoryStream;
 };
 
-class ByteCodeReader : public Athena::io::FileReader, public asIBinaryStream
+class ByteCodeReader : public Athena::io::PHYSFSFileReader, public asIBinaryStream
 {
-    FILEREADER_BASE;
+    PHYSFSFILEREADER_BASE();
 public:
     ByteCodeReader(const std::string& filepath);
 

@@ -1,10 +1,8 @@
 #include "common.as"
-#ifndef DEBUG
-#define DEBUG
-#endif
-
-#define DEBUG
-
+//#ifndef DEBUG
+//#define DEBUG
+//#endif
+import void helloWorld() from "main";
 weakref<Texture> textureRef;
 
 enum State
@@ -24,6 +22,7 @@ bool isIdle(Object@ self)
 
 void onCreate(Object@ self)
 {
+    helloWorld();
 #ifdef DEBUG
     orConsole.print(Console::Warning, "DEBUG MODE");
 #endif
@@ -70,8 +69,8 @@ void onUpdate(Object@ self, float delta)
     }
 
     int joy = 0;
-    int axisLeft = moveLeftJoy.axis(joy);
-    int axisRight = moveRightJoy.axis(joy);
+    int axisLeft = moveLeftJoy.joyAxis(joy);
+    int axisRight = moveRightJoy.joyAxis(joy);
     float moveLeftValue  = orJoystickManager.axisPosition(joy, axisLeft);
     float moveRightValue = orJoystickManager.axisPosition(joy, axisRight);
     Vector2f move;
@@ -80,6 +79,10 @@ void onUpdate(Object@ self, float delta)
     if ((moveRightJoy.isAxisNegative(joy) && moveLeftValue > 0.0f) || (!moveRightJoy.isAxisNegative(joy) && moveRightValue > 0.0f))
         move.x = 94.f*moveRightValue*delta;
         
+    if (orKeyboardManager.keyPressed(moveLeftJoy.key()))
+       move.x -= 64.f*delta;
+    if (orKeyboardManager.keyPressed(moveRightJoy.key()))
+       move.x += 64.f*delta;
     move.y = 94.f*orJoystickManager.axisPosition(joy, 1)*delta;
     if (move.x == 0 && move.y == 0)
     {

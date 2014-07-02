@@ -13,6 +13,11 @@ int ITextureResource::height() const
     return m_size.y;
 }
 
+void ITextureResource::setRepeat(bool val)
+{
+    m_repeat = val;
+}
+
 
 ITextureResource* loadTexture(const std::string& path)
 {
@@ -41,4 +46,4 @@ REGISTER_SCRIPT_FUNCTION(TextureResource, registerClass);
 
 #include "Config.hpp"
 
-REGISTER_RESOURCE(TEXTURERESOURCE_IMPL, loadTexture);
+REGISTER_RESOURCE(TEXTURERESOURCE_IMPL, "jpeg png bmp tga", loadTexture);

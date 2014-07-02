@@ -20,7 +20,7 @@ ByteCodeWriter::~ByteCodeWriter()
 
     atUint8 compData[m_memoryStream.length()*2];
     atInt32 compLen = m_memoryStream.length()*2;
-    compLen = Athena::io::Compression::compressZlib(data, m_memoryStream.length(), compData, compLen);
+    compLen = 0;//Athena::io::Compression::compressZlib(data, m_memoryStream.length(), compData, compLen);
     if (compLen > 0 && compLen < (atInt32)m_memoryStream.length())
     {
         base::writeUint32(compLen);
@@ -56,18 +56,18 @@ void ByteCodeWriter::Write(const void* ptr, asUINT size)
 
 void ByteCodeWriter::Read(void* /*ptr*/, asUINT /*size*/)
 {
-    return;
+    THROW_NOT_IMPLEMENTED_EXCEPTION();
 }
 
 
 ByteCodeReader::ByteCodeReader(const std::string& filepath)
     : base(filepath),
-      m_memoryStream(filepath)
+      m_memoryStream(new atUint8[1], 1)
 {
     atUint32 magic = base::readUint32();
     if (magic != 0x00435341)
-        THROW_INVALID_DATA_EXCEPTION("Not a valid AngelScript bytecode file,"
-                                     " expected magic 0x43534100 got %8X", magic);
+        THROW_INVALID_DATA_EXCEPTION("Not a valid AngelScript bytecode file, "
+                                     "expected magic 0x00435341 got %8X", magic);
 
     atUint32 uncompLen = base::readUint32();
     atUint32 compLen   = base::readUint32();
@@ -92,16 +92,21 @@ ByteCodeReader::ByteCodeReader(const std::string& filepath)
     }
     delete[] sha1Hash;
     delete[] calculatedHash;
-    atUint8* bytecode = new atUint8[uncompLen];
-    atInt32 outSize = Athena::io::Compression::decompressZlib(data, compLen, bytecode, uncompLen);
-    delete[] data;
-    if (outSize != uncompLen)
+    if(compLen != 0)
     {
-        delete[] bytecode;
-        THROW_INVALID_DATA_EXCEPTION("Decompression of bytecode failed");
-    }
+        atUint8* bytecode = new atUint8[uncompLen];
+        atInt32 outSize = Athena::io::Compression::decompressZlib(data, compLen, bytecode, uncompLen);
+        delete[] data;
+        if (outSize != uncompLen)
+        {
+            delete[] bytecode;
+            THROW_INVALID_DATA_EXCEPTION("Decompression of bytecode failed");
+        }
 
-    m_memoryStream.setData(bytecode, outSize);
+        m_memoryStream.setData(bytecode, outSize);
+    }
+    else
+        m_memoryStream.setData(data, uncompLen);
 }
 
 void ByteCodeReader::Write(const void* /*ptr*/, asUINT /*size*/)

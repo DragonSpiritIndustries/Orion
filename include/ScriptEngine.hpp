@@ -14,6 +14,7 @@ public:
     static ScriptEngine* instancePtr();
 
     void clean();
+    void onDraw();
 private:
     asIScriptEngine* m_engineHandle;
 };

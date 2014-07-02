@@ -25,15 +25,15 @@ public:
     virtual bool init(int argc, char* argv[]);
     virtual void onStart();
     virtual void onUpdate();
-    virtual void onDraw()=0;
+    virtual void onDraw();
     virtual void onExit();
     virtual void setTitle(const std::string& title)=0;
     virtual std::string title() const=0;
     virtual void close()=0;
 
     virtual void* rendererHandle()=0;
-    virtual void drawDebugText(const std::string&, float, float)=0;
-    virtual void drawDebugText(const std::string&, const Vector2f&)=0;
+    virtual void drawDebugText(const std::string&, float, float, Colorb col=Colorb::white)=0;
+    virtual void drawDebugText(const std::string&, const Vector2f&, Colorb col=Colorb::white)=0;
     virtual Vector2i windowSize()=0;
     virtual int windowWidth()=0;
     virtual int windowHeight()=0;
@@ -53,8 +53,6 @@ public:
     virtual Nano::Signal<void(int)>&   joystickRemovedSignal();
     static ApplicationBase& instanceRef();
     static ApplicationBase* instancePtr();
-    IKeyboardManager& keyboardManagerRef();
-    IKeyboardManager* keyboardManagerPtr();
     IJoystickManager& joystickManagerRef();
     IJoystickManager* joystickManagerPtr();
     IMouseManager&    mouseManagerRef();
@@ -64,7 +62,6 @@ protected:
     // README: If you add new event handler remember to emit the event using m_eventSignal *FIRST*
     virtual void pollEvents()=0;
     virtual void parseCommandLine(int argc, char* argv[]){UNUSED(argc),UNUSED(argv);}
-    std::shared_ptr<IKeyboardManager>    m_keyboardManager;
     std::shared_ptr<IJoystickManager>    m_joystickManager;
     std::shared_ptr<IMouseManager>       m_mouseManager;
     std::shared_ptr<IWindow>             m_window;
@@ -89,8 +86,8 @@ protected:
 
 #define orApplicationRef ApplicationBase::instanceRef()
 #define orApplicationPtr ApplicationBase::instancePtr()
-#define orKeyboardManagerRef orApplicationPtr->keyboardManagerRef()
-#define orKeyboardManagerPtr orApplicationPtr->keyboardManagerPtr()
+#define orKeyboardManagerRef IKeyboardManager::instanceRef()
+#define orKeyboardManagerPtr IKeyboardManager::instancePtr()
 #define orJoystickManagerRef orApplicationPtr->joystickManagerRef()
 #define orJoystickManagerPtr orApplicationPtr->joystickManagerPtr()
 #define orMouseManagerRef orApplicationPtr->mouseManagerRef()

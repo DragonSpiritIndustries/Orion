@@ -4,8 +4,8 @@
 #include <physfs.h>
 #include <algorithm>
 
-CVar* res_basepath = new CVar("fs_basepath", "data", "Base directory for resources", CVar::Literal, CVar::Archive | CVar::System | CVar::ReadOnly);
-CVar* sv_pure      = new CVar("sv_pure",     "false","In \"pure\" mode only resources in archives are loaded", CVar::Boolean, CVar::System | CVar::Cheat);
+CVar* res_basepath = new CVar("fs_basepath", "data", "Base directory for resources", CVar::Literal, CVar::System | CVar::ReadOnly);
+CVar* sv_pure      = new CVar("sv_pure",     "true","In \"pure\" mode only resources in archives are loaded", CVar::Boolean, CVar::System | CVar::Cheat);
 
 ResourceManager::ResourceManager()
 {
@@ -24,10 +24,10 @@ bool ResourceManager::initialize(const std::string& executablePath,
     m_archiveExt = archiveExt;
 
     orConsoleRef.print(orConsoleRef.Info, "Initializing resource manager:\n");
-    orConsoleRef.print(orConsoleRef.Info, "arg0 value       = %s\n", m_executablePath.c_str());
-    orConsoleRef.print(orConsoleRef.Info, "Organization     = %s\n", m_organizationName.c_str());
-    orConsoleRef.print(orConsoleRef.Info, "Application      = %s\n", m_applicationName.c_str());
-    orConsoleRef.print(orConsoleRef.Info, "ArchiveExtension = %s\n", m_archiveExt.c_str());
+    orConsoleRef.print(orConsoleRef.Info, "arg0 %s\n", m_executablePath.c_str());
+    orConsoleRef.print(orConsoleRef.Info, "Organization %s\n", m_organizationName.c_str());
+    orConsoleRef.print(orConsoleRef.Info, "Application %s\n", m_applicationName.c_str());
+    orConsoleRef.print(orConsoleRef.Info, "ArchiveExtension %s\n", m_archiveExt.c_str());
     if (!PHYSFS_init(m_executablePath.c_str()))
     {
         orConsoleRef.print(orConsoleRef.Info, "Failed to initialize PHYSFS: %s\n", PHYSFS_getLastError());
@@ -69,7 +69,7 @@ bool ResourceManager::initialize(const std::string& executablePath,
     for (std::string archive : archives)
     {
         orConsoleRef.print(orConsoleRef.Info, "Mounting archive: %s\n", archive.c_str());
-        PHYSFS_mount(archive.c_str(), NULL, 0);
+        PHYSFS_mount(archive.c_str(), nullptr, true);
     }
 
     return true;
@@ -87,7 +87,7 @@ void ResourceManager::shutdown()
     PHYSFS_deinit();
 }
 
-void ResourceManager::registerResource(ResourceLoaderFunc loader)
+void ResourceManager::registerResource(ResourceLoader* loader)
 {
     if (std::find(m_resourceLoaders.begin(), m_resourceLoaders.end(), loader)  != m_resourceLoaders.end())
         return;

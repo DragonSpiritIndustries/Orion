@@ -159,8 +159,8 @@ void TestObject::onUpdate(float delta)
 
 void TestObject::onDraw()
 {
-    Object::onDraw();
     orApplicationRef.drawRectangle(32, 32, m_position.x, m_position.y, true);
+    Object::onDraw();
     //if (m_texture)
     //    m_texture->draw(m_position.x, m_position.y, Rectanglef(16, 16, 32, 32), Vector2f(0, 0), false, false, 0.0f);
 

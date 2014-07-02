@@ -4,11 +4,6 @@
 
 SDLKeyboardManager::SDLKeyboardManager()
 {
-    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Intializing\n");
-    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Connecting vital signals\n");
-    orApplicationPtr->keyboardSignal().connect<SDLKeyboardManager, &SDLKeyboardManager::translateEvent>(this);
-    orApplicationPtr->updateSignal().connect<IKeyboardManager, &IKeyboardManager::onUpdate>(this);
-    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Initialized\n");
 }
 
 SDLKeyboardManager::~SDLKeyboardManager()

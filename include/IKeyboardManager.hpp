@@ -1,6 +1,7 @@
 #ifndef IKEYBOARDMANAGER_HPP
 #define IKEYBOARDMANAGER_HPP
 
+#include "Global.hpp"
 #include <unordered_map>
 
 enum class KeyModifier : short
@@ -17,6 +18,10 @@ enum class KeyModifier : short
     NUM      = (1 <<  8),
     CAPS     = (1 <<  9),
     MODE     = (1 << 10),
+    SHIFT    = LSHIFT | RSHIFT,
+    CONTROL  = LCONTROL | RCONTROL,
+    ALT      = LALT | RALT,
+    GUI      = LGUI | RGUI
 };
 
 enum class Key : int
@@ -163,6 +168,8 @@ public:
     virtual bool shiftPressed()=0;
     virtual void shutdown()=0;
 
+    static IKeyboardManager& instanceRef();
+    static IKeyboardManager* instancePtr();
 protected:
     virtual void translateEvent(const Event&)=0;
     std::unordered_map<Key, bool> m_pressedKeys;

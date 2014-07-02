@@ -1,4 +1,5 @@
 #include "ScriptEngine.hpp"
+#include "ApplicationBase.hpp"
 #include "angelscript/angelscript.h"
 #include "angelscript/addons.h"
 #include "Console.hpp"
@@ -8,8 +9,9 @@
 #include "CVar.hpp"
 #include <memory>
 
-CVar* sc_useBytecode = new CVar("sc_useBytecode", "false", "Whether or not to use precompiled bytecode", CVar::Boolean, CVar::System | CVar::ReadOnly);
+CVar* sc_useBytecode   = new CVar("sc_useBytecode",   "false", "Whether or not to use precompiled bytecode", CVar::Boolean, CVar::System | CVar::ReadOnly);
 CVar* sc_buildBytecode = new CVar("sc_buildBytecode", "false", "Compile bytecode to be loaded when sc_useBytecode is set to true", CVar::Boolean, CVar::System | CVar::ReadOnly);
+CVar* sc_debugScripts  = new CVar("sc_debugScripts",  "false",  "Enable script debugging, also creates bytecode with debug symbols if sc_buildBytecode is enabled", CVar::Boolean, CVar::System | CVar::ReadOnly | CVar::Hidden);
 
 // This is used for AngelScript error messages
 void MessageCallback(const asSMessageInfo &msg)
@@ -39,7 +41,7 @@ ScriptEngine::ScriptEngine()
         m_engineHandle->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL);
         m_engineHandle->RegisterObjectType("ScriptEngine", 0, asOBJ_REF | asOBJ_NOHANDLE);
         m_engineHandle->RegisterObjectMethod("ScriptEngine", "void clean()", asMETHOD(ScriptEngine, clean), asCALL_THISCALL);
-        m_engineHandle->RegisterGlobalProperty("ScriptEngine scriptEngine", this);
+        m_engineHandle->RegisterGlobalProperty("ScriptEngine orScriptEngine", this);
         RegisterStdString(m_engineHandle);
         RegisterStdStringUtils(m_engineHandle);
         RegisterScriptMath(m_engineHandle);
@@ -127,4 +129,13 @@ void ScriptEngine::clean()
 {
     m_engineHandle->GarbageCollect();
     orConsoleRef.print(orConsoleRef.Info, "Flushed AngelScript GC");
+}
+
+void ScriptEngine::onDraw()
+{
+    asUINT curSize, totalDestroyed, totalDetected, newObjs, totalNewDestroyed;
+    handle()->GetGCStatistics(&curSize, &totalDestroyed, &totalDetected, &newObjs, &totalNewDestroyed);
+    orApplicationRef.drawDebugText(Athena::utility::sprintf("Current Size: %i", curSize), 16, 100);
+    orApplicationRef.drawDebugText(Athena::utility::sprintf("Total Destroyed: %i", totalDestroyed), 16, 116);
+    orApplicationRef.drawDebugText(Athena::utility::sprintf("Total Detected: %i", totalDetected), 16, 132);
 }

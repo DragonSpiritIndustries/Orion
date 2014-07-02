@@ -19,6 +19,7 @@ public:
     static IResource* load(const std::string& path);
 private:
     CScriptBuilder m_builder;
+    bool           m_valid;
 };
 
 #endif // SCRIPTRESOURCE_HPP

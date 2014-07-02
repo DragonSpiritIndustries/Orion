@@ -9,7 +9,8 @@ win32:QMAKE_LFLAGS += -mwindows
 
 DEFINES += \
     ATHENA_NO_ZQUEST \
-    ATHENA_NO_SAVES
+    ATHENA_NO_SAVES \
+    ATHENA_ENABLE_PHYSFS
 
 win32:DEFINES += \
     SDL_MAIN_NEEDED
@@ -23,6 +24,7 @@ LIBS += \
     -lSDL2 \
     -lSDL2_ttf \
     -lSDL2_image \
+    -lSDL2_gfx \
     -lz \
     -lphysfs \
     -ltinyxml \
@@ -43,15 +45,16 @@ SOURCES += \
     src/Vector3.cpp \
     src/Rectangle.cpp \
     src/Color.cpp \
+    src/IKeyboardManager.cpp \
+    src/IJoystickManager.cpp \
+    src/IMouseManager.cpp \
     src/CVarManager.cpp \
     src/CVar.cpp \
     src/ApplicationBase.cpp \
     src/ComponentFactory.cpp \
     src/IComponent.cpp \
     src/TransformableComponent.cpp \
-    src/IMouseManager.cpp \
     src/physfsrwops.c \
-    src/IJoystickManager.cpp \
     src/IResource.cpp \
     src/ITextureResource.cpp \
     src/ScriptResource.cpp \
@@ -109,13 +112,13 @@ SOURCES += \
     src/SDLApplication.cpp \
     src/TestObject.cpp \
     src/SDLKeyboardManager.cpp \
-    src/IKeyboardManager.cpp \
     src/SDLJoystickManager.cpp \
     src/SDLMouseManager.cpp \
     include/TileObj.cpp \
     src/SDLTexture.cpp \
     src/main.cpp \
-    src/ByteCodeStream.cpp
+    src/ByteCodeStream.cpp \
+    src/IFontResource.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -204,6 +207,7 @@ HEADERS += \
     include/CVarManager.hpp \
     include/CVar.hpp \
     include/ByteCodeStream.hpp \
+    include/IFontResource.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

@@ -1,5 +1,10 @@
 #include "common.as"
 
+void helloWorld()
+{
+    orConsole.print(Console::Message, "Hello World!");
+}
+
 void onInitialized()
 {
     orConsole.print(Console::Message, "Application Initialized");
@@ -12,8 +17,11 @@ void onStart()
 
 void onUpdate(float delta)
 {
-    if (orKeyboardManager.keyReleased(Key::ESCAPE))
+    if (orKeyboardManager.keyReleased(Keyboard::Key::ESCAPE))
         orApplication.quit();
+
+    if (orKeyboardManager.keyReleased(Keyboard::Key::F12))
+        orScriptEngine.clean();
 }
 
 void onShutdown()

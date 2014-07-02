@@ -128,7 +128,7 @@ Object* Object::takeChild(int index)
 
 void Object::onCreate()
 {
-    if (m_scriptContext)
+    if (m_scriptContext && m_script)
     {
         asIScriptFunction* destroyedFunc = m_script->functionByName("onCreate");
         if(destroyedFunc)
@@ -142,7 +142,7 @@ void Object::onCreate()
 
 void Object::onDestroyed()
 {
-    if (m_scriptContext)
+    if (m_scriptContext && m_script)
     {
         asIScriptFunction* destroyedFunc = m_script->functionByName("onDestroyed");
         if(destroyedFunc)
@@ -156,7 +156,7 @@ void Object::onDestroyed()
 
 void Object::onDraw()
 {
-    if (m_scriptContext)
+    if (m_scriptContext && m_script)
     {
         asIScriptFunction* destroyedFunc = m_script->functionByName("onDraw");
         if(destroyedFunc)
@@ -205,7 +205,7 @@ void Object::setState(int state)
 
 void Object::onThink(float delta)
 {
-    if (m_scriptContext)
+    if (m_scriptContext && m_script)
     {
         asIScriptFunction* thinkFunc = m_script->functionByName("onThink");
         if(thinkFunc)
@@ -222,7 +222,7 @@ void Object::onUpdate(float delta)
 {
     onThink(delta);
 
-    if (m_scriptContext)
+    if (m_scriptContext && m_script)
     {
         asIScriptFunction* updateFunc = m_script->functionByName("onUpdate");
         if(updateFunc)

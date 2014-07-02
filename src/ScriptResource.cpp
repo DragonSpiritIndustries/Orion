@@ -9,6 +9,7 @@
 
 extern CVar* sc_useBytecode;
 extern CVar* sc_buildBytecode;
+extern CVar* sc_debugScripts;
 extern CVar* res_basepath;
 extern CVar* com_developer;
 
@@ -45,19 +46,31 @@ asIScriptFunction* ScriptResource::functionByIndex(int id)
 
 bool ScriptResource::loadData(const std::string& path)
 {
+    if (path == std::string())
+        return false;
+
     std::string tmp = path;
     if (tmp.find_last_of("/") != std::string::npos)
         tmp = tmp.erase(0, path.find_last_of("/")+1);
     if (tmp.find_last_of(".") != std::string::npos)
         tmp = tmp.erase(tmp.find_last_of("."), tmp.find_last_of(".") - tmp.size() + 1);
 
+    if (tmp == std::string())
+        return false;
+
     m_builder.StartNewModule(orScriptEngineRef.handle(), tmp.c_str());
     if (sc_useBytecode->toBoolean())
     {
-
         try
         {
-            ByteCodeReader bcr(path + "c");
+            std::string extension = path.substr(path.find_last_of(".") + 1);
+            Athena::utility::tolower(extension);
+            std::string tmpPath = path;
+            if (extension == "as")
+                tmpPath += "c";
+
+            ByteCodeReader bcr(tmpPath);
+
             if (m_builder.GetModule()->LoadByteCode(&bcr) >=0)
                 return true;
         }
@@ -73,13 +86,22 @@ bool ScriptResource::loadData(const std::string& path)
 
     if (m_builder.BuildModule() >= 0)
     {
+        m_builder.GetModule()->BindAllImportedFunctions();
+
         orConsoleRef.print(orConsoleRef.Info, tmp);
         // Only build script bytecode if sc_buildByteCode is true AND we're in developer mode
         if (sc_buildBytecode->toBoolean() && com_developer->toBoolean())
         {
-            tmp = res_basepath->toLiteral() + "/scripts/" + tmp + ".asc";
-            ByteCodeWriter bcw(tmp);
-            m_builder.GetModule()->SaveByteCode(&bcw, true);
+            try
+            {
+                tmp = res_basepath->toLiteral() + "/" + path + "c";
+                ByteCodeWriter bcw(tmp);
+                m_builder.GetModule()->SaveByteCode(&bcw, !sc_debugScripts->toBoolean());
+            }
+            catch(...)
+            {
+                // fail silently
+            }
         }
         return true;
     }
@@ -101,4 +123,4 @@ IResource* ScriptResource::load(const std::string& name)
     return nullptr;
 }
 
-REGISTER_RESOURCE(ScriptResource, load);
+REGISTER_RESOURCE(ScriptResource, "as asc", load);

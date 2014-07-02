@@ -28,7 +28,7 @@ SDLRenderer::~SDLRenderer()
 void SDLRenderer::setClearColor(const Colorf& color)
 {
     com_clearColor->fromColorf(color);
-    glClearColor(color.r, color.g, color.b, color.a);
+    glClearColor(1, 1, 1, 1);
 }
 
 void SDLRenderer::clear()
@@ -37,7 +37,7 @@ void SDLRenderer::clear()
         return;
 
     //Clear color buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void SDLRenderer::present()
@@ -53,11 +53,15 @@ void SDLRenderer::drawRect(int w, int h, int x, int y, bool fill, Colorb col)
     rect.x = x;
     rect.y = y;
 
+    SDL_BlendMode oldMode;
+    SDL_GetRenderDrawBlendMode(m_renderer, &oldMode);
+    SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_renderer, (int)(col.r), (int)(col.g), (int)(col.b), (int)(col.a));
     if (fill)
         SDL_RenderFillRect(m_renderer, &rect);
     else
         SDL_RenderDrawRect(m_renderer, &rect);
+    SDL_SetRenderDrawBlendMode(m_renderer, oldMode);
 }
 
 void* SDLRenderer::handle()
@@ -81,7 +85,7 @@ bool SDLRenderer::initialize(IWindow* window)
         return false;
     }
     //Use Vsync
-    if( SDL_GL_SetSwapInterval( com_verticalSync->toBoolean() ) < 0 )
+    if( SDL_GL_SetSwapInterval(com_verticalSync->toBoolean()) < 0 )
     {
         orConsoleRef.print(orConsoleRef.Warning, "Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
     }

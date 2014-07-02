@@ -22,11 +22,9 @@ public:
     virtual Vector2i size() const = 0;
     virtual int width()     const;
     virtual int height()    const;
-    virtual void setWrapH(bool val)=0;
-    virtual void setWrapV(bool val)=0;
+    virtual void setRepeat(bool val);
 protected:
-    bool m_wrapH;
-    bool m_wrapV;
+    bool m_repeat;
     Vector2i     m_size;
 };
 

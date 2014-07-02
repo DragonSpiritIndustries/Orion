@@ -1,6 +1,10 @@
 #include "Global.hpp"
 #include "ScriptEngine.hpp"
 #include "Console.hpp"
+#include "algorithm"
+#ifndef RESOURCEMANAGER_HPP
+#include "ResourceManager.hpp"
+#endif
 
 template <class T>
 T* ResourceManager::loadResource(const std::string& resourceName)
@@ -14,17 +18,21 @@ T* ResourceManager::loadResource(const std::string& resourceName)
         orConsoleRef.print(orConsoleRef.Warning, "Cast failed\n");
     }
 
-    orForeach (ResourceLoaderFunc loader _in_ m_resourceLoaders)
+    orForeach (ResourceLoader* loader _in_ m_resourceLoaders)
     {
-        IResource* res = loader(resourceName);
-        if (res)
+        std::string extension = resourceName.substr(resourceName.find_last_of(".") + 1);
+        if (std::find(loader->SupportedExtensions.begin(), loader->SupportedExtensions.end(), extension) != loader->SupportedExtensions.end())
         {
-            m_resources[resourceName] = res;
-            T* test = dynamic_cast<T*>(res);
-            if (test)
-                return test;
+            IResource* res = loader->LoaderFunc(resourceName);
+            if (res)
+            {
+                m_resources[resourceName] = res;
+                T* test = dynamic_cast<T*>(res);
+                if (test)
+                    return test;
 
-            orConsoleRef.print(orConsoleRef.Warning, "Cast failed\n");
+                orConsoleRef.print(orConsoleRef.Warning, "Cast failed\n");
+            }
         }
     }
 

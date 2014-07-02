@@ -1,5 +1,7 @@
 #include "IKeyboardManager.hpp"
+#include KEYBOARDMANAGER_IMPL_HEADER
 #include "ScriptEngine.hpp"
+#include "ApplicationBase.hpp"
 #include "EnumToString.hpp"
 
 template<>
@@ -114,16 +116,11 @@ const char* enumStrings<Key>::data[] =
 
 IKeyboardManager::IKeyboardManager()
 {
-    orScriptEngineRef.handle()->RegisterEnum("Key");
-#define K(k) enumToStdString((Key)k).c_str()
-    for (int i = 0; i <= (int)Key::KEYCOUNT; i++)
-        orScriptEngineRef.handle()->RegisterEnumValue("Key", K(i), i);
-
-
-    orScriptEngineRef.handle()->RegisterObjectType("KeyboardManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
-    orScriptEngineRef.handle()->RegisterGlobalProperty("KeyboardManager orKeyboardManager", this);
-    orScriptEngineRef.handle()->RegisterObjectMethod("KeyboardManager", "bool keyPressed(Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectMethod("KeyboardManager", "bool keyReleased(Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Intializing\n");
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Connecting vital signals\n");
+    orApplicationPtr->keyboardSignal().connect<IKeyboardManager, &IKeyboardManager::translateEvent>(this);
+    orApplicationPtr->updateSignal().connect<IKeyboardManager, &IKeyboardManager::onUpdate>(this);
+    orConsoleRef.print(orConsoleRef.Info, "KEYBOARDMANAGER: Initialized\n");
 }
 
 void IKeyboardManager::onUpdate(float)
@@ -131,3 +128,31 @@ void IKeyboardManager::onUpdate(float)
     for (std::pair<const Key, bool>& key : m_releasedKeys)
         key.second = false;
 }
+
+IKeyboardManager& IKeyboardManager::instanceRef()
+{
+    return *instancePtr();
+}
+
+IKeyboardManager* IKeyboardManager::instancePtr()
+{
+    static std::shared_ptr<IKeyboardManager> instance = std::shared_ptr<IKeyboardManager>(new KEYBOARDMANAGER_IMPL);
+    return instance.get();
+}
+
+static void registerKeyManager()
+{
+    orScriptEngineRef.handle()->SetDefaultNamespace("Keyboard");
+    orScriptEngineRef.handle()->RegisterEnum("Key");
+#define K(k) enumToStdString((Key)k).c_str()
+    for (int i = 0; i <= (int)Key::KEYCOUNT; i++)
+        orScriptEngineRef.handle()->RegisterEnumValue("Key", K(i), i);
+    orScriptEngineRef.handle()->SetDefaultNamespace("");
+
+    orScriptEngineRef.handle()->RegisterObjectType("KeyboardManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    orScriptEngineRef.handle()->RegisterGlobalProperty("KeyboardManager orKeyboardManager", orKeyboardManagerPtr);
+    orScriptEngineRef.handle()->RegisterObjectMethod("KeyboardManager", "bool keyPressed(Keyboard::Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("KeyboardManager", "bool keyReleased(Keyboard::Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
+}
+
+REGISTER_SCRIPT_FUNCTION(KeyboardManager, registerKeyManager);

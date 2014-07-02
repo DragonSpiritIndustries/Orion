@@ -251,6 +251,12 @@ static int joyButton(int which, CVar* cvar)
 
     return -1;
 }
+
+static Key key(CVar* cvar)
+{
+    return cvar->toBinding().KeyVal;
+}
+
 static CVar* createCVar(const std::string& name, const std::string& value, const std::string& help, CVar::Type type, int flags)
 {
     // if the cvar already exists just pass it
@@ -346,12 +352,14 @@ static void registerCVar()
     handle->RegisterObjectMethod("CVar", "bool isBinding()",                  asMETHOD(CVar, isBinding),  asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "bool joyValid(int which)",          asFUNCTION(joystickValid),  asCALL_CDECL_OBJLAST);
     handle->RegisterObjectMethod("CVar", "bool joyValid(const int which) const",asFUNCTION(joystickValid),  asCALL_CDECL_OBJLAST);
-    handle->RegisterObjectMethod("CVar", "int  button(int which)",            asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
-    handle->RegisterObjectMethod("CVar", "int  button(const int which) const",asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
-    handle->RegisterObjectMethod("CVar", "int  axis(int which)",              asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
-    handle->RegisterObjectMethod("CVar", "int  axis(const int which) const",  asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  joyButton(int which)",            asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  joyButton(const int which) const",asFUNCTION(joyButton),      asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  joyAxis(int which)",              asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "int  joyAxis(const int which) const",  asFUNCTION(joyAxis),        asCALL_CDECL_OBJLAST);
     handle->RegisterObjectMethod("CVar", "bool  isAxisNegative(int which)",  asFUNCTION(joyAxisNeg),        asCALL_CDECL_OBJLAST);
     handle->RegisterObjectMethod("CVar", "bool  isAxisNegative(const int which) const",  asFUNCTION(joyAxisNeg),        asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "Keyboard::Key  key()",                        asFUNCTION(key),      asCALL_CDECL_OBJLAST);
+    handle->RegisterObjectMethod("CVar", "Keyboard::Key  key() const",                  asFUNCTION(key),      asCALL_CDECL_OBJLAST);
     handle->RegisterObjectMethod("CVar", "void unlock()",                     asMETHOD(CVar, unlock),     asCALL_THISCALL);
     handle->RegisterObjectMethod("CVar", "void lock()",                       asMETHOD(CVar, unlock),     asCALL_THISCALL);
 }

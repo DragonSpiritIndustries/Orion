@@ -49,7 +49,6 @@ bool SDLApplication::init(int argc, char* argv[])
     }
 
     // First initialize the input managers
-    m_keyboardManager = std::shared_ptr<IKeyboardManager>(new SDLKeyboardManager);
     m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
     m_mouseManager    = std::shared_ptr<IMouseManager>   (new SDLMouseManager);
 
@@ -141,6 +140,7 @@ void SDLApplication::pollEvents()
         {
             oEvent.type = Event::EV_TEXT_ENTERED;
             oEvent.eventData.textEvent.string = sdlEvent.text.text;
+            m_eventSignal(oEvent);
             m_textSignal(oEvent);
         }
         else if (sdlEvent.type == SDL_JOYDEVICEADDED)
@@ -266,10 +266,7 @@ void SDLApplication::updateFPS()
 void SDLApplication::onDraw()
 {
     m_renderer.get()->clear();
-    orObjectManagerRef.draw();
-    orConsoleRef.draw();
-
-    drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), 16, 0);
+    ApplicationBase::onDraw();
     m_renderer.get()->present();
 }
 
@@ -284,7 +281,7 @@ void* SDLApplication::rendererHandle()
     return (void*)m_renderer.get()->handle();
 }
 
-void SDLApplication::drawDebugText(const std::string& text, float x, float y)
+void SDLApplication::drawDebugText(const std::string& text, float x, float y, Colorb col)
 {
     static SDL_Texture* texture;
     static SDL_Surface* fontSurf;
@@ -293,7 +290,7 @@ void SDLApplication::drawDebugText(const std::string& text, float x, float y)
     rect.y = y;
     TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
 
-    fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{255, 255, 255, 255});
+    fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{col.r, col.g, col.b, col.a});
     texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(m_renderer.get()->handle()), fontSurf);
 
 
@@ -302,9 +299,9 @@ void SDLApplication::drawDebugText(const std::string& text, float x, float y)
     SDL_DestroyTexture(texture);
 }
 
-void SDLApplication::drawDebugText(const std::string& text, const Vector2f& position)
+void SDLApplication::drawDebugText(const std::string& text, const Vector2f& position, Colorb col)
 {
-    drawDebugText(text, position.x, position.y);
+    drawDebugText(text, position.x, position.y, col);
 }
 
 void SDLApplication::drawRectangle(int w, int h, int x, int y, bool fill, Colorb col)

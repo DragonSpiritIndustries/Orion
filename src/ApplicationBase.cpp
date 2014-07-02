@@ -20,6 +20,7 @@ CVar* com_drawwire     = new CVar("r_drawwire", "false", "Draws the geometry of 
 CVar* com_showfps      = new CVar("r_showfps", "false", "If true, renders the framerate in the upper right hand corner.", CVar::Boolean, (CVar::System | CVar::Archive));
 
 ApplicationBase::ApplicationBase()
+    : m_scriptContext(nullptr)
 {
 }
 
@@ -52,6 +53,7 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
     orCVarManagerRef.initialize();
     if (!orResourceManagerRef.initialize(argv[0]))
         return false;
+
     orConsoleRef.initialize();
     orObjectManagerRef.initialize();
 
@@ -59,17 +61,19 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
 
     m_mainScript = orResourceManagerRef.loadResource<ScriptResource>("scripts/main.as");
     if (!m_mainScript)
-        return false;
-
-    m_scriptContext = orScriptEngineRef.handle()->CreateContext();
-
-    if (m_scriptContext)
+        orConsoleRef.print(orConsoleRef.Fatal, "Unable to load main.as");
+    else
     {
-        asIScriptFunction* initFunc = m_mainScript->functionByName("onInitialized");
-        if (initFunc)
+        m_scriptContext = orScriptEngineRef.handle()->CreateContext();
+
+        if (m_scriptContext)
         {
-            m_scriptContext->Prepare(initFunc);
-            m_scriptContext->Execute();
+            asIScriptFunction* initFunc = m_mainScript->functionByName("onInitialized");
+            if (initFunc)
+            {
+                m_scriptContext->Prepare(initFunc);
+                m_scriptContext->Execute();
+            }
         }
     }
 
@@ -104,6 +108,14 @@ void ApplicationBase::onUpdate()
     m_updateSignal(m_frameTime);
 }
 
+void ApplicationBase::onDraw()
+{
+    orObjectManagerRef.draw();
+    orScriptEngineRef.onDraw();
+    orConsoleRef.draw();
+    drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), windowWidth() - 100, 0);
+}
+
 void ApplicationBase::onExit()
 {
     if (m_scriptContext)
@@ -119,7 +131,7 @@ void ApplicationBase::onExit()
     orObjectManagerRef.shutdown();
     orResourceManagerRef.shutdown();
     m_joystickManager.get()->shutdown();
-    m_keyboardManager.get()->shutdown();
+    orKeyboardManagerRef.shutdown();
 }
 
 Nano::Signal<void (const Event&)>& ApplicationBase::eventSignal()
@@ -191,16 +203,6 @@ ApplicationBase* ApplicationBase::instancePtr()
 {
     static std::shared_ptr<ApplicationBase> instance = std::shared_ptr<ApplicationBase>(new APPLICATION_IMPL);
     return  instance.get();
-}
-
-IKeyboardManager& ApplicationBase::keyboardManagerRef()
-{
-    return *m_keyboardManager.get();
-}
-
-IKeyboardManager* ApplicationBase::keyboardManagerPtr()
-{
-    return m_keyboardManager.get();
 }
 
 IJoystickManager& ApplicationBase::joystickManagerRef()

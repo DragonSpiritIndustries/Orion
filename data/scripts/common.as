@@ -1,18 +1,5 @@
 #ifndef COMMON
 #define COMMON
-// TODO: Move these enums into Orion, it's rather silly to compile these into every script 
-namespace Console
-{
-    enum Level
-    {
-        Message,
-        Info,
-        Warning,
-        Error,
-        Fatal
-    }
-}
-
 namespace CVar
 {
     enum Type

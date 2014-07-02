@@ -19,8 +19,8 @@ public:
     void onDraw();
     void onExit();
     void* rendererHandle();
-    void drawDebugText(const std::string& text, float x, float y);
-    void drawDebugText(const std::string& text, const Vector2f& position);
+    void drawDebugText(const std::string& text, float x, float y, Colorb col=Colorb::white);
+    void drawDebugText(const std::string& text, const Vector2f& position, Colorb col=Colorb::white);
     void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
     void setTitle(const std::string &title);
     std::string title() const;

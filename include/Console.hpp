@@ -103,6 +103,8 @@ protected:
     bool                  m_isInitialized;
     bool                  m_overwrite;
     bool                  m_hadFatalError;
+    bool                  m_fullscreen;
+    bool                  m_wasFullscreen;
     int                   m_maxLines;
     int                   m_conHeight;
     int                   m_conWidth;
@@ -110,6 +112,8 @@ protected:
     int                   m_commandStart;
     std::string           m_commandString;
 
+    float                 m_bgOffX;
+    float                 m_bgOffY;
     float                 m_cursorX;
     float                 m_conY;
 };

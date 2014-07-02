@@ -220,6 +220,7 @@ std::string CVar::toLiteral(bool* isValid) const
     return m_value;
 }
 
+static const float inv255 = (1.f/255.f);
 Colorf CVar::toColorf(bool* isValid) const
 {
     if (m_type != Color)
@@ -236,7 +237,7 @@ Colorf CVar::toColorf(bool* isValid) const
     if (isValid != NULL)
         *isValid = true;
 
-    float r, g, b, a;
+    int r, g, b, a;
     std::stringstream ss;
 
     ss << m_value;
@@ -245,7 +246,7 @@ Colorf CVar::toColorf(bool* isValid) const
     ss >> b;
     ss >> a;
 
-    return Colorf(r, g, b, a);
+    return Colorf(r*inv255, g*inv255, b*inv255, a*inv255);
 }
 
 Colorb CVar::toColorb(bool* isValid) const
@@ -273,7 +274,8 @@ Colorb CVar::toColorb(bool* isValid) const
     ss >> b;
     ss >> a;
 
-    return Colorb(r, g, b, a);
+    Colorb ret(r, g, b, a);
+    return ret;
 }
 
 Colori CVar::toColori(bool* isValid) const
@@ -478,10 +480,12 @@ bool CVar::fromColorb(const Colorb& val)
     }
 
     std::stringstream ss;
-    ss << (int)val.r << " " <<
-          (int)val.g << " " <<
-          (int)val.b << " " <<
-          (int)val.a;
+
+
+    ss << (((atUint32)val.r) & 255) << " ";
+    ss << (((atUint32)val.g) & 255) << " ";
+    ss << (((atUint32)val.b) & 255) << " ";
+    ss << (((atUint32)val.a) & 255) << " ";
     m_value = ss.str();
     m_flags |= Modified;
     return true;
@@ -507,10 +511,10 @@ bool CVar::fromColori(const Colori& val)
     }
 
     std::stringstream ss;
-    ss << val.r << " " <<
-          val.g << " " <<
-          val.b << " " <<
-          val.a;
+    ss << (unsigned)val.r << " " <<
+          (unsigned)val.g << " " <<
+          (unsigned)val.b << " " <<
+          (unsigned)val.a;
     m_value = ss.str();
     m_flags |= Modified;
     return true;
@@ -707,7 +711,7 @@ void CVar::deserialize(TiXmlNode* rootNode)
     else
         cvarNode = rootNode->FirstChildElement("Bind");
 
-    while (cvarNode != NULL)
+    while (cvarNode != nullptr)
     {
         if (type() != Bind)
         {
@@ -880,10 +884,10 @@ void CVar::serializeCVar(TiXmlNode* rootNode, bool oldDeveloper)
         {
             Colori col = toColori();
             cvarNode->SetAttribute("type", "color");
-            cvarNode->SetAttribute("r", col.r);
-            cvarNode->SetAttribute("g", col.g);
-            cvarNode->SetAttribute("b", col.b);
-            cvarNode->SetAttribute("a", col.a);
+            cvarNode->SetAttribute("r", (col.r & 255));
+            cvarNode->SetAttribute("g", (col.g & 255));
+            cvarNode->SetAttribute("b", (col.b & 255));
+            cvarNode->SetAttribute("a", (col.a & 255));
         }
             break;
         default: break;

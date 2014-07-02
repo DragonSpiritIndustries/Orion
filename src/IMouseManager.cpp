@@ -23,8 +23,8 @@ IMouseManager::IMouseManager()
 
     orScriptEngineRef.handle()->RegisterObjectType("MouseManager", 0, asOBJ_REF | asOBJ_NOHANDLE);
     orScriptEngineRef.handle()->RegisterGlobalProperty("MouseManager orMouseManager", this);
-    orScriptEngineRef.handle()->RegisterObjectMethod("MouseManager", "bool buttonPressed(Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
-    orScriptEngineRef.handle()->RegisterObjectMethod("MouseManager", "bool buttonReleased(Key key)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("MouseManager", "bool buttonPressed(MouseButton button)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
+    orScriptEngineRef.handle()->RegisterObjectMethod("MouseManager", "bool buttonReleased(MouseButton button)", asMETHOD(IKeyboardManager, keyPressed), asCALL_THISCALL);
 
     orApplicationRef.updateSignal().connect<IMouseManager, &IMouseManager::onUpdate>(this);
 }
