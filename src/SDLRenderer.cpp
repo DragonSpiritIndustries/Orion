@@ -6,9 +6,7 @@
 #include "CVar.hpp"
 #include <limits.h>
 
-extern CVar* com_clearColor;
 extern CVar* com_clear;
-extern CVar* com_verticalSync;
 
 float toFloat(int val)
 {
@@ -27,8 +25,7 @@ SDLRenderer::~SDLRenderer()
 
 void SDLRenderer::setClearColor(const Colorf& color)
 {
-    com_clearColor->fromColorf(color);
-    glClearColor(1, 1, 1, 1);
+    glClearColor(color.r, color.g, color.b, color.a);
 }
 
 void SDLRenderer::clear()
@@ -69,6 +66,15 @@ void* SDLRenderer::handle()
     return reinterpret_cast<void*>(m_renderer);
 }
 
+void SDLRenderer::setVSync(bool enable)
+{
+    //Use Vsync
+    if( SDL_GL_SetSwapInterval(enable) < 0 )
+    {
+        orConsoleRef.print(orConsoleRef.Warning, "Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+    }
+}
+
 bool SDLRenderer::initialize(IWindow* window)
 {
     m_windowHandle =reinterpret_cast<SDL_Window*>(window->handle());
@@ -83,11 +89,6 @@ bool SDLRenderer::initialize(IWindow* window)
     {
         orConsoleRef.print(orConsoleRef.Fatal, "%s", SDL_GetError());
         return false;
-    }
-    //Use Vsync
-    if( SDL_GL_SetSwapInterval(com_verticalSync->toBoolean()) < 0 )
-    {
-        orConsoleRef.print(orConsoleRef.Warning, "Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
     }
     return true;
 }

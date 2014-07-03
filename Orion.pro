@@ -115,10 +115,12 @@ SOURCES += \
     src/SDLJoystickManager.cpp \
     src/SDLMouseManager.cpp \
     include/TileObj.cpp \
-    src/SDLTexture.cpp \
     src/main.cpp \
     src/ByteCodeStream.cpp \
-    src/IFontResource.cpp
+    src/IFontResource.cpp \
+    src/Commands/QuitCommand.cpp \
+    src/SDLTextureResource.cpp \
+    src/SDLFontResource.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -157,7 +159,6 @@ HEADERS += \
     include/IResource.hpp \
     include/ITextureResource.hpp \
     include/Rectangle.hpp \
-    include/SDLTexture.hpp \
     include/physfsrwops.h \
     include/Console.hpp \
     include/angelscript/angelscript.h \
@@ -207,7 +208,11 @@ HEADERS += \
     include/CVarManager.hpp \
     include/CVar.hpp \
     include/ByteCodeStream.hpp \
-    include/IFontResource.hpp
+    include/IFontResource.hpp \
+    include/IConsoleCommand.hpp \
+    include/Commands/QuitCommand.hpp \
+    include/SDLTextureResource.hpp \
+    include/SDLFontResource.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

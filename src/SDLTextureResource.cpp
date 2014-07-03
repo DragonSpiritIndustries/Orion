@@ -1,4 +1,4 @@
-#include "SDLTexture.hpp"
+#include "SDLTextureResource.hpp"
 #include "physfsrwops.h"
 #include <SDL2/SDL_image.h>
 #include <ApplicationBase.hpp>

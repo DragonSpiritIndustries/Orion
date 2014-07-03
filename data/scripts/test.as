@@ -118,7 +118,7 @@ void onUpdate(Object@ self, float delta)
 void onDraw(Object@ self)
 {
     Texture @tex = textureRef.get();
-    Vector2f origin(tex.width()/2, tex.height()/2);
+    Vector2f origin(tex.width()/2, tex.height());
     Rectanglef subrect(0.0f, 0.0f, tex.width(), tex.height());
 
     if (tex !is null)

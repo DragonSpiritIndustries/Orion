@@ -220,6 +220,9 @@ void Object::onThink(float delta)
 
 void Object::onUpdate(float delta)
 {
+    if (orConsoleRef.isOpen())
+        return;
+
     onThink(delta);
 
     if (m_scriptContext && m_script)

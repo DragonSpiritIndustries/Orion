@@ -29,7 +29,6 @@ public:
     int windowWidth();
     int windowHeight();
     virtual void setClearColor(const Colorf& color = Colorf::black);
-    float fps() const;
 protected:
     void pollEvents();
 private:

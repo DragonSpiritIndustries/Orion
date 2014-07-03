@@ -22,7 +22,11 @@ public:
     virtual void* handle() const=0;
 
     virtual Vector2i windowSize()=0;
+    virtual void setWindowSize(int w, int h)=0;
+    virtual void setWindowSize(const Vector2i& size)=0;
+    virtual void setWindowWidth(int w)=0;
     virtual int windowWidth()=0;
+    virtual void setWindowHeight(int h)=0;
     virtual int windowHeight()=0;
 };
 

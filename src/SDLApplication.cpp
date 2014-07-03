@@ -44,17 +44,13 @@ bool SDLApplication::init(int argc, char* argv[])
     int code= 0;
     if ((code = SDL_Init(SDL_INIT_EVERYTHING)) < 0)
     {
-        orConsoleRef.print(orConsoleRef.Fatal, "SDL Failed to initalize: %s(%i)\n", SDL_GetError(), code);
+        orConsoleRef.print(orConsoleRef.Fatal, "SDL Failed to initalize: %s(%i)", SDL_GetError(), code);
         return false;
     }
 
-    // First initialize the input managers
-    m_joystickManager = std::shared_ptr<IJoystickManager>(new SDLJoystickManager);
-    m_mouseManager    = std::shared_ptr<IMouseManager>   (new SDLMouseManager);
-
     if (!ApplicationBase::init(argc, argv))
         return false;
-    orConsoleRef.print(orConsoleRef.Info, "Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application\n");
+    orConsoleRef.print(orConsoleRef.Info, "Orion " orVERSION_STR " " orRELEASE_NAME " SDL Application");
     parseCommandLine(argc, argv);
 
     memset(m_frameValues, 0, sizeof(m_frameValues));
@@ -64,7 +60,7 @@ bool SDLApplication::init(int argc, char* argv[])
 
     if (TTF_Init() == -1)
     {
-        orConsoleRef.print(orConsoleRef.Fatal, "%s\n", TTF_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, "%s", TTF_GetError());
         return false;
     }
 
@@ -73,7 +69,7 @@ bool SDLApplication::init(int argc, char* argv[])
 
     if (!m_debugFont)
     {
-        orConsoleRef.print(orConsoleRef.Fatal, "Unable to obtain debug font: %s\n", TTF_GetError());
+        orConsoleRef.print(orConsoleRef.Fatal, "Unable to obtain debug font: %s", TTF_GetError());
         return false;
     }
 
@@ -286,16 +282,18 @@ void SDLApplication::drawDebugText(const std::string& text, float x, float y, Co
     static SDL_Texture* texture;
     static SDL_Surface* fontSurf;
     static SDL_Rect rect;
+    static SDL_Renderer* renderer = reinterpret_cast<SDL_Renderer*>(m_renderer.get()->handle());
     rect.x = x;
     rect.y = y;
-    TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
+    //TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
 
     fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{col.r, col.g, col.b, col.a});
-    texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(m_renderer.get()->handle()), fontSurf);
+    texture = SDL_CreateTextureFromSurface(renderer, fontSurf);
+    SDL_QueryTexture(texture,  nullptr, nullptr, &rect.w, &rect.h);
 
 
     SDL_FreeSurface(fontSurf);
-    SDL_RenderCopy((SDL_Renderer*)m_renderer.get()->handle(), texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
     SDL_DestroyTexture(texture);
 }
 
@@ -337,9 +335,4 @@ int SDLApplication::windowHeight()
 void SDLApplication::setClearColor(const Colorf& color)
 {
     m_renderer.get()->setClearColor(color);
-}
-
-float SDLApplication::fps() const
-{
-    return m_fps;
 }

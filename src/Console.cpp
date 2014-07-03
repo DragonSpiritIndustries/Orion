@@ -2,13 +2,16 @@
 #include "ApplicationBase.hpp"
 #include "ScriptEngine.hpp"
 #include "ITextureResource.hpp"
+#include "IFontResource.hpp"
 #include "CVarManager.hpp"
 #include "CVar.hpp"
+#include "IConsoleCommand.hpp"
 #include <Athena/Utility.hpp>
 #include <ctime>
 
 extern CVar* com_windowWidth;
 extern CVar* com_windowHeight;
+extern CVar* com_developer;
 CVar* con_key = new CVar("con_key", CVar::Binding(Key::TILDE), "Toggles the console", CVar::Archive | CVar::System);
 CVar* com_player1Controller = new CVar("com_player1Controller", "0", "Specifies the first player controller, The first player has sole access to the debug console", CVar::Integer,
                                        CVar::Archive | CVar::System);
@@ -37,6 +40,7 @@ Console::Console(const std::string& logfile)
     orApplicationRef.updateSignal().connect  <Console, &Console::onUpdate>   (this);
     orApplicationRef.textSignal().connect    <Console, &Console::handleText> (this);
     orApplicationRef.keyboardSignal().connect<Console, &Console::handleInput>(this);
+    orApplicationRef.mouseWheelSignal().connect<Console, &Console::handleMouseWheel>(this);
 }
 
 void Console::initialize()
@@ -48,6 +52,10 @@ void Console::initialize()
     m_conBg2 = orResourceManagerRef.loadResource<ITextureResource>("console/bg2.png");
     if (m_conBg2)
         m_conBg2->setRepeat(true);
+
+    m_font = orResourceManagerRef.loadResource<IFontResource>("fonts/debug.ttf");
+    if (!m_font)
+        print(Fatal, "Unable to load fonts/debug.ttf");
 }
 
 void Console::shutdown()
@@ -62,17 +70,55 @@ bool Console::isInitialized() const
 
 bool Console::isOpen() const
 {
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");
+    return m_state != Closed;
 }
 
 bool Console::isClosed() const
 {
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::isClosed");
+    return m_state == Closed;
 }
 
-void Console::handleMouseWheel(int delta, int x, int y)
+void Console::handleMouseWheel(const Event& ev)
 {
-    orConsoleRef.print(orConsoleRef.Warning, "IMPLMENT ME: Console::draw");
+    if (m_state != Opened)
+        return;
+
+    MouseWheelEvent wheelEv = ev.eventData.mouseWheelEvent;
+
+    Rectanglef bounds(0, 0, com_windowWidth->toInteger(), m_conHeight - 20);
+    if (bounds.contains(wheelEv.x, wheelEv.y))
+    {
+        m_startString += wheelEv.vDelta * 4;
+        if (m_startString < 0)
+            m_startString = 0;
+        else if (m_startString > (int)(m_history.size() - 1) - m_maxLines)
+            m_startString = (m_history.size() - 1) - m_maxLines;
+        return;
+    }
+    bounds = Rectanglef(0, m_conHeight - 20, com_windowWidth->toInteger(), 20);
+    if (bounds.contains(wheelEv.x, wheelEv.y))
+    {
+        if (m_commandHistory.size() == 0)
+            return;
+        int oldCommand = m_currentCommand;
+        m_currentCommand += wheelEv.vDelta;
+
+        if (m_currentCommand > (int)(m_commandHistory.size() - 1))
+            m_currentCommand = m_commandHistory.size() - 1;
+        if (m_currentCommand < 0)
+        {
+            m_currentCommand = -1;
+            if (oldCommand >= 0)
+            {
+                m_commandString.clear();
+                m_cursorPosition = 0;
+            }
+            return;
+        }
+
+        m_commandString = m_commandHistory.at(m_currentCommand);
+        m_cursorPosition = m_commandString.size();
+    }
 }
 
 void Console::draw()
@@ -80,16 +126,17 @@ void Console::draw()
     if (m_state == Closed)
         return;
 
-    // TODO: This is really ugly, clean this up
-    //    if (m_conBg1)
-    //        m_conBg1->draw(0, m_conY);
-    //    if (m_conBg2)
-    //        m_conBg2->draw(0, m_conY);
+    float glyphW =  2.f;
+    if (m_commandString.size() > 0)
+        glyphW = m_font->glyphAdvance(m_commandString[m_cursorPosition]) + 2;
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), m_conHeight, 0, m_conY, true, con_color->toColorb());
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), m_conHeight, 0, m_conY, false);
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), 20, 0, m_conY + m_conHeight - 20, false);
     drawHistory();
-    orApplicationRef.drawDebugText("]" + m_commandString, 2, m_conY + m_conHeight - 20);
+    if (m_showCursor)
+        orApplicationRef.drawRectangle(2,
+                                       16, glyphW + m_cursorX + 6, m_conY + m_conHeight - 18);
+    m_font->draw(2, m_conY + m_conHeight - 20, "]" + m_commandString);
 }
 
 void Console::print(Console::Level level, const std::string& fmt, ...)
@@ -227,6 +274,29 @@ Colorb Console::textColor()
 {
 }
 
+void Console::registerCommand(IConsoleCommand* command)
+{
+    std::string name = command->name();
+    Athena::utility::tolower(name);
+    if (m_commands.find(name) != m_commands.end())
+    {
+        delete command;
+        return;
+    }
+
+    m_commands[name] = command;
+}
+
+void Console::exec(const std::string& command)
+{
+    // only except commands when console is closed
+    if (m_state != Closed)
+        return;
+
+    m_commandString = command;
+    parseCommand();
+}
+
 Console& Console::instanceRef()
 {
     return *Console::instancePtr();
@@ -240,6 +310,10 @@ Console* Console::instancePtr()
 
 void Console::onUpdate(float delta)
 {
+    if (m_state == Closed)
+        return;
+
+    m_cursorTime += 1.f*delta;
     if (m_state == Closing)
     {
         if (m_fullscreen || m_wasFullscreen)
@@ -267,8 +341,18 @@ void Console::onUpdate(float delta)
         m_state = Opened;
     }
 
+    if (m_cursorTime > .5f)
+    {
+        m_showCursor ^= 1;
+        m_cursorTime = 0;
+    }
+
     m_bgOffX += 1.f*delta;
     m_bgOffY += 1.f*delta;
+
+    m_cursorX = 0;
+    for (int i = 0; i < m_cursorPosition; ++i)
+        m_cursorX += m_font->glyphAdvance(m_commandString.at(i));
 }
 
 void Console::handleText(const Event& e)
@@ -327,14 +411,21 @@ void Console::handleInput(const Event& event)
                             m_commandString.erase(index, (index - m_commandString.size()));
                             m_cursorPosition = index;
                         }
+                        break;
                     }
-                    else
-                        m_commandString.erase(--m_cursorPosition);
+                    m_commandString.erase(m_cursorPosition--, 1);
                 }
             }
                 break;
             case Key::DELETE:
             {
+                if (m_commandString.size() > 0)
+                {
+                    // Don't try to delete if the cursor is at the end of the line
+                    if (m_cursorPosition > (int)m_commandString.size())
+                        break;
+                    m_commandString.erase(m_cursorPosition  + 1, 1);
+                }
             }
                 break;
             case Key::PAGEUP:
@@ -349,10 +440,76 @@ void Console::handleInput(const Event& event)
                     m_startString--;
             }
                 break;
+            case Key::RETURN:
+                parseCommand();
+                break;
+            case Key::LEFT:
+            {
+                if (m_cursorPosition < 0)
+                    break;
+
+                m_cursorPosition--;
+                m_showCursor = true;
+                m_cursorTime = 0;
+            }
+                break;
+            case Key::RIGHT:
+            {
+                if (m_cursorPosition > (int)m_commandString.size() - 1)
+                    break;
+                //                if (m_cursorPosition >= (int)currentMaxLen())
+                //                    break;
+
+                m_cursorPosition++;
+                m_showCursor = true;
+                m_cursorTime = 0;
+            }
+                break;
+            case Key::UP:
+            {
+                if (m_commandHistory.size() == 0)
+                    break;
+
+                m_currentCommand++;
+
+                if (m_currentCommand > (int)m_commandHistory.size() - 1)
+                    m_currentCommand = (int)m_commandHistory.size() - 1;
+
+                m_commandString = m_commandHistory[m_currentCommand];
+                m_cursorPosition = m_commandString.size();
+            }
+                break;
+            case Key::DOWN:
+            {
+                if (m_commandHistory.size() == 0)
+                    break;
+                m_currentCommand--;
+                if (m_currentCommand >= 0)
+                {
+                    m_commandString = m_commandHistory[m_currentCommand];
+                }
+                else if (m_currentCommand <= -1)
+                {
+                    m_currentCommand = -1;
+                    m_commandString.clear();
+                }
+                m_cursorPosition = m_commandString.size();
+            }
+                break;
             default:
                 break;
         }
     }
+
+    if (m_cursorPosition > (int)m_commandString.size() - 1)
+        m_cursorPosition = (int)m_commandString.size() - 1;
+    if (m_cursorPosition < 0)
+        m_cursorPosition = 0;
+
+    if (m_startString > (int)m_history.size() - 1)
+        m_startString = (int)m_history.size() - 1;
+    if (m_startString < 0)
+        m_startString = 0;
 }
 
 void Console::doAutoComplete()
@@ -387,10 +544,205 @@ void Console::drawVersion()
 
 void Console::parseCommand()
 {
+    m_currentCommand = 0;
+
+    if (m_commandString.empty())
+        return;
+
+    m_commandHistory.emplace(m_commandHistory.begin(), m_commandString);
+
+    if (m_commandHistory.size() > 5)
+        m_commandHistory.erase(m_commandHistory.end());
+
+    print(Message, m_commandString);
+
+    std::vector<std::string> commands = Athena::utility::split(m_commandString, ';');
+
+    orForeach(std::string cmd : commands)
+    {
+        std::string tmpCmd(cmd);
+
+        if (tmpCmd[0] == ' ')
+            tmpCmd.erase(tmpCmd.begin(), tmpCmd.begin() + 1);
+
+        std::vector<std::string> args = Athena::utility::split(tmpCmd, ' ');
+
+        if (args.size() > 0)
+        {
+            std::string command = args[0];
+
+            Athena::utility::tolower(command);
+
+            args.erase(args.begin());
+
+            if (!command.compare("list"))
+            {
+                std::string secondary = args[0];
+                Athena::utility::tolower(secondary);
+                if (!secondary.compare("cmds") || !secondary.compare("all"))
+                {
+                    for (std::pair<std::string, IConsoleCommand*> cmd : m_commands)
+                        print(Message, "%s: %s", cmd.first.c_str(), cmd.second->usage().c_str());
+
+                    print(Message, "set");
+                }
+
+                if (!secondary.compare("cvars") || !secondary.compare("all"))
+                {
+                    std::string tertiary;
+                    if (args.size() >= 2)
+                        tertiary = args[1];
+
+                    Athena::utility::tolower(tertiary);
+
+                    for (CVar* cvar : orCVarManagerRef.cvars())
+                    {
+                        if (cvar->isHidden() && !com_developer->toBoolean())
+                            continue;
+
+                        if ((tertiary.compare("readonly") && tertiary.compare("ro")) && cvar->isReadOnly())
+                            continue;
+
+                        print(Message, "%s: %s", cvar->name().c_str(), cvar->help().c_str());
+                    }
+                }
+
+                resetCursor();
+                return;
+            }
+
+            if (m_commands.find(command) != m_commands.end())
+                m_commands[command]->execute(args);
+            else
+                parseCVars(command, args);
+        }
+    }
+
+    resetCursor();
 }
 
-void Console::parseCVars()
+void Console::parseCVars(const std::string& command, std::vector<std::string> args)
 {
+    if (!command.compare("set"))
+    {
+        if (args.size() == 0)
+        {
+            resetCursor();
+            return;
+        }
+
+        std::string setting = std::string(args[0]);
+        Athena::utility::tolower(setting);
+        CVar* tmp = orCVarManagerRef.findCVar(setting);
+        if (tmp == nullptr)
+        {
+            resetCursor();
+            return;
+        }
+
+        // Not a command?
+        // It's probably a setting
+        if (args.size() >= 2)
+        {
+            args.erase(args.begin());
+            std::stringstream ss;
+            switch(tmp->type())
+            {
+                case CVar::Boolean:
+                    tmp->fromBoolean(Athena::utility::parseBool(std::string(args[0])));
+                    break;
+                case CVar::Integer:
+                {
+                    int val;
+                    ss << args[0];
+                    ss >> val;
+                    tmp->fromInteger(val);
+                }
+                    break;
+                case CVar::Float:
+                {
+                    float val;
+                    ss << args[1];
+                    ss >> val;
+                    tmp->fromFloat(val);
+                }
+                    break;
+                case CVar::Literal:
+                {
+                    std::string val = "";
+                    for (std::string s : args)
+                        val += s + " ";
+                    if (val.find_last_of(" ") != std::string::npos)
+                        val.erase(val.find_last_of(" "));
+
+                    std::cout << val << std::endl;
+
+                    tmp->fromLiteral(val);
+                }
+                    break;
+                case CVar::Color:
+                {
+                    int r, g, b, a;
+                    std::stringstream ss;
+                    int i = 0;
+                    for (; i < (int)args.size(); i++)
+                        ss << args[i] << " ";
+
+                    while ((i++) < 3)
+                        ss << 0;
+
+                    ss >> r >> g >> b >> a;
+
+                    tmp->fromColorb(Colorb(r, g, b, a));
+                }
+                    break;
+                default: break;
+            }
+        }
+    }
+    else
+    {
+        CVar* tmp = orCVarManagerRef.findCVar(command);
+        if (tmp == nullptr)
+        {
+            resetCursor();
+            return;
+        }
+
+        print(Info, "%s -> %s", tmp->name().c_str(), tmp->help().c_str());
+
+        switch(tmp->type())
+        {
+            case CVar::Boolean:
+                print(Info, "Current: %i", tmp->toBoolean());
+                break;
+            case CVar::Integer:
+                print(Info, "Current: %i", tmp->toInteger());
+                break;
+            case CVar::Float:
+                print(Info, "Current: %f", tmp->toFloat());
+                break;
+            case CVar::Literal:
+                print(Info, "Current: %s", tmp->toLiteral().c_str());
+                break;
+            case CVar::Color:
+            {
+                Colori color = tmp->toColori();
+                print(Info, "Current: %i %i %i %i", color.r, color.g, color.b, color.a);
+
+            }
+                break;
+            default: break;
+        }
+    }
+}
+
+void Console::resetCursor()
+{
+    m_commandString.clear();
+    m_cursorX = 0.0f;
+    m_cursorPosition = 0;
+    m_currentCommand = -1;
 }
 
 void Console::addEntry(const Console::Level level, const std::string& message, const std::string& timestamp, const std::string& label)

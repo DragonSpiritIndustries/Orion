@@ -34,9 +34,13 @@ public:
     virtual void* rendererHandle()=0;
     virtual void drawDebugText(const std::string&, float, float, Colorb col=Colorb::white)=0;
     virtual void drawDebugText(const std::string&, const Vector2f&, Colorb col=Colorb::white)=0;
-    virtual Vector2i windowSize()=0;
-    virtual int windowWidth()=0;
-    virtual int windowHeight()=0;
+    virtual Vector2i windowSize();
+    virtual void setWindowSize(int w, int h);
+    virtual void setWindowSize(const Vector2i& size);
+    virtual void setWindowWidth(int w);
+    virtual int windowWidth();
+    virtual void setWindowHeight(int h);
+    virtual int windowHeight();
     virtual void setClearColor(const Colorf& color = Colorf::black)=0;
     virtual void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white)=0;
     virtual Nano::Signal<void(const Event&)>& eventSignal();
@@ -57,7 +61,7 @@ public:
     IJoystickManager* joystickManagerPtr();
     IMouseManager&    mouseManagerRef();
     IMouseManager*    mouseManagerPtr();
-    virtual float fps() const =0;
+    virtual float fps() const;
 protected:
     // README: If you add new event handler remember to emit the event using m_eventSignal *FIRST*
     virtual void pollEvents()=0;

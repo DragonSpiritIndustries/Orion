@@ -43,7 +43,4 @@ void registerClass()
 }
 
 REGISTER_SCRIPT_FUNCTION(TextureResource, registerClass);
-
-#include "Config.hpp"
-
-REGISTER_RESOURCE(TEXTURERESOURCE_IMPL, "jpeg png bmp tga", loadTexture);
+REGISTER_RESOURCE(TEXTURERESOURCE_IMPL, "jpeg jpg png bmp tga", loadTexture);

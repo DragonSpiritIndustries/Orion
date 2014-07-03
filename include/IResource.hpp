@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "Global.hpp"
 
 class asILockableSharedBool;
 class asIScriptObject;

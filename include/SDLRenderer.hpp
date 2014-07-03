@@ -17,6 +17,7 @@ public:
     void present();
     void drawRect(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
     void* handle();
+    void setVSync(bool enable);
 private:
     SDL_Renderer*  m_renderer;
     SDL_GLContext  m_context;

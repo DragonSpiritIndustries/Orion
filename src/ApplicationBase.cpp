@@ -1,11 +1,14 @@
 #include "ApplicationBase.hpp"
 #include APPLICATION_IMPL_HEADER
 #include WINDOW_IMPL_HEADER
+#include MOUSEMANAGER_IMPL_HEADER
+#include JOYSTICKMANAGER_IMPL_HEADER
 #include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
 #include "CVarManager.hpp"
 #include "CVar.hpp"
 #include "Config.hpp"
+#include "GL/gl.h"
 
 CVar* sys_title        = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "Sets the window title", CVar::Literal, CVar::System | CVar::ReadOnly);
 CVar* com_windowWidth  = new CVar("vid_width", "640", "Horizontal resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
@@ -41,6 +44,7 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
 {
     if (!orScriptEngineRef.handle())
         return false;
+    orCVarManagerRef.initialize();
 
     m_window = std::shared_ptr<IWindow>(new WINDOW_IMPL);
     if (!m_window.get()->initialize())
@@ -50,14 +54,15 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
     if (!m_renderer.get()->initialize(m_window.get()))
         return false;
 
-    orCVarManagerRef.initialize();
     if (!orResourceManagerRef.initialize(argv[0]))
         return false;
 
     orConsoleRef.initialize();
     orObjectManagerRef.initialize();
-
-    setTitle(sys_title->toLiteral());
+    glPolygonMode(GL_FRONT_AND_BACK, (com_drawwire->toBoolean() ? GL_LINE : GL_FILL));
+    // First initialize the input managers
+    m_joystickManager = std::shared_ptr<IJoystickManager>(new JOYSTICKMANAGER_IMPL);
+    m_mouseManager    = std::shared_ptr<IMouseManager>   (new MOUSEMANAGER_IMPL);
 
     m_mainScript = orResourceManagerRef.loadResource<ScriptResource>("scripts/main.as");
     if (!m_mainScript)
@@ -95,6 +100,48 @@ void ApplicationBase::onStart()
 
 void ApplicationBase::onUpdate()
 {
+    if (windowWidth() != com_windowWidth->toInteger())
+    {
+        if (com_windowWidth->isModified())
+            setWindowWidth(com_windowWidth->toInteger());
+        else
+        {
+            CVarUnlocker unlock(com_windowWidth);
+            com_windowWidth->fromInteger(windowWidth());
+        }
+        com_windowWidth->clearModified();
+    }
+    if (windowHeight() != com_windowHeight->toInteger())
+    {
+        if (com_windowHeight->isModified())
+            setWindowHeight(com_windowHeight->toInteger());
+        else
+        {
+            CVarUnlocker unlock(com_windowHeight);
+            com_windowHeight->fromInteger(windowHeight());
+        }
+        com_windowHeight->clearModified();
+    }
+
+    if (com_verticalSync->isModified())
+    {
+        m_renderer.get()->setVSync(com_verticalSync->toBoolean());
+        com_verticalSync->clearModified();
+    }
+
+    // TODO: Abstract this
+    if (com_drawwire->isModified())
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, (com_drawwire->toBoolean() ? GL_LINE : GL_FILL));
+        com_drawwire->clearModified();
+    }
+
+    if (com_clearColor->isModified())
+    {
+        m_renderer.get()->setClearColor(com_clearColor->toColorf());
+        com_clearColor->clearModified();
+    }
+
     if (m_scriptContext)
     {
         asIScriptFunction* updateFunc = m_mainScript->functionByName("onUpdate");
@@ -113,7 +160,8 @@ void ApplicationBase::onDraw()
     orObjectManagerRef.draw();
     orScriptEngineRef.onDraw();
     orConsoleRef.draw();
-    drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), windowWidth() - 100, 0);
+    if (com_showfps->toBoolean())
+        drawDebugText(Athena::utility::sprintf("FPS: %.2f", m_fps), windowWidth() - 100, 0);
 }
 
 void ApplicationBase::onExit()
@@ -132,6 +180,41 @@ void ApplicationBase::onExit()
     orResourceManagerRef.shutdown();
     m_joystickManager.get()->shutdown();
     orKeyboardManagerRef.shutdown();
+}
+
+Vector2i ApplicationBase::windowSize()
+{
+    return m_window.get()->windowSize();
+}
+
+void ApplicationBase::setWindowSize(int w, int h)
+{
+    m_window.get()->setWindowSize(w, h);
+}
+
+void ApplicationBase::setWindowSize(const Vector2i& size)
+{
+    m_window.get()->setWindowSize(size);
+}
+
+void ApplicationBase::setWindowWidth(int w)
+{
+    m_window.get()->setWindowWidth(w);
+}
+
+int ApplicationBase::windowWidth()
+{
+    return windowSize().x;
+}
+
+void ApplicationBase::setWindowHeight(int h)
+{
+    m_window.get()->setWindowHeight(h);
+}
+
+int ApplicationBase::windowHeight()
+{
+    return windowSize().y;
 }
 
 Nano::Signal<void (const Event&)>& ApplicationBase::eventSignal()
@@ -219,6 +302,11 @@ IJoystickManager* ApplicationBase::joystickManagerPtr()
 IMouseManager& ApplicationBase::mouseManagerRef()
 {
     return *m_mouseManager.get();
+}
+
+float ApplicationBase::fps() const
+{
+    return m_fps;
 }
 
 static void registerApplication()
