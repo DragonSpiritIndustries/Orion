@@ -10,17 +10,17 @@
 #include "Config.hpp"
 #include "GL/gl.h"
 
-CVar* sys_title        = new CVar("sys_title", orDEFAULT_APPLICATION_NAME, "Sets the window title", CVar::Literal, CVar::System | CVar::ReadOnly);
-CVar* com_windowWidth  = new CVar("vid_width", "640", "Horizontal resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
-CVar* com_windowHeight = new CVar("vid_height", "480", "Vertical resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
-CVar* com_fullscreen   = new CVar("r_fullscreen", "false", "If true, the game renders in fullscreen mode, windowed otherwise", CVar::Boolean, CVar::System | CVar::Archive);
-CVar* com_framelimit   = new CVar("sys_framelimit", "60", "Sets the framerate limit", CVar::Integer, CVar::System | CVar::Archive);
-CVar* com_verticalSync = new CVar("sys_vsync", "true", "Prevents tearing", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* sys_title        = new CVar("sys_title",     orDEFAULT_APPLICATION_NAME, "Sets the window title", CVar::Literal, CVar::System | CVar::ReadOnly);
+CVar* com_windowWidth  = new CVar("vid_width",     "640", "Horizontal resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
+CVar* com_windowHeight = new CVar("vid_height",    "480", "Vertical resolution of the window", CVar::Integer, CVar::System | CVar::Archive | CVar::ReadOnly);
+CVar* com_fullscreen   = new CVar("r_fullscreen",  "false", "If true, the game renders in fullscreen mode, windowed otherwise", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* com_framelimit   = new CVar("sys_framelimit","60", "Sets the framerate limit", CVar::Integer, CVar::System | CVar::Archive);
+CVar* com_verticalSync = new CVar("sys_vsync",     "true", "Prevents tearing", CVar::Boolean, CVar::System | CVar::Archive);
 CVar* com_showstats    = new CVar("sys_showstats", "false", "Show system statistics", CVar::Boolean, CVar::System | CVar::Archive | CVar::ReadOnly);
-CVar* com_clear        = new CVar("r_clear", "true", "If true the window clears after each frame, otherwise it doesn't", CVar::Boolean, CVar::System | CVar::Archive);
-CVar* com_clearColor   = new CVar("r_clearcolor", Colorb::black, "Sets the color of the scene", CVar::System | CVar::Archive);
-CVar* com_drawwire     = new CVar("r_drawwire", "false", "Draws the geometry of objects on screen", CVar::Boolean, (CVar::System | CVar::Archive));
-CVar* com_showfps      = new CVar("r_showfps", "false", "If true, renders the framerate in the upper right hand corner.", CVar::Boolean, (CVar::System | CVar::Archive));
+CVar* com_clear        = new CVar("r_clear",       "true", "If true the window clears after each frame, otherwise it doesn't", CVar::Boolean, CVar::System | CVar::Archive);
+CVar* com_clearColor   = new CVar("r_clearcolor",  Colorb::black, "Sets the color of the scene", CVar::System | CVar::Archive);
+CVar* com_drawwire     = new CVar("r_drawwire",    "false", "Draws the geometry of objects on screen", CVar::Boolean, (CVar::System | CVar::Archive));
+CVar* com_showfps      = new CVar("r_showfps",     "false", "If true, renders the framerate in the upper right hand corner.", CVar::Boolean, CVar::System | CVar::Archive);
 
 ApplicationBase::ApplicationBase()
     : m_scriptContext(nullptr)

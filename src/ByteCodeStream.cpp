@@ -20,7 +20,7 @@ ByteCodeWriter::~ByteCodeWriter()
 
     atUint8 compData[m_memoryStream.length()*2];
     atInt32 compLen = m_memoryStream.length()*2;
-    compLen = 0;//Athena::io::Compression::compressZlib(data, m_memoryStream.length(), compData, compLen);
+    compLen = Athena::io::Compression::compressZlib(data, m_memoryStream.length(), compData, compLen);
     if (compLen > 0 && compLen < (atInt32)m_memoryStream.length())
     {
         base::writeUint32(compLen);

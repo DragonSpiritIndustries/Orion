@@ -27,7 +27,6 @@ SDLApplication::~SDLApplication()
 int SDLApplication::exec()
 {
     ApplicationBase::onStart();
-    orObjectManagerPtr->addObject(new TestObject);
     while (m_running)
     {
         updateFPS();

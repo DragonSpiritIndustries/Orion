@@ -16,11 +16,6 @@ public:
     Object* owner();
     virtual void setName(const std::string& name);
 
-    int  addRef();
-    int  release();
-    void destroyAndRelease();
-    asILockableSharedBool* weakRefFlag();
-
 protected:
     std::string m_name;
     Object* m_owner;

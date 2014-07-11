@@ -110,17 +110,16 @@ SOURCES += \
     src/SDLWindow.cpp \
     src/SDLRenderer.cpp \
     src/SDLApplication.cpp \
-    src/TestObject.cpp \
     src/SDLKeyboardManager.cpp \
     src/SDLJoystickManager.cpp \
     src/SDLMouseManager.cpp \
-    include/TileObj.cpp \
     src/main.cpp \
     src/ByteCodeStream.cpp \
     src/IFontResource.cpp \
     src/Commands/QuitCommand.cpp \
     src/SDLTextureResource.cpp \
-    src/SDLFontResource.cpp
+    src/SDLFontResource.cpp \
+    src/Timer.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -147,13 +146,11 @@ HEADERS += \
     include/Vector3.hpp \
     include/Vector2.hpp \
     include/ObjectManager.hpp \
-    include/TestObject.hpp \
     include/IKeyboardManager.hpp \
     include/SDLKeyboardManager.hpp \
     include/IJoystickManager.hpp \
     include/SDLJoystickManager.hpp \
     include/SDLMouseManager.hpp \
-    include/TileObj.hpp \
     include/IMouseManager.hpp \
     include/ResourceManager.hpp \
     include/IResource.hpp \
@@ -212,7 +209,8 @@ HEADERS += \
     include/IConsoleCommand.hpp \
     include/Commands/QuitCommand.hpp \
     include/SDLTextureResource.hpp \
-    include/SDLFontResource.hpp
+    include/SDLFontResource.hpp \
+    include/Timer.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \
