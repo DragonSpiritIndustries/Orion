@@ -119,7 +119,8 @@ SOURCES += \
     src/Commands/QuitCommand.cpp \
     src/SDLTextureResource.cpp \
     src/SDLFontResource.cpp \
-    src/Timer.cpp
+    src/Timer.cpp \
+    src/ControllerDefinition.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -210,7 +211,8 @@ HEADERS += \
     include/Commands/QuitCommand.hpp \
     include/SDLTextureResource.hpp \
     include/SDLFontResource.hpp \
-    include/Timer.hpp
+    include/Timer.hpp \
+    include/ControllerDefinition.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

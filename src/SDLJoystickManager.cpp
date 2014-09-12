@@ -34,6 +34,8 @@ void SDLJoystickManager::onJoystickAdded(int which)
     {
         orConsoleRef.print(orConsoleRef.Info, "Obtained controller:\n");
         device->name = std::string(SDL_JoystickNameForIndex(which));
+        // Load metadata
+        loadMetaData(device->name);
         orConsoleRef.print(orConsoleRef.Info, "Name: %s\n", device->name.c_str());
         device->id = SDL_JoystickInstanceID(device->device);
         orConsoleRef.print(orConsoleRef.Info, "Device slot: %i\n", device->id);
