@@ -84,9 +84,10 @@ public:
      */
     Object* takeChild(int index);
 
+    virtual void onCreate();
     virtual void onDestroyed();
 
-    virtual void draw(ApplicationBase*){}
+    virtual void onDraw();
     virtual void setPosition(float x, float y);
     virtual void setPosition(const Vector2f& position);
     virtual Vector2f position() const;
@@ -96,6 +97,8 @@ public:
     int id() const { return m_id; }
     void setId(int id) { m_id = id; }
 
+    virtual int state();
+    virtual void setState(int state);
     virtual void onThink(float delta);
     virtual void onUpdate(float delta);
 
@@ -103,9 +106,17 @@ public:
     int  release();
     void destroyAndRelease();
     asILockableSharedBool* weakRefFlag();
+
+    /*!
+     * \brief Adds a new component to the components and returns it
+     * \param type The Component type to add i.e Transformable
+     * \param componentName The name of the component
+     * \return nullptr on failure the instance of the new component otherwise
+     */
+    IComponent* addComponent(const std::string& type, const std::string& componentName);
+    void removeComponent(IComponent* component);
 protected:
     ScriptResource*        m_script;
-    asIScriptObject*       m_controller;
     asILockableSharedBool* m_weakRefFlag;
     asIScriptContext*      m_scriptContext;
 
@@ -115,6 +126,7 @@ protected:
     std::vector<IComponent*> m_components;
     int m_refCount;
     int m_id;
+    int m_state;
 
 };
 

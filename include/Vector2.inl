@@ -2,6 +2,12 @@
 **
 **************************************************************************/
 #include <cmath>
+#include <new>
+
+inline float degToRad(float angle)
+{
+    return angle*(M_PI/180);
+}
 
 template<typename T>
 Vector2<T>::Vector2()
@@ -30,6 +36,20 @@ Vector2<T> Vector2<T>::normalize()
 
     return ret;
 }
+
+
+template<typename T>
+void Vector2<T>::rotate(float angle, Vector2<T> origin)
+{
+    float ct = cos(degToRad(angle));
+    float st = sin(degToRad(angle));
+    float tx;
+
+    tx = ((x - origin.x) * ct) - ((origin.y - y) * st) + origin.x;
+    y = ((origin.y - y) * ct) - ((x - origin.x) * st) + origin.y;
+    x = tx;
+}
+
 
 template <typename T>
 T Vector2<T>::crossProduct(Vector2<T> vec)
@@ -121,4 +141,22 @@ inline Vector2<T>& operator /=(Vector2<T>& left, T right)
     left.y /= right;
 
     return left;
+}
+
+template <typename T>
+void constructVector2(Vector2<T>* vector)
+{
+    new(vector) Vector2<T>;
+}
+
+template <typename T>
+void constructVector2Args(T x, T y, Vector2<T>* vector)
+{
+    new(vector) Vector2<T>(x, y);
+}
+
+template <typename T>
+void destructVector2(Vector2<T>* pointer)
+{
+    pointer->~Vector2<T>();
 }

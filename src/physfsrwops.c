@@ -23,10 +23,21 @@
 #include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
 #include "physfsrwops.h"
 
+/* SDL's RWOPS interface changed a little in SDL 1.3... */
+#if defined(SDL_VERSION_ATLEAST)
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+#define TARGET_SDL20 1
+#endif
+#endif
+
+#if TARGET_SDL20
+static long SDLCALL physfsrwops_seek(SDL_RWops *rw, long offset, int whence)
+#else
 static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
+#endif
 {
     PHYSFS_File *handle = (PHYSFS_File *) rw->hidden.unknown.data1;
-    int pos = 0;
+    PHYSFS_sint64 pos = 0;
 
     if (whence == SEEK_SET)
     {
@@ -86,7 +97,7 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
         SDL_SetError("Attempt to seek past start of file.");
         return(-1);
     } /* if */
-    
+
     if (!PHYSFS_seek(handle, (PHYSFS_uint64) pos))
     {
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
@@ -97,7 +108,11 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
 } /* physfsrwops_seek */
 
 
+#if TARGET_SDL20
+static size_t SDLCALL physfsrwops_read(SDL_RWops *rw, void *ptr, size_t size, size_t maxnum)
+#else
 static int physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
+#endif
 {
     PHYSFS_File *handle = (PHYSFS_File *) rw->hidden.unknown.data1;
     PHYSFS_sint64 rc = PHYSFS_read(handle, ptr, size, maxnum);
@@ -111,7 +126,11 @@ static int physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
 } /* physfsrwops_read */
 
 
+#if TARGET_SDL20
+static size_t SDLCALL physfsrwops_write(SDL_RWops *rw, const void *ptr, size_t size, size_t num)
+#else
 static int physfsrwops_write(SDL_RWops *rw, const void *ptr, int size, int num)
+#endif
 {
     PHYSFS_File *handle = (PHYSFS_File *) rw->hidden.unknown.data1;
     PHYSFS_sint64 rc = PHYSFS_write(handle, ptr, size, num);

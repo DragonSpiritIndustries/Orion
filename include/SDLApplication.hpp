@@ -16,21 +16,19 @@ public:
     int exec();
     bool init(int argc, char* argv[]);
     void close();
-    void onUpdate();
     void onDraw();
     void onExit();
     void* rendererHandle();
-    void drawDebugText(const std::string& text, float x, float y);
-    void drawDebugText(const std::string& text, const Vector2f& position);
-    void drawRectangle(int w, int h, int x, int y, bool fill = false);
+    void drawDebugText(const std::string& text, float x, float y, Colorb col=Colorb::white);
+    void drawDebugText(const std::string& text, const Vector2f& position, Colorb col=Colorb::white);
+    void drawRectangle(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
     void setTitle(const std::string &title);
     std::string title() const;
 
     Vector2i windowSize();
     int windowWidth();
     int windowHeight();
-    virtual void setClearColor(const Colorb& color = Colorb::black);
-    float fps() const;
+    virtual void setClearColor(const Colorf& color = Colorf::black);
 protected:
     void pollEvents();
 private:
@@ -38,13 +36,10 @@ private:
     void updateFPS();
     enum {MaxFrameValues=32};
     bool          m_running;
-    SDLWindow     m_window;
-    SDLRenderer   m_renderer;
+
     unsigned      m_lastFrame;
     unsigned      m_frameCount;
     unsigned      m_frameValues[MaxFrameValues];
-    float         m_fps;
-    float         m_frameTime;
 };
 
 #endif // SDLAPPLICATION_HPP

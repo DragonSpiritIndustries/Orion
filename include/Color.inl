@@ -1,3 +1,5 @@
+#include <new>
+
 template <typename T>
 Color<T>::Color()
     : r((T)0),
@@ -218,4 +220,22 @@ inline bool operator !=(const Color<T>& left, const Color<T>& right)
             (left.g != right.g) ||
             (left.b != right.b) ||
             (left.a != right.a));
+}
+
+template <typename T>
+void constructColor(Color<T>* vector)
+{
+    new(vector) Color<T>;
+}
+
+template <typename T>
+void constructColorArgs(T r, T g, T b, T a, Color<T>* color)
+{
+    new(color) Color<T>(r, g, b, a);
+}
+
+template <typename T>
+void destructColor(Color<T>* pointer)
+{
+    pointer->~Color<T>();
 }

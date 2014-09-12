@@ -41,11 +41,12 @@ public:
     void motorOn(int which);
     void motorOff(int which);
     void shutdown();
+    bool isPluggedIn(int which);
 
     void update(float);
 private:
     SDLJoystickDevice* joystick(int which);
-    void onButton(Event joy);
+    void onButton(const Event& joy);
     std::vector<SDLJoystickDevice*> m_devices;
 };
 

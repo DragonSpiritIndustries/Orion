@@ -1,22 +1,17 @@
 #include <iostream>
-#include <SDLApplication.hpp>
-#include <ObjectManager.hpp>
-#include <TestObject.hpp>
-#include <memory>
-#include "ScriptEngine.hpp"
+#include <ApplicationBase.hpp>
 
 int main(int argc, char* argv[])
 {
-    orCreateApplication(new SDLApplication);
+    // seed random number generator
+    srand(time(nullptr));
     if (orApplicationPtr->init(argc, argv))
     {
-        orApplicationPtr->setClearColor(Colorb::cyan);
-        orObjectManagerPtr->addObject(new TestObject);
-        return ApplicationBase::instanceRef().exec();
+        return orApplicationPtr->exec();
     }
     else
     {
-        orDebug("Orion failed to start\n");
+        orConsoleRef.print(orConsoleRef.Fatal, "Orion failed to start\n");
         return 1;
     }
 }

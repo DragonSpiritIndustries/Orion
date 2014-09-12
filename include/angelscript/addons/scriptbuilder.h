@@ -80,7 +80,10 @@ public:
 	void SetIncludeCallback(INCLUDECALLBACK_t callback, void *userParam);
 
 	// Add a pre-processor define for conditional compilation
-	void DefineWord(const char *word);
+    void DefineWord(const char *word);
+
+    // Remove a pre-processor define for conditional compilation
+    void UnDefineWord(const char *word);
 
 	// Enumerate included script sections
 	unsigned int GetSectionCount() const;

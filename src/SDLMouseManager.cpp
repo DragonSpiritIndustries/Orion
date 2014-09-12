@@ -4,14 +4,14 @@
 
 SDLMouseManager::SDLMouseManager()
 {
-    orDebug("MouseManager INITIALIZED\n");
+    orConsoleRef.print(orConsoleRef.Info, "MouseManager INITIALIZED\n");
     orApplicationRef.mouseButtonSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseButton>(this);
     orApplicationRef.mouseWheelSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseWheel>(this);
 }
 
 void SDLMouseManager::shutdown()
 {
-    orDebug("MouseManager SHUTDOWN\n");
+    orConsoleRef.print(orConsoleRef.Info, "MouseManager SHUTDOWN\n");
     orApplicationRef.mouseButtonSignal().disconnect<SDLMouseManager, &SDLMouseManager::onMouseButton>(this);
     orApplicationRef.mouseWheelSignal().connect<SDLMouseManager, &SDLMouseManager::onMouseWheel>(this);
 }
@@ -51,20 +51,20 @@ void SDLMouseManager::setMousePosition(Vector2i position)
     setMousePosition(position.x, position.y);
 }
 
-void SDLMouseManager::onMouseButton(Event e)
+void SDLMouseManager::onMouseButton(const Event& e)
 {
     MouseButton button;
 
     switch (e.eventData.mouseButtonEvent.button)
     {
         case SDL_BUTTON_LEFT:
-            button = MouseButton::Left;
+            button = MouseButton::LEFT;
             break;
         case SDL_BUTTON_MIDDLE:
-            button = MouseButton::Middle;
+            button = MouseButton::MIDDLE;
             break;
         case SDL_BUTTON_RIGHT:
-            button = MouseButton::Right;
+            button = MouseButton::RIGHT;
             break;
         case SDL_BUTTON_X1:
             button = MouseButton::X1;
@@ -86,7 +86,7 @@ void SDLMouseManager::onMouseButton(Event e)
     }
 }
 
-void SDLMouseManager::onMouseWheel(Event e)
+void SDLMouseManager::onMouseWheel(const Event& e)
 {
     m_mouseWheelDelta.x = e.eventData.mouseWheelEvent.hDelta;
     m_mouseWheelDelta.y = e.eventData.mouseWheelEvent.vDelta;

@@ -7,11 +7,12 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++11
 win32:QMAKE_LFLAGS += -mwindows
 
-win32:QMAKE_LFLAGS += -mwindows
-
 DEFINES += \
     ATHENA_NO_ZQUEST \
     ATHENA_NO_SAVES \
+    ATHENA_ENABLE_PHYSFS
+
+win32:DEFINES += \
     SDL_MAIN_NEEDED
 
 include(Athena/Athena.pri)
@@ -20,13 +21,17 @@ win32:LIBS += \
     -lmingw32
 
 LIBS += \
-    -lSDL2main \
     -lSDL2 \
     -lSDL2_ttf \
     -lSDL2_image \
+    -lSDL2_gfx \
     -lz \
-    -lphysfs
+    -lphysfs \
+    -ltinyxml \
 
+unix:LIBS += \
+    -lGL \
+    -lGLU
 win32:LIBS += \
     -lSDL2main
 
@@ -34,23 +39,28 @@ INCLUDEPATH += \
     include
 
 SOURCES += \
-    src/main.cpp \
-    src/Object.cpp \
-    src/SDLWindow.cpp \
-    src/SDLRenderer.cpp \
-    src/SDLApplication.cpp \
-    src/ObjectManager.cpp \
-    src/TestObject.cpp \
-    src/SDLKeyboardManager.cpp \
-    src/IKeyboardManager.cpp \
-    src/SDLJoystickManager.cpp \
-    src/SDLMouseManager.cpp \
-    include/TileObj.cpp \
-    src/IMouseManager.cpp \
-    src/SDLTexture.cpp \
-    src/physfsrwops.c \
-    src/ResourceManager.cpp \
+    src/ScriptEngine.cpp \
     src/Console.cpp \
+    src/Vector2.cpp \
+    src/Vector3.cpp \
+    src/Rectangle.cpp \
+    src/Color.cpp \
+    src/IKeyboardManager.cpp \
+    src/IJoystickManager.cpp \
+    src/IMouseManager.cpp \
+    src/CVarManager.cpp \
+    src/CVar.cpp \
+    src/ApplicationBase.cpp \
+    src/ComponentFactory.cpp \
+    src/IComponent.cpp \
+    src/TransformableComponent.cpp \
+    src/physfsrwops.c \
+    src/IResource.cpp \
+    src/ITextureResource.cpp \
+    src/ScriptResource.cpp \
+    src/ResourceManager.cpp \
+    src/ObjectManager.cpp \
+    src/Object.cpp \
     src/angelscript/as_atomic.cpp \
     src/angelscript/as_builder.cpp \
     src/angelscript/as_bytecode.cpp \
@@ -95,15 +105,34 @@ SOURCES += \
     src/angelscript/addons/scriptmathcomplex.cpp \
     src/angelscript/addons/scriptstdstring.cpp \
     src/angelscript/addons/scriptstdstring_utils.cpp \
-    src/ApplicationBase.cpp \
-    src/ScriptEngine.cpp \
     src/angelscript/addons/scripthandle.cpp \
     src/angelscript/addons/weakref.cpp \
-    src/IJoystickManager.cpp \
-    src/ScriptResource.cpp
+    src/SDLWindow.cpp \
+    src/SDLRenderer.cpp \
+    src/SDLApplication.cpp \
+    src/SDLKeyboardManager.cpp \
+    src/SDLJoystickManager.cpp \
+    src/SDLMouseManager.cpp \
+    src/main.cpp \
+    src/ByteCodeStream.cpp \
+    src/IFontResource.cpp \
+    src/Commands/QuitCommand.cpp \
+    src/SDLTextureResource.cpp \
+    src/SDLFontResource.cpp \
+    src/Timer.cpp \
+    src/ControllerDefinition.cpp
 
 HEADERS += \
     include/Global.hpp \
+    include/ApplicationBase.hpp \
+    include/ScriptEngine.hpp \
+    include/angelscript/addons.h \
+    include/angelscript/addons/weakref.h \
+    include/ScriptResource.hpp \
+    include/angelscript/addons/scripthandle.h \
+    include/EnumToString.hpp \
+    include/ComponentFactory.hpp \
+    include/TransformableComponent.hpp \
     include/Object.hpp \
     include/SDLEvent.hpp \
     include/IWindow.hpp \
@@ -118,20 +147,16 @@ HEADERS += \
     include/Vector3.hpp \
     include/Vector2.hpp \
     include/ObjectManager.hpp \
-    include/TestObject.hpp \
     include/IKeyboardManager.hpp \
     include/SDLKeyboardManager.hpp \
     include/IJoystickManager.hpp \
     include/SDLJoystickManager.hpp \
     include/SDLMouseManager.hpp \
-    include/TileObj.hpp \
     include/IMouseManager.hpp \
-    include/Texture.hpp \
     include/ResourceManager.hpp \
     include/IResource.hpp \
     include/ITextureResource.hpp \
     include/Rectangle.hpp \
-    include/SDLTexture.hpp \
     include/physfsrwops.h \
     include/Console.hpp \
     include/angelscript/angelscript.h \
@@ -177,15 +202,24 @@ HEADERS += \
     include/angelscript/addons/scriptmath.h \
     include/angelscript/addons/scriptmathcomplex.h \
     include/angelscript/addons/scriptstdstring.h \
-    include/ApplicationBase.hpp \
-    include/ScriptEngine.hpp \
-    include/angelscript/addons.h \
-    include/angelscript/addons/weakref.h \
-    include/ScriptResource.hpp
+    include/Config.hpp \
+    include/CVarManager.hpp \
+    include/CVar.hpp \
+    include/ByteCodeStream.hpp \
+    include/IFontResource.hpp \
+    include/IConsoleCommand.hpp \
+    include/Commands/QuitCommand.hpp \
+    include/SDLTextureResource.hpp \
+    include/SDLFontResource.hpp \
+    include/Timer.hpp \
+    include/ControllerDefinition.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \
     src/angelscript/as_callfunc_arm_xcode.S \
     src/angelscript/as_callfunc_arm_msvc.asm \
-    src/angelscript/as_callfunc_x64_msvc_asm.asm
+    src/angelscript/as_callfunc_x64_msvc_asm.asm \
+    data/scripts/common.as \
+    data/scripts/main.as \
+    data/scripts/test.as
 

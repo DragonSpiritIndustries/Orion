@@ -1,14 +1,27 @@
 #ifndef IKEYBOARDMANAGER_HPP
 #define IKEYBOARDMANAGER_HPP
 
-#include <Event.hpp>
+#include "Global.hpp"
 #include <unordered_map>
 
-enum class KeyModifier : int
+enum class KeyModifier : short
 {
-    CONTROL = (1 << 1),
-    SHIFT   = (1 << 2),
-    ALT     = (1 << 3)
+    NONE     = 0,
+    LSHIFT   = (1 <<  0),
+    RSHIFT   = (1 <<  1),
+    LCONTROL = (1 <<  2),
+    RCONTROL = (1 <<  3),
+    LALT     = (1 <<  4),
+    RALT     = (1 <<  5),
+    LGUI     = (1 <<  6),
+    RGUI     = (1 <<  7),
+    NUM      = (1 <<  8),
+    CAPS     = (1 <<  9),
+    MODE     = (1 << 10),
+    SHIFT    = LSHIFT | RSHIFT,
+    CONTROL  = LCONTROL | RCONTROL,
+    ALT      = LALT | RALT,
+    GUI      = LGUI | RGUI
 };
 
 enum class Key : int
@@ -140,6 +153,9 @@ struct hash< ::Key >
 };
 }
 
+Key orFromScanCode(int scan);
+
+class Event;
 class IKeyboardManager
 {
 public:
@@ -151,8 +167,11 @@ public:
     virtual bool altPressed()=0;
     virtual bool shiftPressed()=0;
     virtual void shutdown()=0;
+
+    static IKeyboardManager& instanceRef();
+    static IKeyboardManager* instancePtr();
 protected:
-    virtual void translateEvent(Event)=0;
+    virtual void translateEvent(const Event&)=0;
     std::unordered_map<Key, bool> m_pressedKeys;
     std::unordered_map<Key, bool> m_releasedKeys;
 };

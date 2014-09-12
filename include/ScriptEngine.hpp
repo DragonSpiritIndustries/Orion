@@ -9,12 +9,12 @@ public:
     ScriptEngine();
     ~ScriptEngine();
 
-    void initialize();
     asIScriptEngine* handle();
     static ScriptEngine& instanceRef();
     static ScriptEngine* instancePtr();
 
     void clean();
+    void onDraw();
 private:
     asIScriptEngine* m_engineHandle;
 };

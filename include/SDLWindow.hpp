@@ -20,7 +20,11 @@ public:
     void* handle() const;
 
     Vector2i windowSize();
+    void setWindowSize(int w, int h);
+    void setWindowSize(const Vector2i& size);
+    void setWindowWidth(int w);
     int windowWidth();
+    void setWindowHeight(int h);
     int windowHeight();
 private:
     SDL_Window* m_window;

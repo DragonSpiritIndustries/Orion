@@ -21,20 +21,21 @@ Rectangle<T>::Rectangle(const T& x, const T& y, const T& w, const T& h)
 {
 }
 
-template <typename T>
-Rectangle<T> Rectangle<T>::normalize()
+template<typename T>
+bool Rectangle<T>::contains(T x, T y)
 {
-    Rectangle<T> ret;
-    T mag = std::sqrt(x*x + y*y + w*w + h*h);
-    if (mag != 0)
-    {
-        ret.x = x/mag;
-        ret.y = y/mag;
-        ret.w = w/mag;
-        ret.h = h/mag;
-    }
+    if (!(x >= this->x && x <= this->x + this->w))
+        return false;
+    if (!(y >= this->y && y <= this->y + this->h))
+        return false;
 
-    return ret;
+    return true;
+}
+
+template<typename T>
+bool Rectangle<T>::contains(const Vector2<T>& vec)
+{
+    return contains(vec.x, vec.y);
 }
 
 template <typename T>

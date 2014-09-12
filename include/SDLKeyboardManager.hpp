@@ -16,11 +16,9 @@ public:
     bool altPressed();
     bool shiftPressed();
 
-    Key fromScanCode(int scan);
-
     void shutdown();
 protected:
-    void translateEvent(Event ev);
+    void translateEvent(const Event& ev);
 private:
 };
 

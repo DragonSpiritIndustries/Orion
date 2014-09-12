@@ -6,8 +6,9 @@
 #define VECTOR2_HPP
 
 template <typename T>
-struct Vector2
+class Vector2
 {
+public:
     T x, y;
 
     Vector2<T>();
@@ -15,6 +16,7 @@ struct Vector2
 
     Vector2<T> normalize();
     T crossProduct(Vector2<T> vec);
+    void rotate(float angle, Vector2<T> origin);
 };
 
 typedef Vector2<float>  Vector2f;
@@ -45,6 +47,14 @@ template <typename T>
 inline Vector2<T>& operator /(const Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T>& operator /=(Vector2<T>& left, T right);
+
+template <typename T>
+void constructVector2(Vector2<T>* vector);
+template <typename T>
+void constructVector2Args(T x, T y, Vector2<T>* vector);
+
+template <typename T>
+void destructVector2(Vector2<T>* pointer);
 
 #include "Vector2.inl"
 #endif // VECTOR2_HPP

@@ -17,34 +17,42 @@ SDLJoystickManager::~SDLJoystickManager()
 
 void SDLJoystickManager::onJoystickAdded(int which)
 {
+    if (m_devices.size() >= MaxJoysticks)
+    {
+        orConsoleRef.print(orConsoleRef.Info, "Joystick limit %i reached, ignoring new controller", MaxJoysticks);
+        return;
+    }
+
     SDLJoystickDevice* device = new SDLJoystickDevice;
     device->device = SDL_JoystickOpen(which);
     if (!device->device)
     {
         delete device;
-        orDebug("Error obtaining controller %i\n", which);
+        orConsoleRef.print(orConsoleRef.Error, "Error obtaining controller %i\n", which);
     }
     else
     {
-        orDebug("Obtained controller:\n");
+        orConsoleRef.print(orConsoleRef.Info, "Obtained controller:\n");
         device->name = std::string(SDL_JoystickNameForIndex(which));
-        orDebug("Name: %s\n", device->name.c_str());
+        // Load metadata
+        loadMetaData(device->name);
+        orConsoleRef.print(orConsoleRef.Info, "Name: %s\n", device->name.c_str());
         device->id = SDL_JoystickInstanceID(device->device);
-        orDebug("Device slot: %i\n", device->id);
+        orConsoleRef.print(orConsoleRef.Info, "Device slot: %i\n", device->id);
         device->axisCount = SDL_JoystickNumAxes(device->device);
-        orDebug("Axis count: %i\n", device->axisCount);
+        orConsoleRef.print(orConsoleRef.Info, "Axis count: %i\n", device->axisCount);
         device->buttonCount = SDL_JoystickNumButtons(device->device);
-        orDebug("Button Count: %i\n", device->buttonCount);
+        orConsoleRef.print(orConsoleRef.Info, "Button Count: %i\n", device->buttonCount);
         device->forceFeedback = SDL_HapticOpenFromJoystick(device->device);
         device->hasRumble = (device->forceFeedback != nullptr);
         if (device->hasRumble)
             SDL_HapticRumbleInit(device->forceFeedback);
 
-        orDebug("Force feedback: %s\n", (device->hasRumble ? "yes" : "no"));
+        orConsoleRef.print(orConsoleRef.Info, "Force feedback: %s\n", (device->hasRumble ? "yes" : "no"));
         device->guid = SDL_JoystickGetGUID(device->device);
         char guidString[33];
         SDL_JoystickGetGUIDString(device->guid, guidString, sizeof(guidString));
-        orDebug("GUID: %s\n", guidString);
+        orConsoleRef.print(orConsoleRef.Info, "GUID: %s\n", guidString);
         device->currentEffect = -1;
         m_devices.push_back(device);
     }
@@ -63,7 +71,7 @@ void SDLJoystickManager::onJoystickRemoved(int which)
 
     SDL_JoystickClose(device->device);
 
-    orDebug("Controller removed: %s\n", device->name.c_str());
+    orConsoleRef.print(orConsoleRef.Info, "Controller removed: %s\n", device->name.c_str());
     m_devices.erase(iter);
     delete device;
     device = nullptr;
@@ -130,7 +138,7 @@ void SDLJoystickManager::motorOn(int which)
     SDLJoystickDevice* device = m_devices[which];
 
     if (device->hasRumble)
-        SDL_HapticRumblePlay(device->forceFeedback, 0.5, 5000);
+        SDL_HapticRumblePlay(device->forceFeedback, 5.f, 5000*10000);
 }
 
 void SDLJoystickManager::motorOff(int which)
@@ -162,6 +170,14 @@ void SDLJoystickManager::shutdown()
     m_devices.clear();
 }
 
+bool SDLJoystickManager::isPluggedIn(int which)
+{
+    if (joystick(which))
+        return true;
+
+    return false;
+}
+
 void SDLJoystickManager::update(float)
 {
     // ensure the joysticks are getting updated properly
@@ -178,7 +194,7 @@ SDLJoystickDevice* SDLJoystickManager::joystick(int which)
     return *iter;
 }
 
-void SDLJoystickManager::onButton(Event joy)
+void SDLJoystickManager::onButton(const Event& joy)
 {
     if (joy.type == Event::EV_JOY_BTN_RELEASED)
         m_releasedButtons[joy.eventData.joystickEvent.id][joy.eventData.joystickEvent.button] = true;
