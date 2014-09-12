@@ -1,4 +1,4 @@
-TEMPLATE = app
+TEMPLATE = lib
 CONFIG += thread
 CONFIG -= console
 CONFIG -= app_bundle
@@ -14,9 +14,6 @@ DEFINES += \
 
 win32:DEFINES += \
     SDL_MAIN_NEEDED
-
-include(Athena/Athena.pri)
-
 win32:LIBS += \
     -lmingw32
 
@@ -35,6 +32,8 @@ unix:LIBS += \
 win32:LIBS += \
     -lSDL2main
 
+include(Athena/Athena.pri)
+
 INCLUDEPATH += \
     include
 
@@ -50,7 +49,6 @@ SOURCES += \
     src/IMouseManager.cpp \
     src/CVarManager.cpp \
     src/CVar.cpp \
-    src/ApplicationBase.cpp \
     src/ComponentFactory.cpp \
     src/IComponent.cpp \
     src/TransformableComponent.cpp \
@@ -109,18 +107,17 @@ SOURCES += \
     src/angelscript/addons/weakref.cpp \
     src/SDLWindow.cpp \
     src/SDLRenderer.cpp \
-    src/SDLApplication.cpp \
     src/SDLKeyboardManager.cpp \
     src/SDLJoystickManager.cpp \
     src/SDLMouseManager.cpp \
-    src/main.cpp \
     src/ByteCodeStream.cpp \
     src/IFontResource.cpp \
     src/Commands/QuitCommand.cpp \
     src/SDLTextureResource.cpp \
     src/SDLFontResource.cpp \
     src/Timer.cpp \
-    src/ControllerDefinition.cpp
+    src/ControllerDefinition.cpp \
+    src/ApplicationBase.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -139,7 +136,6 @@ HEADERS += \
     include/SDLWindow.hpp \
     include/IRenderer.hpp \
     include/SDLRenderer.hpp \
-    include/SDLApplication.hpp \
     include/Color.hpp \
     include/Event.hpp \
     include/IComponent.hpp \
