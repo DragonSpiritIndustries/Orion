@@ -10,7 +10,6 @@
 #include <iostream>
 #include <Athena/Utility.hpp>
 #include "angelscript/addons.h"
-#include "TestObject.hpp"
 #include "CVarManager.hpp"
 
 extern CVar* sys_title;

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <ApplicationBase.hpp>
-#include <TestObject.hpp>
 
 int main(int argc, char* argv[])
 {
