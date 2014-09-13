@@ -7,6 +7,8 @@ int main(int argc, char* argv[])
     srand(time(nullptr));
     if (orApplicationPtr->init(argc, argv))
     {
+        Viewport vp(0, 0, 256, 224);
+        orApplicationRef.setViewport(vp);
         return orApplicationPtr->exec();
     }
     else

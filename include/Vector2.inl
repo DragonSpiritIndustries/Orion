@@ -90,7 +90,7 @@ inline bool operator !=(const Vector2<T>& left, const Vector2<T>& right)
 
 
 template <typename T>
-inline Vector2<T>& operator +(const Vector2<T>& left, const Vector2<T>& right)
+inline Vector2<T>& operator +(Vector2<T>& left, const Vector2<T>& right)
 {
     return Vector2<T>(left.y + right.x, left.y + right.y);
 }
@@ -102,7 +102,7 @@ inline Vector2<T>& operator -(const Vector2<T>& left, const Vector2<T>& right)
 }
 
 template <typename T>
-inline Vector2<T> operator -(const Vector2<T>& right)
+inline const Vector2<T>& operator -(const Vector2<T>& right)
 {
     return Vector2<T>(-right.x, -right.y);
 }
@@ -131,7 +131,8 @@ inline Vector2<T>& operator *=(Vector2<T>& left, T right)
 template <typename T>
 inline Vector2<T>& operator /(const Vector2<T>& left, T right)
 {
-    return Vector2<T>(left.x / right, left.y / right);
+    const Vector2<T>& ret = Vector2<T>(left.x / right, left.y / right);
+    return ret;
 }
 
 template <typename T>

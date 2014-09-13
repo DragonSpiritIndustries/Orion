@@ -202,6 +202,21 @@ void SDLApplication::pollEvents()
                     oEvent.type = Event::EV_WINDOW_RESIZED;
                     oEvent.eventData.resizeEvent.width = sdlEvent.window.data1;
                     oEvent.eventData.resizeEvent.height = sdlEvent.window.data2;
+                    // Compare the addresses of the viewports to see if they're the same
+                    // We can't just compare the two incase the user has a viewport that happens to
+                    // Be the same size as the default (bad things would happen if we overrode their vp)
+                    Viewport* defaultVP  = &m_defaultViewport;
+                    bool resetVP = (m_currentViewport == defaultVP);
+
+                    m_defaultViewport = Viewport(0, 0, sdlEvent.window.data1, sdlEvent.window.data2);
+                    if (resetVP)
+                        restoreDefaultViewport();
+                    else
+                        // if we're not resetting the viewport
+                        // reapply it, for some reason SDL Updates the viewport
+                        // when the window is resized
+                        applyViewport();
+
                     m_eventSignal(oEvent);
                     m_resizeSignal(oEvent);
                 }
@@ -225,6 +240,16 @@ void SDLApplication::pollEvents()
             }
         }
     }
+}
+
+void SDLApplication::applyViewport()
+{
+    SDL_Rect viewport;
+    viewport.x = std::fabs(m_currentViewport->x());
+    viewport.y = std::fabs(m_currentViewport->y());
+    viewport.w = m_currentViewport->width();
+    viewport.h = m_currentViewport->height();
+    SDL_RenderSetViewport(static_cast<SDL_Renderer*>(m_renderer.get()->handle()), &viewport);
 }
 
 void SDLApplication::updateFPS()

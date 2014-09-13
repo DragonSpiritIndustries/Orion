@@ -29,8 +29,10 @@ public:
     int windowWidth();
     int windowHeight();
     virtual void setClearColor(const Colorf& color = Colorf::black);
+
 protected:
     void pollEvents();
+    void applyViewport();
 private:
     TTF_Font*    m_debugFont;
     void updateFPS();

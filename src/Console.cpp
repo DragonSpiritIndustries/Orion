@@ -126,6 +126,11 @@ void Console::draw()
     if (m_state == Closed)
         return;
 
+    // Since the console does not depend on the view,
+    // we need the default viewport, which always
+    // matches the current window dimensions
+    Viewport* oldVP = orApplicationRef.currentViewport();
+    orApplicationRef.restoreDefaultViewport();
     float glyphW =  2.f;
     if (m_commandString.size() > 0)
         glyphW = m_font->glyphAdvance(m_commandString[m_cursorPosition]) + 2;
@@ -137,6 +142,8 @@ void Console::draw()
         orApplicationRef.drawRectangle(2,
                                        16, glyphW + m_cursorX + 6, m_conY + m_conHeight - 18);
     m_font->draw(2, m_conY + m_conHeight - 20, "]" + m_commandString);
+
+    orApplicationRef.setViewport(*oldVP);
 }
 
 void Console::print(Console::Level level, const std::string& fmt, ...)
@@ -268,10 +275,12 @@ void Console::toggleConsole()
 
 Colorb Console::consoleColor()
 {
+    return con_color->toColorb();
 }
 
 Colorb Console::textColor()
 {
+    return con_textcolor->toColorb();
 }
 
 void Console::registerCommand(IConsoleCommand* command)
@@ -776,11 +785,10 @@ void registerConsole()
     engine->RegisterEnumValue("Level", "Fatal",   Console::Fatal);
     engine->RegisterObjectType("Binding", sizeof(CVar::Binding), asOBJ_VALUE | asOBJ_POD);
     engine->SetDefaultNamespace("");
-    int r;
-    r = engine->RegisterObjectType    ("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
-    r = engine->RegisterObjectMethod  ("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
-    r = engine->RegisterObjectMethod  ("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
-    r = engine->RegisterGlobalProperty("Console orConsole", orConsolePtr);
+    engine->RegisterObjectType    ("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    engine->RegisterObjectMethod  ("Console", "void print(int level, const string& in)", asMETHOD(Console, print), asCALL_THISCALL);
+    engine->RegisterObjectMethod  ("Console", "bool isOpen()", asMETHOD(Console, isOpen), asCALL_THISCALL);
+    engine->RegisterGlobalProperty("Console orConsole", orConsolePtr);
 
     orConsoleRef.print(Console::Info, "Registered Console");
 }

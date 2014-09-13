@@ -57,6 +57,9 @@ bool ApplicationBase::init(int /*argc*/, char* argv[])
     if (!orResourceManagerRef.initialize(argv[0]))
         return false;
 
+    m_defaultViewport = Viewport(Vector2f(0, 0), m_window.get()->windowSize());
+    m_currentViewport = &m_defaultViewport;
+
     orConsoleRef.initialize();
     orObjectManagerRef.initialize();
     glPolygonMode(GL_FRONT_AND_BACK, (com_drawwire->toBoolean() ? GL_LINE : GL_FILL));
@@ -301,7 +304,28 @@ IJoystickManager* ApplicationBase::joystickManagerPtr()
 
 IMouseManager& ApplicationBase::mouseManagerRef()
 {
-    return *m_mouseManager.get();
+    return* m_mouseManager.get();
+}
+
+void ApplicationBase::setViewport(Viewport& view)
+{
+    m_currentViewport = &view;
+    applyViewport();
+}
+
+Viewport* ApplicationBase::currentViewport()
+{
+    return m_currentViewport;
+}
+
+Viewport ApplicationBase::defaultViewport() const
+{
+    return m_defaultViewport;
+}
+
+void ApplicationBase::restoreDefaultViewport()
+{
+    setViewport(m_defaultViewport);
 }
 
 float ApplicationBase::fps() const

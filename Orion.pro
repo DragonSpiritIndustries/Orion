@@ -120,7 +120,8 @@ SOURCES += \
     src/SDLTextureResource.cpp \
     src/SDLFontResource.cpp \
     src/Timer.cpp \
-    src/ControllerDefinition.cpp
+    src/ControllerDefinition.cpp \
+    src/Viewport.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -212,7 +213,8 @@ HEADERS += \
     include/SDLTextureResource.hpp \
     include/SDLFontResource.hpp \
     include/Timer.hpp \
-    include/ControllerDefinition.hpp
+    include/ControllerDefinition.hpp \
+    include/Viewport.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \
