@@ -36,9 +36,9 @@ inline Vector2<T>& operator +(const Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
 inline Vector2<T>& operator -(const Vector2<T>& left, const Vector2<T>& right);
 template <typename T>
-inline Vector2<T>& operator -(const Vector2<T>& right);
+inline const Vector2<T>& operator -(const Vector2<T>& right);
 template <typename T>
-inline Vector2<T> operator *(const Vector2<T>& left, T right);
+inline Vector2<T> operator *(Vector2<T>& left, T right);
 template <typename T>
 inline Vector2<T> operator *(T left, const Vector2<T>& right);
 template <typename T>

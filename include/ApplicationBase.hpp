@@ -14,6 +14,7 @@
 #include "ResourceManager.hpp"
 #include "ScriptResource.hpp"
 #include "Color.hpp"
+#include "Viewport.hpp"
 #include "nano-signal-slot/nano_signal_slot.hpp"
 
 class ApplicationBase
@@ -61,11 +62,19 @@ public:
     IJoystickManager* joystickManagerPtr();
     IMouseManager&    mouseManagerRef();
     IMouseManager*    mouseManagerPtr();
+    // Override to add your specific viewport code
+    virtual void setViewport(Viewport& view);
+    Viewport* currentViewport();
+    Viewport defaultViewport() const;
+    void restoreDefaultViewport();
     virtual float fps() const;
 protected:
     // README: If you add new event handler remember to emit the event using m_eventSignal *FIRST*
     virtual void pollEvents()=0;
     virtual void parseCommandLine(int argc, char* argv[]){UNUSED(argc),UNUSED(argv);}
+    // Use this to implement your viewport code
+    // It gets called when a viewport is set and, if necessary, when the window is resized
+    virtual void applyViewport()=0;
     std::shared_ptr<IJoystickManager>    m_joystickManager;
     std::shared_ptr<IMouseManager>       m_mouseManager;
     std::shared_ptr<IWindow>             m_window;
@@ -84,6 +93,8 @@ protected:
     Nano::Signal<void(int)>              m_joystickRemovedSignal;
     ScriptResource*                      m_mainScript;
     asIScriptContext*                    m_scriptContext;
+    Viewport*                            m_currentViewport;
+    Viewport                             m_defaultViewport;
     float         m_fps;
     float         m_frameTime;
 };
