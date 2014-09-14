@@ -507,7 +507,7 @@ void Console::handleInput(const Event& event)
 
                 if (kbEvent.modifier & (int)KeyModifier::CONTROL)
                 {
-                    if (m_commandString[m_cursorPosition] = ' ')
+                    if (m_commandString[m_cursorPosition] == ' ')
                         m_cursorPosition++;
 
                     int tmpPos = m_commandString.find(' ', m_cursorPosition);

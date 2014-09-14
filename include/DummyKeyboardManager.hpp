@@ -13,36 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Orion.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef SDLWINDOW_HPP
-#define SDLWINDOW_HPP
+#ifndef DUMMYKEYBOARDMANAGER_HPP
+#define DUMMYKEYBOARDMANAGER_HPP
 
-#include "Global.hpp"
-#include <string>
-#include <IWindow.hpp>
+#include "IKeyboardManager.hpp"
+#include <unordered_map>
 
-struct SDL_Window;
-class SDLWindow : public IWindow
+class DummyKeyboardManager : public IKeyboardManager
 {
 public:
-    SDLWindow();
-    ~SDLWindow();
+    DummyKeyboardManager();
+    ~DummyKeyboardManager();
 
-    bool initialize();
+    bool keyPressed(Key )     { return false; }
+    bool keyReleased(Key)     { return false; }
+    bool controlPressed()     { return false; }
+    bool altPressed()         { return false; }
+    bool shiftPressed()       { return false; }
 
-    void setTitle(const std::string& title);
-    std::string title() const;
-
-    void* handle() const;
-
-    Vector2i windowSize();
-    void setWindowSize(int w, int h);
-    void setWindowSize(const Vector2i& size);
-    void setWindowWidth(int w);
-    int windowWidth();
-    void setWindowHeight(int h);
-    int windowHeight();
-private:
-    SDL_Window* m_window;
+    void shutdown() {}
+protected:
+    void translateEvent(const Event& ev) {}
 };
 
-#endif // SDLWINDOW_HPP
+#endif // DUMMYKEYBOARDMANAGER_HPP

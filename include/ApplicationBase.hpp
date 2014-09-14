@@ -17,6 +17,7 @@
 #define IAPPLICATION_HPP
 
 #include <Global.hpp>
+#include "Config.hpp"
 #include <string>
 #include <memory>
 #include <iostream>

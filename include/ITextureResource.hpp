@@ -30,6 +30,8 @@ public:
     {
     }
 
+    virtual ~ITextureResource() {}
+
     virtual void draw(float x, float y)=0;
     virtual void draw(const Vector2f& position)=0;
     virtual void draw(float x, float y, const Rectanglef& subrect, const Vector2f& origin, bool flipH, bool flipV, float angle)=0;

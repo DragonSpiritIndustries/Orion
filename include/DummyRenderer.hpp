@@ -13,28 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Orion.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef KEYBOARDMANAGER_HPP
-#define KEYBOARDMANAGER_HPP
+#ifndef DUMMYRENDERER_HPP
+#define DUMMYRENDERER_HPP
 
-#include "IKeyboardManager.hpp"
-#include <unordered_map>
+#include "IRenderer.hpp"
 
-class SDLKeyboardManager : public IKeyboardManager
+class DummyRenderer : public IRenderer
 {
 public:
-    SDLKeyboardManager();
-    ~SDLKeyboardManager();
+    DummyRenderer()
+    {}
+    virtual ~DummyRenderer()
+    {}
 
-    bool keyPressed(Key key);
-    bool keyReleased(Key key);
-    bool controlPressed();
-    bool altPressed();
-    bool shiftPressed();
-
-    void shutdown();
-protected:
-    void translateEvent(const Event& ev);
-private:
+    void setClearColor(const Colorf& = Colorf::black){}
+    bool initialize(IWindow*) {return false;}
+    void clear() {}
+    void present() {}
+    void drawRect(int, int, int, int, bool= false, Colorb =Colorb::white) {}
+    void* handle() { return nullptr; }
+    void setVSync(bool) {}
 };
 
-#endif // KEYBOARDMANAGER_HPP
+#endif // DUMMYRENDERER_HPP
