@@ -13,10 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Orion.  If not, see <http://www.gnu.org/licenses/>
 
-/**************************************************************************
-**
-**************************************************************************/
-
 #ifndef RECTANGLE_HPP
 #define RECTANGLE_HPP
 #include <Vector2.hpp>
