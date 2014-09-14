@@ -1,3 +1,18 @@
+// This file is part of Orion.
+//
+// Orion is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Orion is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Orion.  If not, see <http://www.gnu.org/licenses/>
+
 #include "Console.hpp"
 #include "ApplicationBase.hpp"
 #include "ScriptEngine.hpp"
@@ -25,9 +40,9 @@ CVar* con_sndclose   = new CVar("con_sndopen", "sounds/con_close.wav", "Console 
 Console::Console(const std::string& logfile)
     : m_state(Closed),
       m_showCursor(false),
-      m_cursorPosition(0),
+      m_cursorPosition(-1),
       m_startString(0),
-      m_currentCommand(0),
+      m_currentCommand(-1),
       m_isInitialized(false),
       m_overwrite(false),
       m_fullscreen(false),
@@ -56,6 +71,8 @@ void Console::initialize()
     m_font = orResourceManagerRef.loadResource<IFontResource>("fonts/debug.ttf");
     if (!m_font)
         print(Fatal, "Unable to load fonts/debug.ttf");
+
+    recalcMaxLines();
 }
 
 void Console::shutdown()
@@ -88,11 +105,14 @@ void Console::handleMouseWheel(const Event& ev)
     Rectanglef bounds(0, 0, com_windowWidth->toInteger(), m_conHeight - 20);
     if (bounds.contains(wheelEv.x, wheelEv.y))
     {
-        m_startString += wheelEv.vDelta * 4;
+        m_startString += wheelEv.vDelta * 2;
+
+        if (m_startString > (int)(m_history.size() - 1) - m_maxLines)
+            m_startString = (int)(m_history.size() - 1) - m_maxLines;
+
         if (m_startString < 0)
             m_startString = 0;
-        else if (m_startString > (int)(m_history.size() - 1) - m_maxLines)
-            m_startString = (m_history.size() - 1) - m_maxLines;
+
         return;
     }
     bounds = Rectanglef(0, m_conHeight - 20, com_windowWidth->toInteger(), 20);
@@ -111,19 +131,19 @@ void Console::handleMouseWheel(const Event& ev)
             if (oldCommand >= 0)
             {
                 m_commandString.clear();
-                m_cursorPosition = 0;
+                m_cursorPosition = -1;
             }
             return;
         }
 
         m_commandString = m_commandHistory.at(m_currentCommand);
-        m_cursorPosition = m_commandString.size();
+        m_cursorPosition = m_commandString.size() - 1;
     }
 }
 
 void Console::draw()
 {
-    if (m_state == Closed)
+    if (m_state == Closed || !m_font)
         return;
 
     // Since the console does not depend on the view,
@@ -132,8 +152,10 @@ void Console::draw()
     Viewport* oldVP = orApplicationRef.currentViewport();
     orApplicationRef.restoreDefaultViewport();
     float glyphW =  2.f;
-    if (m_commandString.size() > 0)
+    if (m_commandString.size() > 0 && m_cursorPosition >= 0)
         glyphW = m_font->glyphAdvance(m_commandString[m_cursorPosition]) + 2;
+    else if (m_cursorPosition < 0)
+        glyphW = 2.f;
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), m_conHeight, 0, m_conY, true, con_color->toColorb());
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), m_conHeight, 0, m_conY, false);
     orApplicationRef.drawRectangle(com_windowWidth->toInteger(), 20, 0, m_conY + m_conHeight - 20, false);
@@ -249,7 +271,7 @@ void Console::print(Console::Level level, const std::string& fmt, ...)
         m_state = Opened;
         m_conHeight = com_windowHeight->toInteger();
         m_conY = m_conHeight;
-        //recalcMaxLines();
+        recalcMaxLines();
     }
 }
 
@@ -265,10 +287,11 @@ void Console::toggleConsole()
         m_state = Closing;
 
     m_commandString = "";
-    m_cursorPosition = 0;
+    m_cursorPosition = -1;
     m_cursorX = 0;
-    m_currentCommand = 0;
+    m_currentCommand = -1;
     m_conHeight = (m_fullscreen ? com_windowHeight->toInteger() : con_height->toInteger());
+    recalcMaxLines();
     if (m_hadFatalError)
         orApplicationRef.close();
 }
@@ -317,6 +340,11 @@ Console* Console::instancePtr()
     return instance.get();
 }
 
+void Console::recalcMaxLines()
+{
+    m_maxLines = std::abs(m_conHeight/m_font->measureString("#").y);
+}
+
 void Console::onUpdate(float delta)
 {
     if (m_state == Closed)
@@ -338,7 +366,7 @@ void Console::onUpdate(float delta)
             m_conY += con_speed->toFloat()*delta;
     }
 
-    m_maxLines = (m_conHeight - 42) / 20;
+    recalcMaxLines();
     if (m_conY < -m_conHeight)
     {
         m_conY = -m_conHeight;
@@ -359,9 +387,10 @@ void Console::onUpdate(float delta)
     m_bgOffX += 1.f*delta;
     m_bgOffY += 1.f*delta;
 
-    m_cursorX = 0;
-    for (int i = 0; i < m_cursorPosition; ++i)
-        m_cursorX += m_font->glyphAdvance(m_commandString.at(i));
+    m_cursorX = 0.0f;
+    if (m_cursorPosition >= 0)
+        for (int i = 0; i < m_cursorPosition; ++i)
+            m_cursorX += m_font->glyphAdvance(m_commandString.at(i));
 }
 
 void Console::handleText(const Event& e)
@@ -422,6 +451,9 @@ void Console::handleInput(const Event& event)
                         }
                         break;
                     }
+                    if (m_cursorPosition < 0)
+                        break;
+
                     m_commandString.erase(m_cursorPosition--, 1);
                 }
             }
@@ -457,19 +489,36 @@ void Console::handleInput(const Event& event)
                 if (m_cursorPosition < 0)
                     break;
 
-                m_cursorPosition--;
+                if (kbEvent.modifier & (int)KeyModifier::CONTROL)
+                    m_cursorPosition = (int)m_commandString.rfind(' ', m_cursorPosition) - 1;
+                else
+                    m_cursorPosition--;
+
                 m_showCursor = true;
                 m_cursorTime = 0;
             }
                 break;
             case Key::RIGHT:
             {
-                if (m_cursorPosition > (int)m_commandString.size() - 1)
+                if (m_cursorPosition >= (int)m_commandString.size() - 1)
                     break;
                 //                if (m_cursorPosition >= (int)currentMaxLen())
                 //                    break;
 
-                m_cursorPosition++;
+                if (kbEvent.modifier & (int)KeyModifier::CONTROL)
+                {
+                    if (m_commandString[m_cursorPosition] = ' ')
+                        m_cursorPosition++;
+
+                    int tmpPos = m_commandString.find(' ', m_cursorPosition);
+                    if (tmpPos == std::string::npos)
+                        m_cursorPosition = m_commandString.size() - 1;
+                    else
+                        m_cursorPosition = tmpPos;
+                }
+                else
+                    m_cursorPosition++;
+
                 m_showCursor = true;
                 m_cursorTime = 0;
             }
@@ -511,9 +560,9 @@ void Console::handleInput(const Event& event)
     }
 
     if (m_cursorPosition > (int)m_commandString.size() - 1)
-        m_cursorPosition = (int)m_commandString.size() - 1;
-    if (m_cursorPosition < 0)
-        m_cursorPosition = 0;
+        m_cursorPosition = (int)m_commandString.size();
+    if (m_cursorPosition < -1)
+        m_cursorPosition = -1;
 
     if (m_startString > (int)m_history.size() - 1)
         m_startString = (int)m_history.size() - 1;
@@ -750,7 +799,7 @@ void Console::resetCursor()
 {
     m_commandString.clear();
     m_cursorX = 0.0f;
-    m_cursorPosition = 0;
+    m_cursorPosition = -1;
     m_currentCommand = -1;
 }
 
