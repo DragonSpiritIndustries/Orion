@@ -1,7 +1,23 @@
+// This file is part of Orion.
+//
+// Orion is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Orion is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Orion.  If not, see <http://www.gnu.org/licenses/>
+
 #include "SDLApplication.hpp"
 #include "SDLKeyboardManager.hpp"
 #include "SDLJoystickManager.hpp"
 #include "SDLMouseManager.hpp"
+#include "IFontResource.hpp"
 #include "ScriptEngine.hpp"
 #include "ObjectManager.hpp"
 #include "Console.hpp"
@@ -63,7 +79,7 @@ bool SDLApplication::init(int argc, char* argv[])
     }
 
     // Attempt to load debug font
-    m_debugFont = TTF_OpenFont("DebugFont.ttf", 16);
+    m_debugFont = orResourceManagerRef.loadResource<IFontResource>("fonts/debug.ttf");
 
     if (!m_debugFont)
     {
@@ -302,22 +318,7 @@ void* SDLApplication::rendererHandle()
 
 void SDLApplication::drawDebugText(const std::string& text, float x, float y, Colorb col)
 {
-    static SDL_Texture* texture;
-    static SDL_Surface* fontSurf;
-    static SDL_Rect rect;
-    static SDL_Renderer* renderer = reinterpret_cast<SDL_Renderer*>(m_renderer.get()->handle());
-    rect.x = x;
-    rect.y = y;
-    //TTF_SizeText(m_debugFont, text.c_str(), &rect.w, &rect.h);
-
-    fontSurf = TTF_RenderText_Blended(m_debugFont, text.c_str(), SDL_Color{col.r, col.g, col.b, col.a});
-    texture = SDL_CreateTextureFromSurface(renderer, fontSurf);
-    SDL_QueryTexture(texture,  nullptr, nullptr, &rect.w, &rect.h);
-
-
-    SDL_FreeSurface(fontSurf);
-    SDL_RenderCopy(renderer, texture, nullptr, &rect);
-    SDL_DestroyTexture(texture);
+    m_debugFont->draw(x, y, text, 16, col);
 }
 
 void SDLApplication::drawDebugText(const std::string& text, const Vector2f& position, Colorb col)
