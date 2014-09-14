@@ -13,8 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Orion.  If not, see <http:#www.gnu.org/licenses/>
 
-TEMPLATE = app
-CONFIG += thread
+TEMPLATE = lib
+
+CONFIG += thread static
 CONFIG -= console
 CONFIG -= app_bundle
 CONFIG -= qt
@@ -29,9 +30,6 @@ DEFINES += \
 
 win32:DEFINES += \
     SDL_MAIN_NEEDED
-
-include(Athena/Athena.pri)
-
 win32:LIBS += \
     -lmingw32
 
@@ -50,6 +48,8 @@ unix:LIBS += \
 win32:LIBS += \
     -lSDL2main
 
+include(Athena/Athena.pri)
+
 INCLUDEPATH += \
     include
 
@@ -65,7 +65,6 @@ SOURCES += \
     src/IMouseManager.cpp \
     src/CVarManager.cpp \
     src/CVar.cpp \
-    src/ApplicationBase.cpp \
     src/ComponentFactory.cpp \
     src/IComponent.cpp \
     src/TransformableComponent.cpp \
@@ -122,21 +121,13 @@ SOURCES += \
     src/angelscript/addons/scriptstdstring_utils.cpp \
     src/angelscript/addons/scripthandle.cpp \
     src/angelscript/addons/weakref.cpp \
-    src/SDLWindow.cpp \
-    src/SDLRenderer.cpp \
-    src/SDLApplication.cpp \
-    src/SDLKeyboardManager.cpp \
-    src/SDLJoystickManager.cpp \
-    src/SDLMouseManager.cpp \
-    src/main.cpp \
     src/ByteCodeStream.cpp \
     src/IFontResource.cpp \
     src/Commands/QuitCommand.cpp \
-    src/SDLTextureResource.cpp \
-    src/SDLFontResource.cpp \
     src/Timer.cpp \
     src/ControllerDefinition.cpp \
-    src/Viewport.cpp
+    src/Viewport.cpp \
+    src/ApplicationBase.cpp
 
 HEADERS += \
     include/Global.hpp \
@@ -151,10 +142,7 @@ HEADERS += \
     include/TransformableComponent.hpp \
     include/Object.hpp \
     include/IWindow.hpp \
-    include/SDLWindow.hpp \
     include/IRenderer.hpp \
-    include/SDLRenderer.hpp \
-    include/SDLApplication.hpp \
     include/Color.hpp \
     include/Event.hpp \
     include/IComponent.hpp \
@@ -163,10 +151,7 @@ HEADERS += \
     include/Vector2.hpp \
     include/ObjectManager.hpp \
     include/IKeyboardManager.hpp \
-    include/SDLKeyboardManager.hpp \
     include/IJoystickManager.hpp \
-    include/SDLJoystickManager.hpp \
-    include/SDLMouseManager.hpp \
     include/IMouseManager.hpp \
     include/ResourceManager.hpp \
     include/IResource.hpp \
@@ -224,11 +209,17 @@ HEADERS += \
     include/IFontResource.hpp \
     include/IConsoleCommand.hpp \
     include/Commands/QuitCommand.hpp \
-    include/SDLTextureResource.hpp \
-    include/SDLFontResource.hpp \
     include/Timer.hpp \
     include/ControllerDefinition.hpp \
-    include/Viewport.hpp
+    include/Viewport.hpp \
+    include/DummyWindow.hpp \
+    include/DummyRenderer.hpp \
+    include/DummyMouseManager.hpp \
+    include/DummyKeyboardManager.hpp \
+    include/DummyJoystickManager.hpp \
+    include/DummyTextureResource.hpp \
+    include/DummyApplication.hpp \
+    include/DummyFontResource.hpp
 
 OTHER_FILES += \
     src/angelscript/as_callfunc_arm_gcc.S \

@@ -13,30 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Orion.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef SDLRENDERER_HPP
-#define SDLRENDERER_HPP
+#ifndef DUMMYFONTRESOURCE_HPP
+#define DUMMYFONTRESOURCE_HPP
 
-#include "IRenderer.hpp"
-#include "SDLWindow.hpp"
-#include "SDL2/SDL.h"
+#include <IFontResource.hpp>
 
-class SDLRenderer : public IRenderer
+class DummyFontResource : public IFontResource
 {
 public:
-    SDLRenderer();
-    ~SDLRenderer();
+    DummyFontResource(const std::string &path)
+        : IFontResource(path)
+    {
+    }
 
-    void setClearColor(const Colorf& color = Colorf::black);
-    bool initialize(IWindow* window);
-    void clear();
-    void present();
-    void drawRect(int w, int h, int x, int y, bool fill = false, Colorb col=Colorb::white);
-    void* handle();
-    void setVSync(bool enable);
-private:
-    SDL_Renderer*  m_renderer;
-    SDL_GLContext  m_context;
-    SDL_Window*    m_windowHandle;
+    virtual ~DummyFontResource() {}
+    Vector2i measureString(const std::string&, int =16) {return Vector2i();}
+    int glyphAdvance(atUint16, int) { return 0;}
+    void draw(float, float, const std::string&, int =16, const Colorb& =Colorb::white) {}
+
+    static IResource* loadFont(const std::string&) { return nullptr; }
 };
 
-#endif // SDLRENDERER_HPP
+#endif // DUMMYFONTRESOURCE_HPP

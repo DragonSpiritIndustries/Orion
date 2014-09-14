@@ -13,29 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Orion.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef SDLMOUSEMANAGER_HPP
-#define SDLMOUSEMANAGER_HPP
+#ifndef DUMMYWINDOW_HPP
+#define DUMMYWINDOW_HPP
 
-#include "IMouseManager.hpp"
-#include <unordered_map>
+#include "Global.hpp"
+#include <string>
+#include <IWindow.hpp>
 
-class Event;
-class SDLMouseManager : public IMouseManager
+class DummyWindow : public IWindow
 {
 public:
-    SDLMouseManager();
-    void shutdown();
-    bool buttonPressed(MouseButton button);
-    bool buttonReleased(MouseButton button);
+    DummyWindow();
+    virtual ~DummyWindow() {}
 
-    Vector2i position();
-    Vector2i wheelDelta();
+    bool initialize();
 
-    void setMousePosition(int x, int y);
-    void setMousePosition(Vector2i position);
-protected:
-    void onMouseButton(const Event& e);
-    void onMouseWheel(const Event& e);
+    void setTitle(const std::string& title) {}
+    std::string title() const { return std::string(); }
+
+    void* handle() const { return nullptr; }
+
+    Vector2i windowSize() {return Vector2i();}
+    void setWindowSize(int, int) {}
+    void setWindowSize(const Vector2i&){}
+    void setWindowWidth(int) {}
+    int windowWidth() {return 0;}
+    void setWindowHeight(int) {}
+    int windowHeight() { return 0; }
 };
 
-#endif // SDLMOUSEMANAGER_HPP
+#endif // DUMMYWINDOW_HPP
